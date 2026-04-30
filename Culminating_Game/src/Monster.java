@@ -3,7 +3,7 @@ import java.util.*;
 public abstract class Monster {
 	
 	private double health; 
-	private double damgage; 
+	private double damage; 
 	private double visionRange; 
 	private double speedX;
 	private double speedY;
@@ -24,6 +24,14 @@ public abstract class Monster {
 	public double getHealth() {
 		return health;
 	}
+
+	public void reduceHealth(double damage){
+		health -= damage; 
+	}
+
+	public int getX(){return x;}
+
+	public int getY(){return y;}
 	
 	public abstract void Attack() ;
 	//when create a bullet just get the monster speedX and Y and times it by cons for the speed

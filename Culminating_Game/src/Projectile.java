@@ -6,27 +6,33 @@ public class Projectile {
 	private boolean visibility = true;
 	private double speedX; 
 	private double speedY;
+	private double damage; 
 	//image
 	
-	Projectile(int wX,int wY,double speedX,double speedY){
+	Projectile(int wX,int wY,double speedX,double speedY , double hitBox, double damage){
 		x = wX;
 		y= wY;
-		
+		this.hitBox = hitBox;
+		this.damage = damage;
 		this.speedX = speedX; 
 		this.speedY = speedY;
 		
 	}
-	
+	public double getHitBox(){return hitBox;}
 	public int getX() {
 		return x;
+	}
+
+	public double getDamage(){
+		return damage;
 	}
 	
 	public int getY() {
 		return y;
 	}
 	
-	public void setVisibility(boolean visbile) {
-		visibility =  visbile;
+	public void setVisibility(boolean visible) {
+		visibility =  visible;
 	}
 	
 	public boolean getVisibility() {
