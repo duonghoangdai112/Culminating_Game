@@ -1,3 +1,4 @@
+package absFrame;
 
 public class Tiles {
 	private boolean crossable;

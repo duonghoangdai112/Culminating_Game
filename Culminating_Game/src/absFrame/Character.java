@@ -1,15 +1,20 @@
+package absFrame;
 import java.util.*;
 public abstract class Character {
-	private int health,mana,speed,visionRange,cooldown;
-	private int x = 0;
-	private int y = 0;
+	public int health,mana,speed,visionRange,cooldown;
+	public int x = 0;
+	public int y = 0;
+	public String name;
+	public String imgName;
 	
-	public Character(int health, int shield, int mana, int speed, int visionRange, int cooldown) {
+	public Character(int health, int shield, int mana, int speed, int visionRange, int cooldown,String name) {
 		this.health = health;
 		this.mana = mana;
 		this.speed = speed;
 		this.visionRange = visionRange;
 		this.cooldown = cooldown;
+		this.name = name;
+		this.imgName = name +".png";
 	}
 	
 	public void Remove() {

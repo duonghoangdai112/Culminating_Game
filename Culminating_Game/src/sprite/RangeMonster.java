@@ -1,7 +1,10 @@
+package sprite;
 import java.util.HashMap;
 
+import absFrame.Monster;
+
 public class RangeMonster extends Monster{
-    RangeMonster(HashMap<String,Integer> stats,int startTime){
+    public RangeMonster(HashMap<String,Integer> stats,int startTime){
         super(stats, startTime);
     }
 

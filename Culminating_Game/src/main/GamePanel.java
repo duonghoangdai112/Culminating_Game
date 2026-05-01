@@ -1,5 +1,11 @@
+package main;
+import javax.imageio.ImageIO;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.Timer;
+
+import absFrame.*;
+import sprite.*;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -7,6 +13,9 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.net.URL;
 import java.util.*;
 
 public class GamePanel extends JPanel implements ActionListener {
@@ -18,6 +27,7 @@ public class GamePanel extends JPanel implements ActionListener {
 
     Monster m1;
     Room r;
+    Archer archer = new Archer(100,5,100,10,10,10,"Archer");
 
 
     public GamePanel(HashMap<String,Integer> m1Stats){
@@ -39,6 +49,25 @@ public class GamePanel extends JPanel implements ActionListener {
         
 
     }
+    
+    BufferedImage loadImage(String filename) {
+        URL url = this.getClass().getResource("/" + filename);
+        BufferedImage img = null;
+
+        if (url != null) {
+            try {
+                img = ImageIO.read(url);
+            } catch (IOException e) {
+                System.out.println(e.toString());
+                JOptionPane.showMessageDialog(null, "An image failed to load: " + filename,
+                        "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        } else {
+            System.out.println("URL is null for: " + filename);
+        }
+
+        return img;
+    }
 
 
 
@@ -51,7 +80,8 @@ public class GamePanel extends JPanel implements ActionListener {
 			
 		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 			
-
+		
+		g2.drawImage(this.loadImage(archer.imgName), 50, 50, 100, 100, null);
 
     }
 

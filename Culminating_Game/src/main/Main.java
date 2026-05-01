@@ -1,8 +1,11 @@
+package main;
+
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import javax.swing.*;
+import javax.swing.JFrame;
+
 
 public class Main {
     Main(){}
@@ -15,7 +18,7 @@ public class Main {
         JFrame frame = new JFrame(); 
         
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setResizable(false);
+        frame.setResizable(true);
 
         frame.add(panel);
         frame.setSize(500, 500);

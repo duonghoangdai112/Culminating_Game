@@ -1,4 +1,7 @@
-import java.util.*;
+package absFrame;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 
 public abstract class Monster {
 	
@@ -13,7 +16,7 @@ public abstract class Monster {
 	//image
 	
 	// initialize all attribute here 
-	Monster(HashMap<String,Integer> stats,int startTime){
+	public Monster(HashMap<String,Integer> stats,int startTime){
 		this.health = stats.get("health");
 		this.damage = stats.get("damage");
 		this.visionRange = stats.get("visionRange");

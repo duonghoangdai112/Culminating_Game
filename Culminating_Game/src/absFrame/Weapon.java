@@ -1,3 +1,4 @@
+package absFrame;
 public abstract class Weapon {
 	int mana, vy, vx, cooldown,damage, angle;
 	
