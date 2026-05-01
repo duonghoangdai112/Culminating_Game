@@ -2,22 +2,31 @@ import java.util.*;
 
 public abstract class Monster {
 	
-	private double health; 
-	private double damage; 
-	private double visionRange; 
-	private double speedX;
-	private double speedY;
-	private double speed;
-	private double cooldown; 
-	private int x; 
-	private int y; 
-	private ArrayList<Projectile> projectiles; 
-	private double hitBox; 
-	private int startTime; 
+	double health, damage, visionRange;
+	double speedX, speedY, speed,hitBox;
+
+	double cooldown; 
+	int x; 
+	int y; 
+	ArrayList<Projectile> projectiles; 
+	int startTime; 
 	//image
 	
 	// initialize all attribute here 
-	Monster(){
+	Monster(HashMap<String,Integer> stats,int startTime){
+		this.health = stats.get("health");
+		this.damage = stats.get("damage");
+		this.visionRange = stats.get("visionRange");
+		
+		this.speedX = stats.get("speedX");
+		this.speedY = stats.get("speedY");
+		this.hitBox = stats.get("hitBox");
+
+		this.x = stats.get("x");
+		this.y = stats.get("y");
+		this.hitBox = stats.get("hitBox");
+
+		this.startTime = startTime;
 		speed =  Math.sqrt(speedX*speedX +speedY *speedY);
 	}
 	

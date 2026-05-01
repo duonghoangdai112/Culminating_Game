@@ -1,10 +1,10 @@
 import java.util.ArrayList;
 
-public abstract class Room {
+public class Room {
     private int width; 
     private int length; 
-    ArrayList<Tiles> tiles; 
-    ArrayList<Monster> mons;
+    ArrayList<Tiles> tiles = new ArrayList<Tiles>(); 
+    ArrayList<Monster> mons =new ArrayList<Monster>();
     Boolean roomClear;
 
     public Room(int width, int length, ArrayList<Tiles> tiles, ArrayList<Monster> mons){
@@ -15,6 +15,8 @@ public abstract class Room {
         this.mons = mons;
 
     }
+
+
     /**
      * check all monster is clear if yes change room clear to true
      */

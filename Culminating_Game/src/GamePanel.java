@@ -16,30 +16,42 @@ public class GamePanel extends JPanel implements ActionListener {
     private int width = 500; 
     private int length = 500;
 
-    public GamePanel(){
+    Monster m1;
+    Room r;
+
+
+    public GamePanel(HashMap<String,Integer> m1Stats){
         this.setPreferredSize(new Dimension(width, length));
+
+
         timer = new Timer(TIMERSPEED, this);
 		timer.start();
 		timer.setInitialDelay(0);
 
+        Monster m1 = new RangeMonster(m1Stats,0);
+        ArrayList<Monster> m1A = new ArrayList<Monster>();
+        m1A.add(m1);
+
+
+        Room r = new Room(200,200,null,m1A);
+
+        System.out.println(m1.getX());
+        
+
     }
+
+
 
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
 
         Graphics2D g2 = (Graphics2D) g;
-        g2.fillRect(ALLBITS, ABORT, WIDTH, HEIGHT);
 
         Random rd = new Random();
 			
 		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 			
-		for (int i =0;i<30;i++){
-				//1
-			g2.setPaint(new Color(rd.nextInt(256),rd.nextInt(256),rd.nextInt(256)));
-			g2.setStroke(new BasicStroke(rd.nextInt(20)));
-			g2.drawOval(i*10, i*10, this.getHeight()-i*20, this.getHeight()-i*20);
-        }
+
 
     }
 

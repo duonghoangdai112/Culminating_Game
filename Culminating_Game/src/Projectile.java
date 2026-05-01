@@ -1,12 +1,12 @@
 
 public class Projectile {
-	private int x;
-	private int y; 
-	private double hitBox; // maybe set it the same as img size?
-	private boolean visibility = true;
-	private double speedX; 
-	private double speedY;
-	private double damage; 
+	int x;
+	int y; 
+	double hitBox; // maybe set it the same as img size?
+	boolean visibility = true;
+	double speedX; 
+	double speedY;
+	double damage; 
 	//image
 	
 	Projectile(int wX,int wY,double speedX,double speedY , double hitBox, double damage){
