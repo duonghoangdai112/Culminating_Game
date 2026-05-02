@@ -6,7 +6,7 @@ public abstract class Character {
 	public int y = 0;
 	public String name;
 	public String imgName;
-	
+	public Weapon weapon;
 	public Character(int health, int shield, int mana, int speed, int visionRange, int cooldown,String name) {
 		this.health = health;
 		this.mana = mana;
@@ -28,9 +28,9 @@ public abstract class Character {
 	 * @param xchange change in the character's x coordinates
 	 * @param ychange change in the character's y coordinates
 	 */
-	public void Move(int xchange, int ychange) {
-		this.x += xchange;
-		this.y += ychange;
+	public void Move(int dirX, int dirY) {
+		this.x += dirX*speed;
+		this.y += dirY*speed;
 	}
 	
 	public int Find() {

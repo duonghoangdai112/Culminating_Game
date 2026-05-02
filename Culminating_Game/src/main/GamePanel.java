@@ -20,24 +20,31 @@ import java.util.*;
 
 public class GamePanel extends JPanel implements ActionListener {
     Timer timer; 
-    int TIMERSPEED = 25;
+    int TIMERSPEED =25;
 
     private int width = 500; 
     private int length = 500;
 
     Monster m1;
     Room r;
-    Archer archer = new Archer(100,5,100,10,10,10,"Archer");
+    Archer archer = new Archer(100,5,100,2,10,10,"Archer");
 
 
-    public GamePanel(HashMap<String,Integer> m1Stats){
+    public GamePanel(HashMap<String,Integer> m1Stats){ //later on sep the hash into a new class
+    	//setup
         this.setPreferredSize(new Dimension(width, length));
+        
+        this.addKeyListener(new KeyLis());
+        this.setFocusable(true);
+        this.setFocusTraversalKeysEnabled(false);
 
-
+        //timer 
         timer = new Timer(TIMERSPEED, this);
 		timer.start();
-		timer.setInitialDelay(0);
+		timer.setInitialDelay(10);
 
+		
+		//init of stuff
         Monster m1 = new RangeMonster(m1Stats,0);
         ArrayList<Monster> m1A = new ArrayList<Monster>();
         m1A.add(m1);
@@ -70,7 +77,6 @@ public class GamePanel extends JPanel implements ActionListener {
     }
 
 
-
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
 
@@ -81,19 +87,50 @@ public class GamePanel extends JPanel implements ActionListener {
 		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 			
 		
-		g2.drawImage(this.loadImage(archer.imgName), 50, 50, 100, 100, null);
+		g2.drawImage(this.loadImage(archer.imgName), archer.x, archer.y, 100, 100, null);
+		g2.drawImage(
+			    this.loadImage(archer.weapon.imgName),
+			    archer.x,
+			    archer.y,
+			    archer.x + 100,
+			    archer.y + 100,
+			    archer.weapon.sx1,
+			    archer.weapon.sy1,
+			    archer.weapon.sx2,
+			    archer.weapon.sy2,
+			    null
+			);
 
+		
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
+    	archer.weapon.switchFrame();
         this.repaint();
+    	
        
     }
 
     private class KeyLis extends KeyAdapter implements KeyListener{
         public void keyPressed(KeyEvent e) {
-            System.out.println("hello");
+        	String input = KeyEvent.getKeyText(e.getKeyCode()).toLowerCase();
+        	switch(input) {
+        		case "w": 
+        			archer.Move(0,-1 );
+        			break;
+        		case "a":
+        			archer.Move(-1,0 );
+        			break;
+        		case "s": 
+        			archer.Move(0,1 );
+        			break;
+        		case "d": 
+        			archer.Move(1,0 );
+        			break;
+
+
+        	}
         }
 
     }
