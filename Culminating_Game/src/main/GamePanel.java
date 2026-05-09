@@ -86,13 +86,21 @@ public class GamePanel extends JPanel implements ActionListener {
 		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		
 		//Map
-		g2.drawImage(map.scaleImg,0, 0,null);
+//		g2.drawImage(map.scaleImg,0, 0,null);
+		g2.drawImage(
+				map.scaleImg,
+				map.dx1, map.dy1, 
+				map.dx2, map.dy2, 
+				map.sx1, map.sy1, 
+				map.sx2, map.sy2, 
+				null);
+		
 		//Character
 		g2.drawImage(this.loadImage(archer.imgName), archer.x, archer.y, archer.width, archer.height, null);
 		g2.drawImage( 
 			    this.loadImage(archer.weapon.imgName),
 			    (archer.weapon.dx1),
-			    archer.weapon.dy1,
+			    archer.weapon.dy1, // add adjustment so weapon attached to character
 			    archer.x - ((int)(archer.weapon.width*archer.weapon.ratio)), // fix this later
 			    archer.y + (int)(archer.weapon.height*archer.weapon.ratio), // fix this later
 			    archer.weapon.sx1,
@@ -138,6 +146,9 @@ public class GamePanel extends JPanel implements ActionListener {
         
         //check result
 		archer.RemoveProj();
+		
+		archer.checkCollision(width, height, map);
+	
 
 		//repaint
         this.repaint();
@@ -155,7 +166,7 @@ public class GamePanel extends JPanel implements ActionListener {
         			archer.Move(-1,0 );
         			break;
         		case "s": 
-        			archer.Move(0,1 );
+        			archer.Move(0,1);
         			break;
         		case "d": 
         			archer.Move(1,0 );
