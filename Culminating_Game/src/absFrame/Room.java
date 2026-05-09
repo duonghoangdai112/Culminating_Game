@@ -47,15 +47,15 @@ public class Room {
             monDamage += m.checkProjectile(charX, charY, tiles);
 
             for (Projectile p: charProj){
-                if(m.getX() <= p.getX() + p.getHitBox() 
-                    && m.getX() >= p.getX()- p.getX()){
-                        if(m.getY() <= p.getY() + p.getHitBox() 
-                        && m.getY() >= p.getY()- p.getHitBox()){
-                            m.reduceHealth(p.getDamage());
-                            p.setVisibility(false);
-                            if(m.getHealth() ==0){mons.remove(m);}
-                        }
-                }
+//                if(m.getX() <= p.getX() + p.getHitBox() 
+//                    && m.getX() >= p.getX()- p.getX()){
+//                        if(m.getY() <= p.getY() + p.getHitBox() 
+//                        && m.getY() >= p.getY()- p.getHitBox()){
+//                            m.reduceHealth(p.getDamage());
+//                            p.setVisibility(false);
+//                            if(m.getHealth() ==0){mons.remove(m);}
+//                        }
+//                }
             }
 
         }

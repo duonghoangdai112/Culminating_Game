@@ -1,36 +1,28 @@
 package absFrame;
 
-public class Projectile {
-	int x;
-	int y; 
-	double hitBox; // maybe set it the same as img size?
+import java.awt.Rectangle;
+
+public class Projectile extends Rectangle {
+
 	boolean visibility = true;
 	double speedX; 
 	double speedY;
 	double damage; 
 	//image
 	
-	Projectile(int wX,int wY,double speedX,double speedY , double hitBox, double damage){
-		x = wX;
-		y= wY;
-		this.hitBox = hitBox;
+	public Projectile(int x,int y,int width, int height,
+			double speedX,double speedY , double damage){
+		super(x,y,width,height);
 		this.damage = damage;
 		this.speedX = speedX; 
 		this.speedY = speedY;
 		
-	}
-	public double getHitBox(){return hitBox;}
-	public int getX() {
-		return x;
 	}
 
 	public double getDamage(){
 		return damage;
 	}
 	
-	public int getY() {
-		return y;
-	}
 	
 	public void setVisibility(boolean visible) {
 		visibility =  visible;

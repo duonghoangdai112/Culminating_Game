@@ -21,7 +21,6 @@ public class Main {
         frame.setResizable(true);
 
         frame.add(panel);
-        frame.setSize(500, 500);
 
         frame.pack();
         frame.setLocationRelativeTo(null);
@@ -49,7 +48,6 @@ public class Main {
 	   
         return rangeMon;
     }
-
 
 
 

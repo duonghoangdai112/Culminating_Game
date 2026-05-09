@@ -1,12 +1,20 @@
 package absFrame;
+import java.awt.*;
 import java.util.*;
-public abstract class Character {
+
+public abstract class Character extends Rectangle {
 	public int health,mana,speed,visionRange,cooldown;
-	public int x = 0;
-	public int y = 0;
+	
 	public String name;
 	public String imgName;
 	public Weapon weapon;
+	public int maxImg;
+	public int Wdir;
+	
+	public int startTime;
+	
+	public ArrayList<Projectile> projectile = new ArrayList<Projectile>();
+	
 	public Character(int health, int shield, int mana, int speed, int visionRange, int cooldown,String name) {
 		this.health = health;
 		this.mana = mana;
@@ -15,9 +23,28 @@ public abstract class Character {
 		this.cooldown = cooldown;
 		this.name = name;
 		this.imgName = name +".png";
+		this.x = 0;
+		this.y = 0;
+		this.width = 100;
+		this.height =100;
+				
 	}
 	
-	public void Remove() {
+	public void RemoveProj() {
+		if(projectile.isEmpty()) {
+
+		}
+		
+		else {
+			ArrayList<Projectile> projTemp = (ArrayList<Projectile>) projectile.clone();
+			for (Projectile p: projectile) {
+				if(p.getVisibility() == false) {
+					projTemp.remove(p);
+				}
+			}
+			projectile = projTemp;
+		}
+		
 		
 	}
 	
@@ -31,11 +58,23 @@ public abstract class Character {
 	public void Move(int dirX, int dirY) {
 		this.x += dirX*speed;
 		this.y += dirY*speed;
+
 	}
 	
 	public int Find() {
 		return 1;
 	}
+	
+	public void logTime(int time) {
+		this.startTime = time;
+	}
+	
+	public boolean AbilityReady(int time){
+		if(time-startTime == cooldown) {return true;}
+		return false;
+	}
+	
+	public abstract void Attack();
 	
 	/**
 	 * Add or subtract the character's hp
