@@ -4,8 +4,8 @@ import java.util.HashMap;
 import absFrame.Monster;
 
 public class RangeMonster extends Monster{
-    public RangeMonster(HashMap<String,Integer> stats,int startTime){
-        super(stats, startTime);
+    public RangeMonster(HashMap<String,Integer> stats,int startTime,int width, int height, int x , int y){
+        super(stats, startTime, x, y, width, height);
     }
 
     @Override

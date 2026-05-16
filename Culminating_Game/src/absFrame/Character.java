@@ -6,12 +6,14 @@ import main.Map;
 public abstract class Character extends Rectangle {
 	public int health,mana,speed,visionRange,cooldown;
 	
-	public int screenW, screenH;
-	public String name;
-	public String imgName;
-	public Weapon weapon;
-	public int maxImg;
+	public int screenW, screenH; // panel size
+	public String name; // char  name 
+	public String imgName; // char picture name 
+	public Weapon weapon; 
+	public int maxImg; //char max frame
 	public int Wdir;
+	
+	public boolean faceLeft = true; 
 	
 	public int startTime;
 	
@@ -25,11 +27,30 @@ public abstract class Character extends Rectangle {
 		this.cooldown = cooldown;
 		this.name = name;
 		this.imgName = name +".png";
-		this.x = 0;
-		this.y = 0;
+		this.x = 200;
+		this.y = 200;
 		this.width = 100;
-		this.height =100;
-				
+		this.height =100;				
+	}
+	/**
+	 * change facing state 
+	 * @param b- false = left, true = right
+	 */
+	public void flip(boolean b) {faceLeft = b;}
+	
+	/**
+	 * this function change x-coordinate for image flipping
+	 */
+	public double getX() {
+		if(faceLeft) {return x;}
+		else {return x+width;}
+	}
+	/**
+	 * this function change width for image flipping
+	 */
+	public double getWidth() {
+		if(faceLeft) {return width;}
+		else {return -width;}
 	}
 	
 	public void RemoveProj() {

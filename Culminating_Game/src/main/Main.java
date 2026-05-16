@@ -18,9 +18,9 @@ public class Main {
         JFrame frame = new JFrame(); 
         
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setResizable(false);
-
-        frame.add(panel);
+        frame.setResizable(true);
+        
+        frame.add(panel,BorderLayout.CENTER);
 
         frame.pack();
         frame.setLocationRelativeTo(null);
@@ -36,10 +36,12 @@ public class Main {
         rangeMon.put("damage",10);
         rangeMon.put("visionRange",5);
 
+        
         rangeMon.put("speedX", 1);
         rangeMon.put("speedY", 1);
 
-        rangeMon.put("hitBox", 1);
+        rangeMon.put("width", 1);
+        rangeMon.put("width", 1);
         rangeMon.put("cooldown",1);
         rangeMon.put("x",10);
 

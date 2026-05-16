@@ -1,36 +1,34 @@
 package absFrame;
 
+import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public abstract class Monster {
+public abstract class Monster extends Rectangle {
 	
-	double health, damage, visionRange;
-	double speedX, speedY, speed,hitBox;
-
+	double health, damage, visionRange;	
 	double cooldown; 
-	int x; 
-	int y; 
+	
+	int dx,dy;
 	ArrayList<Projectile> projectiles; 
 	int startTime; 
 	//image
 	
 	// initialize all attribute here 
-	public Monster(HashMap<String,Integer> stats,int startTime){
+	public Monster(HashMap<String,Integer> stats,int startTime,int x, int y,int width,int height){
+		super(x,y,width,height);
+		
 		this.health = stats.get("health");
 		this.damage = stats.get("damage");
 		this.visionRange = stats.get("visionRange");
 		
-		this.speedX = stats.get("speedX");
-		this.speedY = stats.get("speedY");
-		this.hitBox = stats.get("hitBox");
+		this.dx = stats.get("speedX");
+		this.dy = stats.get("speedY");
 
 		this.x = stats.get("x");
 		this.y = stats.get("y");
-		this.hitBox = stats.get("hitBox");
 
 		this.startTime = startTime;
-		speed =  Math.sqrt(speedX*speedX +speedY *speedY);
 	}
 	
 	public double getHealth() {
@@ -40,41 +38,48 @@ public abstract class Monster {
 	public void reduceHealth(double damage){
 		health -= damage; 
 	}
-
-	public int getX(){return x;}
-
-	public int getY(){return y;}
 	
 	public abstract void Attack() ;
 	//when create a bullet just get the monster speedX and Y and times it by cons for the speed
 	
-	/**
-	 * Move the position of the monster toward character
-	 * @param dirX indicate x direction (1 right, 0 stationary , 2 left)
-	 * @param dirY indicate y direction (1 up , 0 stationary , -1 down) 
-	 */
-	public void move() {
-		x += speedX;
-		y += speedY;
-		
-		//display image 
-	}
+	
 	/**
 	 * Turn and move the monster toward the character 
 	 * @param charX character X position
 	 * @param charY character Y position
 	 */
-	public void pathFinding(int charX, int charY) {
-		int deltX = x- charX; 
-		int deltY = y - charY; 
-		double angelY = Math.atan(deltY/deltX);
-		double angelX = 90-angelY;
+	public void move(int charX, int charY) { 	// helper function 
 		
-		speedX = speed *Math.sin(angelX);
-		speedY = speed* Math.sin(angelY);
+		
+		int deltX =  charX-x; 
+		int deltY =  charY-y; 
+		
+		if(deltX ==0 ) {
+			
+		}
 
-		this.move();
+		int xCorrect =1;
+		int yCorrect = 1; 
 		
+		int speedX = dx;
+		int speedY = dy;
+		
+		// check x
+		if(deltX>0) { speedX =dx ;}
+		else if (deltX<0) {speedX = -dx;}
+		else {yCorrect = 2; }
+		
+		// check y
+		if(deltY>0) {speedY = dy;}
+		else if (deltY<0) {speedY = -dy;}
+
+		else {xCorrect = 2; }
+		
+		// velocity correction 
+		x += (speedX*xCorrect);
+		y += (speedY*yCorrect);
+		System.out.println();
+				
 	} 
 	/**
 	 * update bullet position and call the monster to attack if ready

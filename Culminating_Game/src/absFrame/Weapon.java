@@ -21,7 +21,7 @@ public class Weapon {
 	
 	
 	public Weapon(int manaCost, int vx, int vy, double cooldown, int damage, 
-			int angel,String name,int width,int height) {
+			int angel,String name,int width,int height,int dir) {
 		this.manaCost = manaCost;
 		this.vx = vx;
 		this.vy = vy;
@@ -32,7 +32,7 @@ public class Weapon {
 		this.imgName =name +"-animation.png";
 		this.width = width;
 		this.height = height;
-		
+		this.dir = dir;
 		
 		
 		sy1=0;
@@ -41,8 +41,14 @@ public class Weapon {
 		sx2 = sx1+width;
 		
 	}
-	
-	public void setImage(int frameMax,double ratio,int charX,int charY,int dir ) {
+	/**
+	 * set the status for the weapon img 
+	 * @param frameMax - the total amount of frame
+	 * @param ratio - the scaling ratio
+	 * @param charX - Character X
+	 * @param charY - Character Y
+	 */
+	public void setImage(int frameMax,double ratio,int charX,int charY ) {
 		
 		
 		this.frameMax= frameMax;
@@ -51,7 +57,7 @@ public class Weapon {
 		dx1 = charX;
 		dy1 = charY;
 		dx2 = charX- ((int)(width*ratio));
-		dx2 = dy1*dir+ (int)(height*ratio);
+		dx2 = dy1+ (int)(height*ratio);
 				
 	}
 	

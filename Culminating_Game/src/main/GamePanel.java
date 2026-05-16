@@ -25,12 +25,12 @@ public class GamePanel extends JPanel implements ActionListener {
     int countSec =0;
     double FULLTIME =0;
     
-    private int width = 500;
-    private int height = 500;
+    private int width = 1000;
+    private int height = 1000;
     
     Monster m1;
     Room r;
-    Archer archer = new Archer(100,5,100,4,10,10,"Archer");
+    Archer archer = new Archer(100,5,100,10,10,10,"Archer");
 	Map map = new Map( width, height,1);
 
 
@@ -48,7 +48,7 @@ public class GamePanel extends JPanel implements ActionListener {
 
 		
 		//init of stuff
-//        Monster m1 = new RangeMonster(m1Stats,0);
+        m1 = new RangeMonster(m1Stats,0,100,100,100,100);
 //        ArrayList<Monster> m1A = new ArrayList<Monster>();
 //        m1A.add(m1);
 //
@@ -96,7 +96,7 @@ public class GamePanel extends JPanel implements ActionListener {
 				null);
 		
 		//Character
-		g2.drawImage(this.loadImage(archer.imgName), archer.x, archer.y, archer.width, archer.height, null);
+		g2.drawImage(this.loadImage(archer.imgName), (int)archer.getX(), archer.y, (int)archer.getWidth(), archer.height, null);
 		g2.drawImage( 
 			    this.loadImage(archer.weapon.imgName),
 			    (archer.weapon.dx1),
@@ -111,18 +111,19 @@ public class GamePanel extends JPanel implements ActionListener {
 		);
 		
 		//Mons
-		Rectangle mons = new Rectangle(50,50,100,100);
-		g2.draw(mons);
+		g2.draw(m1);
+
 		
 		//Projectile
 		for (Projectile p: archer.projectile) {
     		p.move();
     		g2.draw(p);
-    		if(p.intersects(mons)) {
+    		if(p.intersects(m1)) {
     			System.out.println("hit");
     			p.setVisibility(false);
     			}
     	}
+		
 
     }
 
@@ -132,7 +133,7 @@ public class GamePanel extends JPanel implements ActionListener {
     	if(archer.weapon.attack ==true) {
 	    	archer.weapon.switchFrame();	
     	}
-       	archer.weapon.setImage(archer.maxImg,0.5,archer.x,archer.y,archer.Wdir);
+       	archer.weapon.setImage(archer.maxImg,0.5,archer.x,archer.y);
 
        	//update timer
         if(countSec == 1000) {
@@ -144,11 +145,14 @@ public class GamePanel extends JPanel implements ActionListener {
         }
         FULLTIME = ((double)(GAMETIME*1000+ countSec))/1000.0;
         
+        //Monster action 
+        m1.move(archer.x, archer.y);
+        
         //check result
 		archer.RemoveProj();
 		
 		archer.checkCollision(width, height, map);
-	
+		if(archer.intersects(m1)) {System.out.println("monster touch");}
 
 		//repaint
         this.repaint();
@@ -164,12 +168,14 @@ public class GamePanel extends JPanel implements ActionListener {
         			break;
         		case "a":
         			archer.Move(-1,0 );
+        			archer.flip(true);
         			break;
         		case "s": 
         			archer.Move(0,1);
         			break;
         		case "d": 
         			archer.Move(1,0 );
+        			archer.flip(false);
         			break;
         		case "j":
         		    if (archer.weapon.Ready(FULLTIME)) {
