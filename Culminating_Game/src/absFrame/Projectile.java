@@ -4,15 +4,18 @@ import java.awt.Rectangle;
 
 public class Projectile extends Rectangle {
 
-	boolean visibility = true;
+	boolean visibility = true; // if visibility is false it will get remove
 	double speedX; 
 	double speedY;
-	double damage; 
+	double damage;
+	double xx,yy;
 	//image
 	
 	public Projectile(int x,int y,int width, int height,
 			double speedX,double speedY , double damage){
 		super(x,y,width,height);
+		xx =x;
+		yy= y;
 		this.damage = damage;
 		this.speedX = speedX; 
 		this.speedY = speedY;
@@ -32,9 +35,13 @@ public class Projectile extends Rectangle {
 		return visibility;
 	}
 	
+	
+	
 	public void move() {
-		x += speedX;
-		y += speedY;
+		xx+= speedX;
+		yy+= speedY; //since speed is pretty small xx and yy is use to ensure accuracy
+		x= (int)(xx);
+		y=(int)(yy);
 	}
 	
 	// draw method

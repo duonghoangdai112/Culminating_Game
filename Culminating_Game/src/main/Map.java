@@ -12,15 +12,18 @@ import absFrame.*;
 import absFrame.Character;
 
 public class Map {
-	int maxW = 1000;
+	// full size of img 
+	int maxW = 1000; 
 	int maxL = 1000;
-	int screenW,screenH;
-	double scaleFactor =1;
+	
+	int screenW,screenH; //panel size
+	double scaleFactor =1; // Img scale factor
+	
 	private BufferedImage img;
 	Image scaleImg;
 	
-	public int dx1,dx2,dy1,dy2;
-	public int sx1,sx2,sy1,sy2;
+	public int dx1,dx2,dy1,dy2; // destination coordinate
+	public int sx1,sx2,sy1,sy2; // source coordinate
 	
 	
 	public Map(int panelW, int panelH,double scaleFactor) {
@@ -47,8 +50,11 @@ public class Map {
 	}
 	
 	
-	
-	
+	/**
+	 * read img
+	 * @param filename - name of the file
+	 * @return an BufferedImg object
+	 */
     BufferedImage loadImage(String filename) {
         URL url = this.getClass().getResource("/" + filename);
         BufferedImage img = null;
@@ -68,6 +74,12 @@ public class Map {
         return img;
     }
     
+    /**
+     * Change the background of the img
+     * @param frameChange - contain 2 elements, the direction of change in x and y 
+     * 					  - 1 is down and right, -1 is up and left
+     * @return true if back background change, false if not
+     */
     public boolean changeBackground(int[] frameChange) {
     	int oldSx1 = sx1;
         int oldSy1 = sy1;

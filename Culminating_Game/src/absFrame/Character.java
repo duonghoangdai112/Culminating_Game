@@ -1,17 +1,18 @@
 package absFrame;
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.util.*;
 import main.Map;
 
 public abstract class Character extends Rectangle {
 	public int health,mana,speed,visionRange,cooldown;
 	
+	public BufferedImage cIMG; // character IMG
 	public int screenW, screenH; // panel size
 	public String name; // char  name 
 	public String imgName; // char picture name 
 	public Weapon weapon; 
 	public int maxImg; //char max frame
-	public int Wdir;
 	
 	public boolean faceLeft = true; 
 	
@@ -30,7 +31,21 @@ public abstract class Character extends Rectangle {
 		this.x = 200;
 		this.y = 200;
 		this.width = 100;
-		this.height =100;				
+		this.height =100;			
+	}
+	/**
+	 * Give the image to the character
+	 * @param img
+	 */
+	public void setCharIMG(BufferedImage img) {cIMG = img;}
+	/**
+	 * create the weapon
+	 */
+	public void weaponInit(int manaCost,int vx,int vy,double cd,int damage,
+			String name,int width,int height, BufferedImage wIMG) {
+		int angel = 0;
+		weapon = new Weapon(manaCost,vx,vy,cd,damage,angel,name,width,height,wIMG); 
+		weapon.setImage(maxImg,0.3,this.x,this.y);
 	}
 	/**
 	 * change facing state 
@@ -128,7 +143,10 @@ public abstract class Character extends Rectangle {
 	public int Find() {
 		return 1;
 	}
-	
+	/**
+	 * log time for ability 
+	 * @param time
+	 */
 	public void logTime(int time) {
 		this.startTime = time;
 	}
@@ -138,7 +156,51 @@ public abstract class Character extends Rectangle {
 		return false;
 	}
 	
-	public abstract void Attack();
+	/**
+	 * character attack function 
+	 * @param monsters - list of monster 
+	 */
+	public void Attack(ArrayList<Monster> monsters) {
+		if(weapon.attack ==false) {
+			weapon.attack = true;
+			
+			int sizeP = 30; 
+			int wid = (int)(weapon.width *weapon.ratio);// size of weapon after resize
+
+			
+			Monster target = findClosetEnemy(monsters);
+			System.out.println(target);
+			if(target != null) {
+				Projectile p = weapon.createProjectile(target);
+				projectile.add(p);
+			}
+		}
+	}
+	
+	public Monster findClosetEnemy(ArrayList<Monster> monsters) {
+		Monster target = null;
+		int dx = 0;
+		int dy = 0;
+		int hyp = 100000000; //just a very large number to avoid null in first check 
+		if(monsters == null||monsters.size() ==0) {
+			return null;}
+		else {
+			for(Monster m: monsters) {
+				
+				dx = m.x-x;
+				dy = m.y-y;
+				int temp = dx*dx +dy*dy;
+				if(temp<hyp) {
+					hyp = temp;
+					target = m;
+				}
+			}
+			weapon.setAngle(this, target);
+			return target;
+		}
+	}
+	
+	
 	
 	/**
 	 * Add or subtract the character's hp

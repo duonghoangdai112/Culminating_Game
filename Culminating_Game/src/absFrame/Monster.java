@@ -25,8 +25,8 @@ public abstract class Monster extends Rectangle {
 		this.dx = stats.get("speedX");
 		this.dy = stats.get("speedY");
 
-		this.x = stats.get("x");
-		this.y = stats.get("y");
+		this.x = x;
+		this.y = y;
 
 		this.startTime = startTime;
 	}

@@ -20,27 +20,39 @@ import java.util.*;
 
 public class GamePanel extends JPanel implements ActionListener {
     Timer timer; 
-    int TIMERSPEED =1;
-    int GAMETIME = 0;
-    int countSec =0;
-    double FULLTIME =0;
     
+    //Time record variable 
+    int TIMERSPEED =1; // speed
+    int GAMETIME = 0; // time in ms
+    int countSec =0; // time in s
+    double FULLTIME =0; // time in s and ms 
+    
+    // Panel With and Height
     private int width = 1000;
     private int height = 1000;
     
+    //Object Initialization
     Monster m1;
+    Monster mDecoy,mDecoy2, mDecoy3;
+    ArrayList<Monster> monsters = new ArrayList <Monster>();
+    
     Room r;
+    
     Archer archer = new Archer(100,5,100,10,10,10,"Archer");
+    
 	Map map = new Map( width, height,1);
 
 
     public GamePanel(HashMap<String,Integer> m1Stats){ //later on sep the hash into a new class
-    	//setup
+    	//Panel setup
         this.setPreferredSize(new Dimension(width, height));
         this.addKeyListener(new KeyLis());
         this.setFocusable(true);
         this.setFocusTraversalKeysEnabled(false);
-
+        
+        //Character Setup
+        archer.setCharIMG(loadImage(archer.imgName));
+        archer.weaponInit(1,1,1,0.1,1,"Sniper",300,300,loadImage("Sniper-animation.png"));
         //timer 
         timer = new Timer(TIMERSPEED, this);
 		timer.start();
@@ -48,7 +60,18 @@ public class GamePanel extends JPanel implements ActionListener {
 
 		
 		//init of stuff
+			// this should later be move into room
         m1 = new RangeMonster(m1Stats,0,100,100,100,100);
+        mDecoy2 = new RangeMonster(m1Stats,0,100,100,100,800);
+        mDecoy3 = new RangeMonster(m1Stats,0,100,100,800,100);
+
+        mDecoy = new RangeMonster(m1Stats,0,100,100,800,800);
+        monsters.add(m1);
+        monsters.add(mDecoy);
+        monsters.add(mDecoy2);
+        monsters.add(mDecoy3);
+
+
 //        ArrayList<Monster> m1A = new ArrayList<Monster>();
 //        m1A.add(m1);
 //
@@ -96,23 +119,13 @@ public class GamePanel extends JPanel implements ActionListener {
 				null);
 		
 		//Character
-		g2.drawImage(this.loadImage(archer.imgName), (int)archer.getX(), archer.y, (int)archer.getWidth(), archer.height, null);
-		g2.drawImage( 
-			    this.loadImage(archer.weapon.imgName),
-			    (archer.weapon.dx1),
-			    archer.weapon.dy1, // add adjustment so weapon attached to character
-			    archer.x - ((int)(archer.weapon.width*archer.weapon.ratio)), // fix this later
-			    archer.y + (int)(archer.weapon.height*archer.weapon.ratio), // fix this later
-			    archer.weapon.sx1,
-			    archer.weapon.sy1,
-			    archer.weapon.sx2,
-			    archer.weapon.sy2,
-			    null
-		);
+		g2.drawImage(archer.cIMG, (int)archer.getX(), archer.y, (int)archer.getWidth(), archer.height, null);
+		archer.weapon.draw(g,archer);
 		
 		//Mons
-		g2.draw(m1);
-
+		for(Monster m: monsters) {
+			g2.draw(m);
+		}
 		
 		//Projectile
 		for (Projectile p: archer.projectile) {
@@ -129,13 +142,7 @@ public class GamePanel extends JPanel implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-    	// weapon animation
-    	if(archer.weapon.attack ==true) {
-	    	archer.weapon.switchFrame();	
-    	}
-       	archer.weapon.setImage(archer.maxImg,0.5,archer.x,archer.y);
-
-       	//update timer
+    	//update timer
         if(countSec == 1000) {
         	GAMETIME++;
         	countSec =0;
@@ -145,10 +152,19 @@ public class GamePanel extends JPanel implements ActionListener {
         }
         FULLTIME = ((double)(GAMETIME*1000+ countSec))/1000.0;
         
-        //Monster action 
-        m1.move(archer.x, archer.y);
+    	// weapon animation + rotation
+    	if(archer.weapon.attack ==true) { 
+	    	archer.weapon.switchFrame();	
+    	}
+       	archer.weapon.setImage(archer.maxImg,0.5,archer.x,archer.y);
+       	
+       	
         
-        //check result
+        //Monster action 
+//        m1.move(archer.x, archer.y);
+                
+        
+        //Check result
 		archer.RemoveProj();
 		
 		archer.checkCollision(width, height, map);
@@ -158,7 +174,8 @@ public class GamePanel extends JPanel implements ActionListener {
         this.repaint();
         
     }
-
+    
+    //Key input class
     private class KeyLis extends KeyAdapter {
         public void keyPressed(KeyEvent e) {
         	String input = KeyEvent.getKeyText(e.getKeyCode()).toLowerCase();
@@ -179,9 +196,10 @@ public class GamePanel extends JPanel implements ActionListener {
         			break;
         		case "j":
         		    if (archer.weapon.Ready(FULLTIME)) {
-        		        archer.Attack();
+        		        archer.Attack(monsters);
         		        archer.weapon.logTime(FULLTIME);
-
+        		        // maybe later modified so the attack is invoke every second 
+        		        // it will not only attack but only do aiming and rotation calling
         		        archer.weapon.attack =true;
 //        		    }
         		    break;

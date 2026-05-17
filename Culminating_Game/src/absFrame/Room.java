@@ -20,6 +20,7 @@ public class Room {
 
     /**
      * check all monster is clear if yes change room clear to true
+     * to do later 
      */
     public void checkRoom(){
         if (mons.isEmpty() && roomClear == false) {
@@ -33,7 +34,7 @@ public class Room {
     }
 
     /**
-     * 
+     * to do later 
      * @param charX
      * @param charY
      * @param charProj
