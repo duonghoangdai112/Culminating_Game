@@ -22,7 +22,7 @@ public class GamePanel extends JPanel implements ActionListener {
     Timer timer; 
     
     //Time record variable 
-    int TIMERSPEED =1; // speed
+    int TIMERSPEED =10; // speed
     int GAMETIME = 0; // time in ms
     int countSec =0; // time in s
     double FULLTIME =0; // time in s and ms 
@@ -52,7 +52,7 @@ public class GamePanel extends JPanel implements ActionListener {
         
         //Character Setup
         archer.setCharIMG(loadImage(archer.imgName));
-        archer.weaponInit(1,1,1,0.1,1,"Sniper",300,300,loadImage("Sniper-animation.png"));
+        archer.weaponInit(1,1,1,0.1,10,"Sniper",300,300,loadImage("Sniper-animation.png"));
         //timer 
         timer = new Timer(TIMERSPEED, this);
 		timer.start();
@@ -62,14 +62,14 @@ public class GamePanel extends JPanel implements ActionListener {
 		//init of stuff
 			// this should later be move into room
         m1 = new RangeMonster(m1Stats,0,100,100,100,100);
-        mDecoy2 = new RangeMonster(m1Stats,0,100,100,100,800);
-        mDecoy3 = new RangeMonster(m1Stats,0,100,100,800,100);
+//        mDecoy2 = new RangeMonster(m1Stats,0,100,100,100,800);
+//        mDecoy3 = new RangeMonster(m1Stats,0,100,100,800,100);
 
         mDecoy = new RangeMonster(m1Stats,0,100,100,800,800);
         monsters.add(m1);
         monsters.add(mDecoy);
-        monsters.add(mDecoy2);
-        monsters.add(mDecoy3);
+//        monsters.add(mDecoy2);
+//        monsters.add(mDecoy3);
 
 
 //        ArrayList<Monster> m1A = new ArrayList<Monster>();
@@ -121,6 +121,8 @@ public class GamePanel extends JPanel implements ActionListener {
 		//Character
 		g2.drawImage(archer.cIMG, (int)archer.getX(), archer.y, (int)archer.getWidth(), archer.height, null);
 		archer.weapon.draw(g,archer);
+		archer.drawCharacter(g);
+		
 		
 		//Mons
 		for(Monster m: monsters) {
@@ -161,15 +163,33 @@ public class GamePanel extends JPanel implements ActionListener {
        	
         
         //Monster action 
-//        m1.move(archer.x, archer.y);
+        m1.move(archer.x, archer.y);
                 
         
         //Check result
-		archer.RemoveProj();
+  
+		archer.RemoveProj(); //remove bad projectile
+	
+		archer.checkProjectile(monsters); //check if projectile of character hit monster
+		ArrayList<Monster> temp = (ArrayList<Monster>) monsters.clone();
+		for(int i = 0;i<temp.size();i++) {
+			if(temp.get(i).getHealth() <=0) {
+				monsters.remove(i);
+			}
+			
+		}
+		
+		//count down or grant immunity if got hit
+		
+		if(!archer.countDownImmunity()) {
+			for(Monster m: monsters) { //check collision with character
+				m.checkCollision(archer.x, archer.y, null, archer);
+			}
+			archer.resetHitTimer();
+		}
 		
 		archer.checkCollision(width, height, map);
-		if(archer.intersects(m1)) {System.out.println("monster touch");}
-
+		
 		//repaint
         this.repaint();
         

@@ -5,7 +5,7 @@ import java.util.*;
 import main.Map;
 
 public abstract class Character extends Rectangle {
-	public int health,mana,speed,visionRange,cooldown;
+	public int health,mana,speed,visionRange,cooldown,maxHealth,maxMana;
 	
 	public BufferedImage cIMG; // character IMG
 	public int screenW, screenH; // panel size
@@ -18,9 +18,16 @@ public abstract class Character extends Rectangle {
 	
 	public int startTime;
 	
+	
+	public boolean isAleardyHit = false;
+	public int tImmune = 100;
+	
 	public ArrayList<Projectile> projectile = new ArrayList<Projectile>();
 	
 	public Character(int health, int shield, int mana, int speed, int visionRange, int cooldown,String name) {
+		this.maxHealth = health;
+		this.maxMana = mana; 
+		
 		this.health = health;
 		this.mana = mana;
 		this.speed = speed;
@@ -31,8 +38,58 @@ public abstract class Character extends Rectangle {
 		this.x = 200;
 		this.y = 200;
 		this.width = 100;
-		this.height =100;			
+		this.height =100;
+		tImmune = 3;
 	}
+	
+	/**
+	 * grant immune for tImmune time after the character got hit 
+	 * Countdown tImmune if immune is already granted
+	 * @param hit
+	 */
+	public boolean countDownImmunity() {
+		if(tImmune<=0) {
+			isAleardyHit = false;
+		}
+		else {
+			isAleardyHit = true; 
+			tImmune --;
+		}
+		return isAleardyHit;
+	}
+	
+	/**
+	 * reset tImunity 
+	 */
+	public void resetHitTimer() {
+		tImmune = 3;
+	}
+	
+	
+	public void drawCharacter(Graphics g) {
+		Graphics2D g2 = (Graphics2D) g.create();
+//		g2.drawImage(archer.cIMG, (int)archer.getX(), archer.y, (int)archer.getWidth(), archer.height, null);
+//		archer.weapon.draw(g,archer);	
+		
+		//drawing health bar
+		// TO DO : change barW and barL to make it better 
+		int numbMaxBar = maxHealth/10;
+		int numbBar = health/10;
+		int barW = 30; int barL = 50;
+		for(int i=0;i<numbMaxBar;i++) {
+			if(numbBar>=0 ) {
+				g2.setColor(Color.RED);
+				g2.fillRect(10+i*barW, 30, barW, barL);
+				numbBar--;
+			}
+			
+			g2.setColor(Color.WHITE);
+			g2.drawRect(10+i*barW, 30, barW, barL);
+			
+		}
+	}
+	
+	
 	/**
 	 * Give the image to the character
 	 * @param img
@@ -66,6 +123,21 @@ public abstract class Character extends Rectangle {
 	public double getWidth() {
 		if(faceLeft) {return width;}
 		else {return -width;}
+	}
+	
+	/**
+	 * check if Chacter projectile has hit the monster and minus the HP of that 
+	 * @param mons
+	 */
+	public void checkProjectile(ArrayList<Monster> mons) {
+		for(Projectile p: this.projectile) {
+			for(Monster m : mons) {
+				if(m.intersects(p)) {
+					m.reduceHealth(p.damage);
+//					System.out.println(m.getHealth());
+				}
+			}
+		}
 	}
 	
 	public void RemoveProj() {

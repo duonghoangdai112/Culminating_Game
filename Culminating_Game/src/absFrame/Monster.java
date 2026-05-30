@@ -53,10 +53,6 @@ public abstract class Monster extends Rectangle {
 		
 		int deltX =  charX-x; 
 		int deltY =  charY-y; 
-		
-		if(deltX ==0 ) {
-			
-		}
 
 		int xCorrect =1;
 		int yCorrect = 1; 
@@ -78,7 +74,6 @@ public abstract class Monster extends Rectangle {
 		// velocity correction 
 		x += (speedX*xCorrect);
 		y += (speedY*yCorrect);
-		System.out.println();
 				
 	} 
 	/**
@@ -97,21 +92,14 @@ public abstract class Monster extends Rectangle {
 	 * @param Rtiles - collection of room tiles
 	 * @return
 	 */
-	public double checkProjectile (int charX, int charY, ArrayList<Tiles> Rtiles) {
+	public void checkCollision (int charX, int charY, ArrayList<Tiles> Rtiles, Character c) {
 		double monDamage = 0;
-		for(Projectile p : projectiles){
-			if(this.x == charX && this.y == charY) {
-				//make bullet invisible
-				// damage = p.damage
-			}
-			for(Tiles t : Rtiles) {
-				// if (this.x == t.getX() && this.y == t.getY()){
-				//		if(blockable) => delete projectile 
-				// }
-			}
+		if(charX == x && charY == y) {
+			int collisionDamage = 5;
+			monDamage += (double) collisionDamage;
 		}
-		
-		return monDamage;
+
+		c.health-= (int) monDamage;
 	}
 	
 	// draw method 

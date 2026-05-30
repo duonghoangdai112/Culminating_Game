@@ -45,7 +45,7 @@ public class Room {
         int monDamage = 0;
 
         for (Monster m : mons ){
-            monDamage += m.checkProjectile(charX, charY, tiles);
+//            monDamage += m.checkProjectile(charX, charY, tiles);
 
             for (Projectile p: charProj){
 //                if(m.getX() <= p.getX() + p.getHitBox() 
