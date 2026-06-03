@@ -52,7 +52,7 @@ public class GamePanel extends JPanel implements ActionListener {
         
         //Character Setup
         archer.setCharIMG(loadImage(archer.imgName));
-        archer.weaponInit(1,1,1,0.1,10,"Sniper",300,300,loadImage("Sniper-animation.png"));
+        archer.weaponInit(1,1,1,0.1,10,"Sniper",100,300,loadImage("Bow-animation.png"));
         //timer 
         timer = new Timer(TIMERSPEED, this);
 		timer.start();
@@ -61,7 +61,7 @@ public class GamePanel extends JPanel implements ActionListener {
 		
 		//init of stuff
 			// this should later be move into room
-        m1 = new RangeMonster(m1Stats,0,100,100,100,100);
+        m1 = new RangeMonster(m1Stats,0,100,100,10,10);
 //        mDecoy2 = new RangeMonster(m1Stats,0,100,100,100,800);
 //        mDecoy3 = new RangeMonster(m1Stats,0,100,100,800,100);
 
@@ -158,7 +158,7 @@ public class GamePanel extends JPanel implements ActionListener {
     	if(archer.weapon.attack ==true) { 
 	    	archer.weapon.switchFrame();	
     	}
-       	archer.weapon.setImage(archer.maxImg,0.5,archer.x,archer.y);
+       	archer.weapon.setImage(8,1,archer.x+100,archer.y+100);
        	
        	
         

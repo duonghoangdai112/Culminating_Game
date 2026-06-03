@@ -6,10 +6,10 @@ import java.awt.image.BufferedImage;
 public class Weapon {
 	//backend var
 	public int manaCost, vy, vx,damage;// stats
-	public int width,height,frameMax,frameCur; //img
 	public double ratio,cooldown,angle;
 	
 	//img
+	public int width,height,frameMax,frameCur; //img
 	public BufferedImage wImg; //weapon img
 	public int dx1,dx2,dy1,dy2; //img destination location 
 	public int sx1,sx2,sy1=0,sy2;  // img source location
@@ -43,7 +43,7 @@ public class Weapon {
 		
 		
 		this.wImg = wIMG;
-		sy1=0;
+		sy1 = 0;
 		sy2 = height; 
 		sx1 = 0;
 		sx2 = sx1+width;
@@ -61,7 +61,7 @@ public class Weapon {
 		this.ratio = ratio;
 		dx1 = charX;
 		dy1 = charY;
-		dx2 = charX- ((int)(width*ratio));
+		dx2 = dx1- ((int)(width*ratio));
 		dx2 = dy1+ (int)(height*ratio);
 				
 	}
