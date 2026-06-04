@@ -43,9 +43,9 @@ public class Main {
         rangeMon.put("width", 1);
         rangeMon.put("width", 1);
         rangeMon.put("cooldown",1);
-        rangeMon.put("x",10);
+        rangeMon.put("x",5);
 
-        rangeMon.put("y",10);
+        rangeMon.put("y",5);
 
 	   
         return rangeMon;

@@ -52,7 +52,7 @@ public class GamePanel extends JPanel implements ActionListener {
         
         //Character Setup
         archer.setCharIMG(loadImage(archer.imgName));
-        archer.weaponInit(1,1,1,0.1,10,"Sniper",100,300,loadImage("Bow-animation.png"));
+        archer.weaponInit(10,1,1,0.1,10,"Bow",loadImage("Sniper-animation.png"),3,0.5,loadImage("Bullet.png")); // to flip the img use negative value
         //timer 
         timer = new Timer(TIMERSPEED, this);
 		timer.start();
@@ -61,7 +61,7 @@ public class GamePanel extends JPanel implements ActionListener {
 		
 		//init of stuff
 			// this should later be move into room
-        m1 = new RangeMonster(m1Stats,0,100,100,10,10);
+        m1 = new RangeMonster(m1Stats,0,100,100,50,50);
 //        mDecoy2 = new RangeMonster(m1Stats,0,100,100,100,800);
 //        mDecoy3 = new RangeMonster(m1Stats,0,100,100,800,100);
 
@@ -132,7 +132,7 @@ public class GamePanel extends JPanel implements ActionListener {
 		//Projectile
 		for (Projectile p: archer.projectile) {
     		p.move();
-    		g2.draw(p);
+    		g2.drawImage(p.bulletImg, p.x, p.y, p.width, p.height, null);
     		if(p.intersects(m1)) {
     			System.out.println("hit");
     			p.setVisibility(false);
@@ -158,15 +158,14 @@ public class GamePanel extends JPanel implements ActionListener {
     	if(archer.weapon.attack ==true) { 
 	    	archer.weapon.switchFrame();	
     	}
-       	archer.weapon.setImage(8,1,archer.x+100,archer.y+100);
        	
        	
         
-        //Monster action 
-        m1.move(archer.x, archer.y);
+        //MONSTER ACTION
+//        m1.move(archer.x, archer.y);
                 
         
-        //Check result
+        //CHECK RESULT
   
 		archer.RemoveProj(); //remove bad projectile
 	
@@ -179,6 +178,7 @@ public class GamePanel extends JPanel implements ActionListener {
 			
 		}
 		
+		
 		//count down or grant immunity if got hit
 		
 		if(!archer.countDownImmunity()) {
@@ -189,6 +189,13 @@ public class GamePanel extends JPanel implements ActionListener {
 		}
 		
 		archer.checkCollision(width, height, map);
+		
+		//losing condtion
+		if(archer.health <=0) {
+			timer.stop();
+			System.out.println("Game end");
+		}
+		
 		
 		//repaint
         this.repaint();

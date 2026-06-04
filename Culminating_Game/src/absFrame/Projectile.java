@@ -1,6 +1,8 @@
 package absFrame;
 
 import java.awt.Rectangle;
+import java.awt.image.BufferedImage;
+
 
 public class Projectile extends Rectangle {
 
@@ -10,16 +12,18 @@ public class Projectile extends Rectangle {
 	double damage;
 	double xx,yy;
 	//image
+	public BufferedImage bulletImg;
+	
 	
 	public Projectile(int x,int y,int width, int height,
-			double speedX,double speedY , double damage){
+			double speedX,double speedY , double damage, BufferedImage img){
 		super(x,y,width,height);
 		xx =x;
 		yy= y;
 		this.damage = damage;
 		this.speedX = speedX; 
 		this.speedY = speedY;
-		
+		bulletImg = img;
 	}
 
 	public double getDamage(){

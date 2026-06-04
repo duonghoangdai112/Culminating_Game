@@ -8,11 +8,11 @@ public abstract class Character extends Rectangle {
 	public int health,mana,speed,visionRange,cooldown,maxHealth,maxMana;
 	
 	public BufferedImage cIMG; // character IMG
+	public BufferedImage projIMG;
 	public int screenW, screenH; // panel size
 	public String name; // char  name 
 	public String imgName; // char picture name 
 	public Weapon weapon; 
-	public int maxImg; //char max frame
 	
 	public boolean faceLeft = true; 
 	
@@ -76,8 +76,10 @@ public abstract class Character extends Rectangle {
 		int numbMaxBar = maxHealth/10;
 		int numbBar = health/10;
 		int barW = 30; int barL = 50;
+		
+		
 		for(int i=0;i<numbMaxBar;i++) {
-			if(numbBar>=0 ) {
+			if(numbBar>0 ) {
 				g2.setColor(Color.RED);
 				g2.fillRect(10+i*barW, 30, barW, barL);
 				numbBar--;
@@ -85,6 +87,20 @@ public abstract class Character extends Rectangle {
 			
 			g2.setColor(Color.WHITE);
 			g2.drawRect(10+i*barW, 30, barW, barL);
+			
+		}
+		
+		int maxManaBar = maxMana/10;
+		int curManaBar = mana/10;
+		for(int i=0;i<maxManaBar;i++) {
+			if(curManaBar>0 ) {
+				g2.setColor(Color.BLUE);
+				g2.fillRect(10+i*barW, 70, barW, barL);
+				numbBar--;
+			}
+			
+			g2.setColor(Color.WHITE);
+			g2.drawRect(10+i*barW, 70, barW, barL);
 			
 		}
 	}
@@ -99,10 +115,14 @@ public abstract class Character extends Rectangle {
 	 * create the weapon
 	 */
 	public void weaponInit(int manaCost,int vx,int vy,double cd,int damage,
-			String name,int width,int height, BufferedImage wIMG) {
+			String name, BufferedImage wIMG,int maxFrameW,double d,BufferedImage projImage) {
 		int angel = 0;
-		weapon = new Weapon(manaCost,vx,vy,cd,damage,angel,name,width,height,wIMG); 
-		weapon.setImage(maxImg,0.3,this.x,this.y);
+		int width = wIMG.getWidth()/maxFrameW;
+		int height = wIMG.getHeight();
+		System.out.println(d);
+		weapon = new Weapon(manaCost,vx,vy,cd,damage,angel,name,width,height,wIMG,projImage); 
+		weapon.setImage(maxFrameW,d);
+		this.projIMG = projImage;
 	}
 	/**
 	 * change facing state 
@@ -236,16 +256,17 @@ public abstract class Character extends Rectangle {
 		if(weapon.attack ==false) {
 			weapon.attack = true;
 			
-			int sizeP = 30; 
-			int wid = (int)(weapon.width *weapon.ratio);// size of weapon after resize
-
-			
 			Monster target = findClosetEnemy(monsters);
-			System.out.println(target);
 			if(target != null) {
-				Projectile p = weapon.createProjectile(target);
+				Projectile p = weapon.createProjectile(this, target,projIMG);
 				projectile.add(p);
 			}
+			else {
+				Projectile p = weapon.createProjectile(this,projIMG);
+				projectile.add(p);
+
+			}
+			
 		}
 	}
 	

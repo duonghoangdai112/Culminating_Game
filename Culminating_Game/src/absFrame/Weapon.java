@@ -6,11 +6,12 @@ import java.awt.image.BufferedImage;
 public class Weapon {
 	//backend var
 	public int manaCost, vy, vx,damage;// stats
+	public int width,height,frameMax,frameCur; //img
 	public double ratio,cooldown,angle;
 	
 	//img
-	public int width,height,frameMax,frameCur; //img
 	public BufferedImage wImg; //weapon img
+	public BufferedImage projImg;
 	public int dx1,dx2,dy1,dy2; //img destination location 
 	public int sx1,sx2,sy1=0,sy2;  // img source location
 	public String name,imgName;
@@ -29,7 +30,7 @@ public class Weapon {
 	
 	
 	public Weapon(int manaCost, int vx, int vy, double cooldown, int damage, 
-			int angle,String name,int width,int height,BufferedImage wIMG) {
+			int angle,String name,int width,int height,BufferedImage wIMG,BufferedImage projImage) {
 		this.manaCost = manaCost;
 		this.vx = vx;
 		this.vy = vy;
@@ -38,12 +39,13 @@ public class Weapon {
 		this.angle = angle;
 		this.name = name;
 		this.imgName =name +"-animation.png";
+		this.projImg = projImage;
 		this.width = width;
 		this.height = height;
 		
 		
 		this.wImg = wIMG;
-		sy1 = 0;
+		sy1=0;
 		sy2 = height; 
 		sx1 = 0;
 		sx2 = sx1+width;
@@ -56,13 +58,9 @@ public class Weapon {
 	 * @param charX - Character X
 	 * @param charY - Character Y
 	 */
-	public void setImage(int frameMax,double ratio,int charX,int charY ) {
+	public void setImage(int frameMax,double ratio) {
 		this.frameMax= frameMax;
 		this.ratio = ratio;
-		dx1 = charX;
-		dy1 = charY;
-		dx2 = dx1- ((int)(width*ratio));
-		dx2 = dy1+ (int)(height*ratio);
 				
 	}
 	
@@ -125,32 +123,71 @@ public class Weapon {
 	 * @return a projectile
 	 */
 	
-	public Projectile createProjectile(Monster target) {
-	    double startX = dx1;
-	    double startY = dy1;
+	public Projectile createProjectile(Character character, Monster target,BufferedImage img) {
+		int projW = 30;
+		int projH = 30;
 
-	    double targetX = target.x;
-	    double targetY = target.y ;
+		double[] muzzle = getMuzzleCenter(character);
+		double startX = muzzle[0];
+		double startY = muzzle[1];
 
-	    double dx = targetX - startX;
-	    double dy = targetY - startY;
-	    
-	    System.out.println("dx: "+dx);
-	    System.out.println("dy: "+dy);
+		// Aim at the centre of the monster, not its top-left corner.
+		double targetX = target.x + target.width / 2.0;
+		double targetY = target.y + target.height / 2.0;
 
-	    double angle = Math.atan2(dy, dx);
+		double dx = targetX - startX;
+		double dy = targetY - startY;
+		double projectileAngle = Math.atan2(dy, dx);
+		double speed = projectileSpeed();
 
-	    double projVx = Math.cos(angle) * 1;
-	    double projVy = Math.sin(angle) * 1;
-	    
-	    System.out.println("projVx: "+projVx);
-	    System.out.println("projVy: "+projVy);
+		double projVx = Math.cos(projectileAngle) * speed;
+		double projVy = Math.sin(projectileAngle) * speed;
 
+		// Rectangle x/y is top-left, so subtract half the projectile size.
+		return new Projectile(
+				(int)Math.round(startX - projW / 2.0),
+				(int)Math.round(startY - projH / 2.0),
+				projW, projH, projVx, projVy, damage,projImg);
+	}
 
-	    int projW = 30;
-	    int projH = 30;
-	    return new Projectile((int)startX, (int)startY, projW,projH,projVx, projVy, damage);
-	    
+	/**
+	 * Create a projectile when there is no visible enemy.
+	 * The projectile still starts from the muzzle/end of the weapon.
+	 * @return a projectile
+	 */
+	public Projectile createProjectile(Character character,BufferedImage img) {
+		int projW = 30;
+		int projH = 30;
+		double[] muzzle = getMuzzleCenter(character);
+		double speed = projectileSpeed();
+		double projVx = Math.cos(angle) * speed;
+		double projVy = Math.sin(angle) * speed;
+
+		return new Projectile(
+				(int)Math.round(muzzle[0] - projW / 2.0),
+				(int)Math.round(muzzle[1] - projH / 2.0),
+				projW, projH, projVx, projVy, damage,projImg);
+	}
+
+	/**
+	 * Finds the muzzle/end point of the weapon in screen coordinates.
+	 * The weapon sprite points right before rotation and is drawn starting at
+	 * the character centre, so the muzzle is one scaled weapon-width away
+	 * in the current weapon angle.
+	 */
+	private double[] getMuzzleCenter(Character character) {
+		double drawW = width * ratio/2;
+		double centerX = character.x + character.width / 2.0;
+		double centerY = character.y + character.height / 2.0;
+
+		double muzzleX = centerX + Math.cos(angle) * drawW;
+		double muzzleY = centerY +  Math.sin(angle) * drawW;
+		return new double[] {muzzleX, muzzleY};
+	}
+
+	private double projectileSpeed() {
+		double speed = Math.hypot(vx, vy);
+		return speed > 0 ? speed : 1;
 	}
 	
 	public void draw(Graphics g,Character character) {
@@ -163,7 +200,7 @@ public class Weapon {
 		  int centerX = character.x + character.width / 2;
 		  int centerY = character.y + character.height / 2;
 
-		  dx1 = centerX;
+		  dx1 = centerX- drawW / 2;
 		  dy1 = centerY - drawH / 2;
 		  dx2 = dx1+drawW;
 		  dy2 = dy1 +drawH;
@@ -174,7 +211,15 @@ public class Weapon {
 			  dy2 = temp;
 		  }
 		  g2.rotate(angle,centerX,centerY);
-		  
+//		  for (Projectile p: archer.projectile) {
+//	    		p.move();
+//	    		g2.drawImage(p.bulletImg, p.x, p.y, p.width, p.height, null);
+//	    		if(p.intersects(m1)) {
+//	    			System.out.println("hit");
+//	    			p.setVisibility(false);
+//	    			}
+//		  }
+	 
 	 g2.drawImage(
 	        wImg,
 	        dx1,
