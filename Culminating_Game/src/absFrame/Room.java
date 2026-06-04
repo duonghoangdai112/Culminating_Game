@@ -1,29 +1,59 @@
 package absFrame;
+
+import java.awt.Rectangle;
 import java.util.ArrayList;
 
 public class Room {
-    private int width; 
-    private int length; 
-    ArrayList<Tiles> tiles = new ArrayList<Tiles>(); 
-    ArrayList<Monster> mons =new ArrayList<Monster>();
-    Boolean roomClear;
 
-    public Room(int width, int length, ArrayList<Tiles> tiles, ArrayList<Monster> mons){
-        // think of a way to add in tiles and monster to a room 
-        this.width = width;
-        this.length = length;
-        this.tiles = tiles;
-        this.mons = mons;
+    public Room next;
+    public Room previous;
 
+    // Section of the large map image
+    private int mapX;
+    private int mapY;
+    private int mapWidth;
+    private int mapHeight;
+
+    // Door hitboxes
+    public Rectangle nextDoor;
+    public Rectangle previousDoor;
+
+    ArrayList<Tiles> tiles = new ArrayList<>();
+    ArrayList<Monster> mons = new ArrayList<>();
+
+    public Room(int mapX, int mapY,
+                int mapWidth, int mapHeight) {
+
+        this.mapX = mapX;
+        this.mapY = mapY;
+        this.mapWidth = mapWidth;
+        this.mapHeight = mapHeight;
+    }
+
+    public int getMapX() {
+        return mapX;
+    }
+
+    public int getMapY() {
+        return mapY;
+    }
+
+    public int getMapWidth() {
+        return mapWidth;
+    }
+
+    public int getMapHeight() {
+        return mapHeight;
     }
 
 
-    /**
+ /**
      * check all monster is clear if yes change room clear to true
      * to do later 
      */
     public void checkRoom(){
-        if (mons.isEmpty() && roomClear == false) {
+        boolean roomClear;
+		if (mons.isEmpty() && roomClear == false) {
             roomClear = true;
             for (Tiles t: tiles){
                 if (t.getName().equals("door")){
@@ -65,3 +95,6 @@ public class Room {
 
 
 }
+
+
+

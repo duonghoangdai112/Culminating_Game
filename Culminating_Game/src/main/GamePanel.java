@@ -18,8 +18,13 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.*;
 
+
+
 public class GamePanel extends JPanel implements ActionListener {
     Timer timer; 
+    
+    boolean atNextDoor = false;
+    boolean atPreviousDoor = false;
     
     //Time record variable 
     int TIMERSPEED =10; // speed
@@ -40,7 +45,7 @@ public class GamePanel extends JPanel implements ActionListener {
     
     Archer archer = new Archer(100,5,100,10,10,10,"Archer");
     
-	Map map = new Map( width, height,1);
+	Map map = new Map();
 
 
     public GamePanel(HashMap<String,Integer> m1Stats){ //later on sep the hash into a new class
@@ -111,12 +116,7 @@ public class GamePanel extends JPanel implements ActionListener {
 		//Map
 //		g2.drawImage(map.scaleImg,0, 0,null);
 		g2.drawImage(
-				map.scaleImg,
-				map.dx1, map.dy1, 
-				map.dx2, map.dy2, 
-				map.sx1, map.sy1, 
-				map.sx2, map.sy2, 
-				null);
+				map.getCurrentRoomImage(), null, null,null,null,null);
 		
 		//Character
 		g2.drawImage(archer.cIMG, (int)archer.getX(), archer.y, (int)archer.getWidth(), archer.height, null);
@@ -189,6 +189,45 @@ public class GamePanel extends JPanel implements ActionListener {
 		}
 		
 		archer.checkCollision(width, height, map);
+		
+		atNextDoor = false;
+		atPreviousDoor = false;
+
+		if(map.currentRoom.nextDoor != null) {
+
+		    if(archer.intersects(
+		            map.currentRoom.nextDoor)) {
+
+		        atNextDoor = true;
+		    }
+		}
+
+		if(map.currentRoom.previousDoor != null) {
+
+		    if(archer.intersects(
+		            map.currentRoom.previousDoor)) {
+
+		        atPreviousDoor = true;
+		    }
+		}
+		
+		if(atNextDoor &&
+				   map.currentRoom.next != null) {
+
+				    map.currentRoom =
+				        map.currentRoom.next;
+
+				    archer.x = 50;
+				}
+		
+		if(atPreviousDoor &&
+				   map.currentRoom.next != null) {
+
+				    map.currentRoom =
+				        map.currentRoom.next;
+
+				    archer.x = 50;
+				}
 		
 		//repaint
         this.repaint();
