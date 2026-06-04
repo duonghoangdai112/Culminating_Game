@@ -52,7 +52,7 @@ public class GamePanel extends JPanel implements ActionListener {
         
         //Character Setup
         archer.setCharIMG(loadImage(archer.imgName));
-        archer.weaponInit(1,1,1,0.1,10,"Sniper",300,300,loadImage("Sniper-animation.png"));
+        archer.weaponInit(10,1,1,0.1,10,"Bow",loadImage("Bow-animation.png"),8,-1);
         //timer 
         timer = new Timer(TIMERSPEED, this);
 		timer.start();
@@ -61,7 +61,7 @@ public class GamePanel extends JPanel implements ActionListener {
 		
 		//init of stuff
 			// this should later be move into room
-        m1 = new RangeMonster(m1Stats,0,100,100,100,100);
+        m1 = new RangeMonster(m1Stats,0,100,100,50,50);
 //        mDecoy2 = new RangeMonster(m1Stats,0,100,100,100,800);
 //        mDecoy3 = new RangeMonster(m1Stats,0,100,100,800,100);
 
@@ -158,15 +158,14 @@ public class GamePanel extends JPanel implements ActionListener {
     	if(archer.weapon.attack ==true) { 
 	    	archer.weapon.switchFrame();	
     	}
-       	archer.weapon.setImage(archer.maxImg,0.5,archer.x,archer.y);
        	
        	
         
-        //Monster action 
-        m1.move(archer.x, archer.y);
+        //MONSTER ACTION
+//        m1.move(archer.x, archer.y);
                 
         
-        //Check result
+        //CHECK RESULT
   
 		archer.RemoveProj(); //remove bad projectile
 	
@@ -179,6 +178,7 @@ public class GamePanel extends JPanel implements ActionListener {
 			
 		}
 		
+		
 		//count down or grant immunity if got hit
 		
 		if(!archer.countDownImmunity()) {
@@ -189,6 +189,13 @@ public class GamePanel extends JPanel implements ActionListener {
 		}
 		
 		archer.checkCollision(width, height, map);
+		
+		//losing condtion
+		if(archer.health <=0) {
+			timer.stop();
+			System.out.println("Game end");
+		}
+		
 		
 		//repaint
         this.repaint();
