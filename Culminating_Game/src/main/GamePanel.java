@@ -52,7 +52,7 @@ public class GamePanel extends JPanel implements ActionListener {
         
         //Character Setup
         archer.setCharIMG(loadImage(archer.imgName));
-        archer.weaponInit(10,1,1,0.1,10,"Bow",loadImage("Sniper-animation.png"),3,0.5,loadImage("Bullet.png")); // to flip the img use negative value
+        archer.weaponInit(10,6,6,0.1,10,"Bow",loadImage("Sniper-animation.png"),3,0.5,loadImage("Bullet.png")); // to flip the img use negative value
         //timer 
         timer = new Timer(TIMERSPEED, this);
 		timer.start();
