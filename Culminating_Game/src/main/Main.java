@@ -51,6 +51,22 @@ public class Main {
         return rangeMon;
     }
 
+    public HashMap<String, Integer[]> rWeaponCons(){	
+    	// name of the weapon : [ratio * 10, number of frame]
+        HashMap<String,Integer[]> guns = new HashMap<String,Integer[]>();
+        guns.put("Sniper-animation",convertInt(5,3));
+        guns.put("47-animation",convertInt(6,4));
+        guns.put("glock-animation",convertInt(3,3));
+        guns.put("glock-animation",convertInt(7,4));
+
+        
+        return guns;
+    }
+    
+    public Integer[] convertInt (int frame, int ratio){
+    	Integer[] lis = {frame,ratio};
+    	return lis;
+    }
 
 
 }

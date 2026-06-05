@@ -21,6 +21,7 @@ import java.util.*;
 public class GamePanel extends JPanel implements ActionListener {
     Timer timer; 
     
+    
     //Time record variable 
     int TIMERSPEED =10; // speed
     int GAMETIME = 0; // time in ms
@@ -52,7 +53,7 @@ public class GamePanel extends JPanel implements ActionListener {
         
         //Character Setup
         archer.setCharIMG(loadImage(archer.imgName));
-        archer.weaponInit(10,6,6,0.1,10,"Bow",loadImage("Sniper-animation.png"),3,0.5,loadImage("Bullet.png")); // to flip the img use negative value
+        archer.weaponInit(10,4,4,0.1,10,"Bow",loadImage("staff-animation.png"),4,0.7,loadImage("magic.png")); // to flip the img use negative value
         //timer 
         timer = new Timer(TIMERSPEED, this);
 		timer.start();
@@ -129,10 +130,11 @@ public class GamePanel extends JPanel implements ActionListener {
 			g2.draw(m);
 		}
 		
-		//Projectile
+		
+//		Projectile
 		for (Projectile p: archer.projectile) {
     		p.move();
-    		g2.drawImage(p.bulletImg, p.x, p.y, p.width, p.height, null);
+    		g2.drawImage(p.bulletImg, p.x, p.y, p.width*2, p.height*2, null);
     		if(p.intersects(m1)) {
     			System.out.println("hit");
     			p.setVisibility(false);
@@ -162,7 +164,7 @@ public class GamePanel extends JPanel implements ActionListener {
        	
         
         //MONSTER ACTION
-//        m1.move(archer.x, archer.y);
+        m1.move(archer.x, archer.y);
                 
         
         //CHECK RESULT

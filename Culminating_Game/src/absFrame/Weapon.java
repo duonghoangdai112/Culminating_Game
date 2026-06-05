@@ -2,12 +2,14 @@ package absFrame;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 
 public class Weapon {
-	//backend var
+	//backend VAR
 	public int manaCost, vy, vx,damage;// stats
 	public int width,height,frameMax,frameCur; //img
 	public double ratio,cooldown,angle;
+	public ArrayList<Projectile> wProj = new ArrayList<Projectile> ();
 	
 	//img
 	public BufferedImage wImg; //weapon img
@@ -210,16 +212,24 @@ public class Weapon {
 			  dy1 = dy2;
 			  dy2 = temp;
 		  }
-		  g2.rotate(angle,centerX,centerY);
-//		  for (Projectile p: archer.projectile) {
-//	    		p.move();
-//	    		g2.drawImage(p.bulletImg, p.x, p.y, p.width, p.height, null);
+		  for (Projectile p: wProj) {
+	    		p.move();
+	    		g2.drawImage(p.bulletImg, p.x, p.y, p.width, p.height, null);
 //	    		if(p.intersects(m1)) {
 //	    			System.out.println("hit");
 //	    			p.setVisibility(false);
 //	    			}
-//		  }
+		  }
 	 
+		  g2.rotate(angle,centerX,centerY);
+		  for (Projectile p: wProj) {
+	    		p.move();
+	    		g2.drawImage(p.bulletImg, p.x, p.y, p.width, p.height, null);
+//	    		if(p.intersects(m1)) {
+//	    			System.out.println("hit");
+//	    			p.setVisibility(false);
+//	    			}
+		  }
 	 g2.drawImage(
 	        wImg,
 	        dx1,

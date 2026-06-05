@@ -173,6 +173,7 @@ public abstract class Character extends Rectangle {
 				}
 			}
 			projectile = projTemp;
+			weapon.wProj = projectile;
 		}
 		
 		
@@ -260,11 +261,13 @@ public abstract class Character extends Rectangle {
 			if(target != null) {
 				Projectile p = weapon.createProjectile(this, target,projIMG);
 				projectile.add(p);
+				weapon.wProj = projectile;
+				
 			}
 			else {
 				Projectile p = weapon.createProjectile(this,projIMG);
 				projectile.add(p);
-
+				weapon.wProj = projectile;
 			}
 			
 		}
