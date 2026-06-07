@@ -88,6 +88,20 @@ public abstract class Character extends Rectangle {
 			g2.drawRect(10+i*barW, 30, barW, barL);
 			
 		}
+		
+		int maxManaBar = maxMana/10;
+		int curManaBar = mana/10;
+		for(int i=0;i<maxManaBar;i++) {
+			if(curManaBar>0 ) {
+				g2.setColor(Color.BLUE);
+				g2.fillRect(10+i*barW, 70, barW, barL);
+				numbBar--;
+			}
+			
+			g2.setColor(Color.WHITE);
+			g2.drawRect(10+i*barW, 70, barW, barL);
+			
+		}
 	}
 	
 	
