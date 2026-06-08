@@ -212,36 +212,33 @@ public class Weapon {
 			  dy1 = dy2;
 			  dy2 = temp;
 		  }
-		  for (Projectile p: wProj) {
-	    		p.move();
-	    		g2.drawImage(p.bulletImg, p.x, p.y, p.width, p.height, null);
-//	    		if(p.intersects(m1)) {
-//	    			System.out.println("hit");
-//	    			p.setVisibility(false);
-//	    			}
-		  }
+
 	 
 		  g2.rotate(angle,centerX,centerY);
-		  for (Projectile p: wProj) {
-	    		p.move();
-	    		g2.drawImage(p.bulletImg, p.x, p.y, p.width, p.height, null);
-//	    		if(p.intersects(m1)) {
-//	    			System.out.println("hit");
-//	    			p.setVisibility(false);
-//	    			}
-		  }
-	 g2.drawImage(
-	        wImg,
-	        dx1,
-	        dy1,
-	        dx2,
-	         dy2,
-	        sx1,
-	        sy1,
-	        sx2,
-	        sy2,
-	        null
-	    );
+		  
+		  g2.drawImage(
+			        wImg,
+			        dx1,
+			        dy1,
+			        dx2,
+			         dy2,
+			        sx1,
+			        sy1,
+			        sx2,
+			        sy2,
+			        null
+			    );
+//
+//		  for (Projectile p: wProj) {
+//			  	p.move();
+//				  g2.rotate(angle,p.x,p.y);
+//	    		g2.drawImage(p.bulletImg, p.x, p.y, p.width, p.height, null);
+////	    		if(p.intersects(m1)) {
+////	    			System.out.println("hit");
+////	    			p.setVisibility(false);
+////	    			}
+//		  }
+	 
 	}
 	
 	public void setAngle(Character character, Monster target) {
