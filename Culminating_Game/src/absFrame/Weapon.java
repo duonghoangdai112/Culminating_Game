@@ -2,15 +2,18 @@ package absFrame;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 
 public class Weapon {
-	//backend var
+	//backend VAR
 	public int manaCost, vy, vx,damage;// stats
 	public int width,height,frameMax,frameCur; //img
 	public double ratio,cooldown,angle;
+	public ArrayList<Projectile> wProj = new ArrayList<Projectile> ();
 	
 	//img
 	public BufferedImage wImg; //weapon img
+	public BufferedImage projImg;
 	public int dx1,dx2,dy1,dy2; //img destination location 
 	public int sx1,sx2,sy1=0,sy2;  // img source location
 	public String name,imgName;
@@ -29,7 +32,7 @@ public class Weapon {
 	
 	
 	public Weapon(int manaCost, int vx, int vy, double cooldown, int damage, 
-			int angle,String name,int width,int height,BufferedImage wIMG) {
+			int angle,String name,int width,int height,BufferedImage wIMG,BufferedImage projImage) {
 		this.manaCost = manaCost;
 		this.vx = vx;
 		this.vy = vy;
@@ -38,6 +41,7 @@ public class Weapon {
 		this.angle = angle;
 		this.name = name;
 		this.imgName =name +"-animation.png";
+		this.projImg = projImage;
 		this.width = width;
 		this.height = height;
 		
@@ -121,7 +125,7 @@ public class Weapon {
 	 * @return a projectile
 	 */
 	
-	public Projectile createProjectile(Character character, Monster target) {
+	public Projectile createProjectile(Character character, Monster target,BufferedImage img) {
 		int projW = 30;
 		int projH = 30;
 
@@ -145,7 +149,7 @@ public class Weapon {
 		return new Projectile(
 				(int)Math.round(startX - projW / 2.0),
 				(int)Math.round(startY - projH / 2.0),
-				projW, projH, projVx, projVy, damage);
+				projW, projH, projVx, projVy, damage,projImg);
 	}
 
 	/**
@@ -153,7 +157,7 @@ public class Weapon {
 	 * The projectile still starts from the muzzle/end of the weapon.
 	 * @return a projectile
 	 */
-	public Projectile createProjectile(Character character) {
+	public Projectile createProjectile(Character character,BufferedImage img) {
 		int projW = 30;
 		int projH = 30;
 		double[] muzzle = getMuzzleCenter(character);
@@ -164,7 +168,7 @@ public class Weapon {
 		return new Projectile(
 				(int)Math.round(muzzle[0] - projW / 2.0),
 				(int)Math.round(muzzle[1] - projH / 2.0),
-				projW, projH, projVx, projVy, damage);
+				projW, projH, projVx, projVy, damage,projImg);
 	}
 
 	/**
@@ -208,8 +212,24 @@ public class Weapon {
 			  dy1 = dy2;
 			  dy2 = temp;
 		  }
-		  g2.rotate(angle,centerX,centerY);
+		  for (Projectile p: wProj) {
+	    		p.move();
+	    		g2.drawImage(p.bulletImg, p.x, p.y, p.width, p.height, null);
+//	    		if(p.intersects(m1)) {
+//	    			System.out.println("hit");
+//	    			p.setVisibility(false);
+//	    			}
+		  }
 	 
+		  g2.rotate(angle,centerX,centerY);
+		  for (Projectile p: wProj) {
+	    		p.move();
+	    		g2.drawImage(p.bulletImg, p.x, p.y, p.width, p.height, null);
+//	    		if(p.intersects(m1)) {
+//	    			System.out.println("hit");
+//	    			p.setVisibility(false);
+//	    			}
+		  }
 	 g2.drawImage(
 	        wImg,
 	        dx1,

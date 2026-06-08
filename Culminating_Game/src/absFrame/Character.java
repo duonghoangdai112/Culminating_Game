@@ -8,6 +8,7 @@ public abstract class Character extends Rectangle {
 	public int health,mana,speed,visionRange,cooldown,maxHealth,maxMana;
 	
 	public BufferedImage cIMG; // character IMG
+	public BufferedImage projIMG;
 	public int screenW, screenH; // panel size
 	public String name; // char  name 
 	public String imgName; // char picture name 
@@ -114,13 +115,14 @@ public abstract class Character extends Rectangle {
 	 * create the weapon
 	 */
 	public void weaponInit(int manaCost,int vx,int vy,double cd,int damage,
-			String name, BufferedImage wIMG,int maxFrameW,double d) {
+			String name, BufferedImage wIMG,int maxFrameW,double d,BufferedImage projImage) {
 		int angel = 0;
 		int width = wIMG.getWidth()/maxFrameW;
 		int height = wIMG.getHeight();
 		System.out.println(d);
-		weapon = new Weapon(manaCost,vx,vy,cd,damage,angel,name,width,height,wIMG); 
+		weapon = new Weapon(manaCost,vx,vy,cd,damage,angel,name,width,height,wIMG,projImage); 
 		weapon.setImage(maxFrameW,d);
+		this.projIMG = projImage;
 	}
 	/**
 	 * change facing state 
@@ -171,6 +173,7 @@ public abstract class Character extends Rectangle {
 				}
 			}
 			projectile = projTemp;
+			weapon.wProj = projectile;
 		}
 		
 		
@@ -256,13 +259,15 @@ public abstract class Character extends Rectangle {
 			
 			Monster target = findClosetEnemy(monsters);
 			if(target != null) {
-				Projectile p = weapon.createProjectile(this, target);
+				Projectile p = weapon.createProjectile(this, target,projIMG);
 				projectile.add(p);
+				weapon.wProj = projectile;
+				
 			}
 			else {
-				Projectile p = weapon.createProjectile(this);
+				Projectile p = weapon.createProjectile(this,projIMG);
 				projectile.add(p);
-
+				weapon.wProj = projectile;
 			}
 			
 		}
