@@ -9,22 +9,26 @@ public abstract class Monster extends Rectangle {
 	double health, damage, visionRange;	
 	double cooldown; 
 	
-	int dx,dy;
+	double dx,dy;
+	double xx,yy;
 	ArrayList<Projectile> projectiles; 
 	int startTime; 
 	//image
 	
 	// initialize all attribute here 
-	public Monster(HashMap<String,Integer> stats,int startTime,int x, int y,int width,int height){
+	public Monster(HashMap<String,Integer> stats,int startTime,int x, int y,int width,int height,double speed){
 		super(x,y,width,height);
 		
 		this.health = stats.get("health");
 		this.damage = stats.get("damage");
 		this.visionRange = stats.get("visionRange");
 		
-		this.dx = stats.get("speedX");
-		this.dy = stats.get("speedY");
+		this.dx = stats.get("speedX")*speed;
+		this.dy = stats.get("speedY")*speed;
 
+		this.xx = x;
+		this.yy=y;
+		
 		this.x = x;
 		this.y = y;
 
@@ -48,17 +52,17 @@ public abstract class Monster extends Rectangle {
 	 * @param charX character X position
 	 * @param charY character Y position
 	 */
-	public void move(int charX, int charY) { 	// helper function 
+	public void move(int charX, int charY) {
 		
 		
-		int deltX =  charX-x; 
-		int deltY =  charY-y; 
+		double deltX =  charX-x; 
+		double deltY =  charY-y; 
 
-		int xCorrect =1;
-		int yCorrect = 1; 
+		double xCorrect =1;
+		double yCorrect = 1; 
 		
-		int speedX = dx;
-		int speedY = dy;
+		double speedX = 0;
+		double speedY = 0;
 		
 		// check x
 		if(deltX>0) { speedX =dx ;}
@@ -71,9 +75,20 @@ public abstract class Monster extends Rectangle {
 
 		else {xCorrect = 2; }
 		
+		System.out.println("charX: "+charX);
+		System.out.println("charY: "+charY);
+		System.out.println(speedX);
+		System.out.println(speedY);
+		System.out.println(xCorrect);
+		System.out.println(yCorrect);
+
+		
 		// velocity correction 
-		x += (speedX*xCorrect);
-		y += (speedY*yCorrect);
+		xx += (speedX*xCorrect);
+		yy += (speedY*yCorrect);
+		
+		x = (int) xx;
+		y = (int) yy;
 				
 	} 
 	/**

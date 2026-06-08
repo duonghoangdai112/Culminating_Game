@@ -44,7 +44,7 @@ public class GamePanel extends JPanel implements ActionListener {
 	Map map = new Map( width, height,1);
 
 
-    public GamePanel(HashMap<String,Integer> m1Stats){ //later on sep the hash into a new class
+    public GamePanel(HashMap<String, Integer> hashMap){ //later on sep the hash into a new class
     	//Panel setup
         this.setPreferredSize(new Dimension(width, height));
         this.addKeyListener(new KeyLis());
@@ -66,7 +66,7 @@ public class GamePanel extends JPanel implements ActionListener {
 //        mDecoy2 = new RangeMonster(m1Stats,0,100,100,100,800);
 //        mDecoy3 = new RangeMonster(m1Stats,0,100,100,800,100);
 
-        mDecoy = new RangeMonster(m1Stats,0,100,100,800,800);
+        mDecoy = new RangeMonster(hashMap,0,100,100,800,800,0.3);
         monsters.add(m1);
         monsters.add(mDecoy);
 //        monsters.add(mDecoy2);
@@ -141,6 +141,7 @@ public class GamePanel extends JPanel implements ActionListener {
     			}
     	}
 		
+		
 
     }
 
@@ -165,6 +166,9 @@ public class GamePanel extends JPanel implements ActionListener {
         
         //MONSTER ACTION
         m1.move(archer.x, archer.y);
+        for(Monster m : monsters) {
+        	m.move(archer.x, archer.y);
+        }
                 
         
         //CHECK RESULT
