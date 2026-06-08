@@ -53,7 +53,7 @@ public class GamePanel extends JPanel implements ActionListener {
         
         //Character Setup
         archer.setCharIMG(loadImage(archer.imgName));
-        archer.weaponInit(10,4,4,0.1,10,"Bow",loadImage("staff-animation.png"),4,0.7,loadImage("magic.png")); // to flip the img use negative value
+        archer.weaponInit(10,4,4,0.1,10,"Bow",loadImage("staff-animation.png"),4,0.7,loadImage("Bullet.png")); // to flip the img use negative value
         //timer 
         timer = new Timer(TIMERSPEED, this);
 		timer.start();
@@ -62,7 +62,7 @@ public class GamePanel extends JPanel implements ActionListener {
 		
 		//init of stuff
 			// this should later be move into room
-        m1 = new RangeMonster(m1Stats,0,100,100,50,50);
+        m1 = new RangeMonster(hashMap,0,100,100,50,50,0.3);
 //        mDecoy2 = new RangeMonster(m1Stats,0,100,100,100,800);
 //        mDecoy3 = new RangeMonster(m1Stats,0,100,100,800,100);
 

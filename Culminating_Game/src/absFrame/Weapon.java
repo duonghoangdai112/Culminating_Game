@@ -222,14 +222,6 @@ public class Weapon {
 		  }
 	 
 		  g2.rotate(angle,centerX,centerY);
-		  for (Projectile p: wProj) {
-	    		p.move();
-	    		g2.drawImage(p.bulletImg, p.x, p.y, p.width, p.height, null);
-//	    		if(p.intersects(m1)) {
-//	    			System.out.println("hit");
-//	    			p.setVisibility(false);
-//	    			}
-		  }
 	 g2.drawImage(
 	        wImg,
 	        dx1,
