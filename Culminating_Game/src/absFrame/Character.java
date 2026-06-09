@@ -173,43 +173,43 @@ public abstract class Character extends Rectangle {
 		
 	}
 	
-	public void checkCollision(int screenW,int screenH,Map map){
-		this.screenW = screenW;
-		this.screenH = screenH;
-				
-		//case left
-		if(x <0) {
-			boolean cameraMoved = map.changeBackground(new int[] {-1, 0});
-
-			if (cameraMoved) {x = screenW - width;} 
-			else {x = 0;}
-		}
-		
-		//case up
-		if(y <0) {
-			boolean cameraMoved = map.changeBackground(new int[] {0, -1});
-
-			if (cameraMoved) {
-				y = screenH - height;} 
-			else {y = 0;}
-		}
-
-		//case right
-		if(x> screenW-this.width) { 
-			boolean cameraMoved = map.changeBackground(new int[] {1, 0}); 
-
-		    if (cameraMoved) { x = 0; } 
-		    else {x = screenW - width;}
-		}
-		
-		// case down
-		if(y> screenH-this.height) {
-			boolean cameraMoved = map.changeBackground(new int[] {0, 1});
-
-			if (cameraMoved) {y = 0;} 
-			else {y = screenH - height;}
-		}		
-	}
+//	public void checkCollision(int screenW,int screenH,Map map){
+//		this.screenW = screenW;
+//		this.screenH = screenH;
+//				
+//		//case left
+//		if(x <0) {
+//			boolean cameraMoved = map.changeBackground(new int[] {-1, 0});
+//
+//			if (cameraMoved) {x = screenW - width;} 
+//			else {x = 0;}
+//		}
+//		
+//		//case up
+//		if(y <0) {
+//			boolean cameraMoved = map.changeBackground(new int[] {0, -1});
+//
+//			if (cameraMoved) {
+//				y = screenH - height;} 
+//			else {y = 0;}
+//		}
+//
+//		//case right
+//		if(x> screenW-this.width) { 
+//			boolean cameraMoved = map.changeBackground(new int[] {1, 0}); 
+//
+//		    if (cameraMoved) { x = 0; } 
+//		    else {x = screenW - width;}
+//		}
+//		
+//		// case down
+//		if(y> screenH-this.height) {
+//			boolean cameraMoved = map.changeBackground(new int[] {0, 1});
+//
+//			if (cameraMoved) {y = 0;} 
+//			else {y = screenH - height;}
+//		}		
+//	}
 	
 	
 	public int Find() {

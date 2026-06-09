@@ -23,6 +23,10 @@ import java.util.*;
 public class GamePanel extends JPanel implements ActionListener {
     Timer timer; 
     
+    int playerMapX;
+    int playerMapY;
+    
+    
     boolean atNextDoor = false;
     boolean atPreviousDoor = false;
     
@@ -113,10 +117,53 @@ public class GamePanel extends JPanel implements ActionListener {
         Random rd = new Random();
 		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		
-		//Map
-//		g2.drawImage(map.scaleImg,0, 0,null);
-		g2.drawImage(
-				map.getCurrentRoomImage(), null, null,null,null,null);
+		// Draw room
+	    BufferedImage roomImage = map.getCurrentRoomImage();
+
+	    double scaleX =
+	        (double)getWidth() / roomImage.getWidth();
+
+	    double scaleY =
+	        (double)getHeight() / roomImage.getHeight();
+
+	    double scale =
+	        Math.min(scaleX, scaleY);
+
+	    int drawW =
+	        (int)(roomImage.getWidth() * scale);
+
+	    int drawH =
+	        (int)(roomImage.getHeight() * scale);
+
+	    g2.drawImage(roomImage,0,0,drawW,drawH,null);
+
+	    // Draw doors (DEBUG)
+	    Room room = map.getCurrentRoom();
+
+	    g2.setColor(Color.RED);
+
+	    if(room.nextDoor != null) {
+
+	        g2.fillRect(
+	            (int)(room.nextDoor.x * scaleX),
+	            (int)(room.nextDoor.y * scaleY),
+	            (int)(room.nextDoor.width * scale),
+	            (int)(room.nextDoor.height * scale)
+	        );
+	    }
+
+	    g2.setColor(Color.RED);
+	    g2.fillRect(100, 100, 50, 50);
+	    
+	    if(room.previousDoor != null) {
+
+	        g2.fillRect(
+	            (int)(room.previousDoor.x * scale),
+	            (int)(room.previousDoor.y * scale),
+	            (int)(room.previousDoor.width * scale),
+	            (int)(room.previousDoor.height * scale)
+	        );
+	    }
 		
 		//Character
 		g2.drawImage(archer.cIMG, (int)archer.getX(), archer.y, (int)archer.getWidth(), archer.height, null);
@@ -188,7 +235,7 @@ public class GamePanel extends JPanel implements ActionListener {
 			archer.resetHitTimer();
 		}
 		
-		archer.checkCollision(width, height, map);
+		//archer.checkCollision(width, height, map);
 		
 		atNextDoor = false;
 		atPreviousDoor = false;
@@ -229,12 +276,34 @@ public class GamePanel extends JPanel implements ActionListener {
 				    archer.x = 50;
 				}
 		
+	
+		if(map.currentRoom.next != null &&
+				map.currentRoom.nextDoor != null &&
+				map.currentRoom.isClear() &&
+			   archer.intersects(map.currentRoom.nextDoor))
+		{
+				map.currentRoom = map.currentRoom.next;	    
+					    archer.x = 50;
+					}
+
+		if(map.currentRoom.previous != null &&
+				map.currentRoom.previousDoor != null &&
+						map.currentRoom.isClear() &&
+				   archer.intersects(map.currentRoom.previousDoor))
+				{
+				    map.currentRoom = map.currentRoom.previous;
+
+				    archer.x = 700;
+				}
+		
 		//repaint
         this.repaint();
         
     }
     
-    //Key input class
+    
+
+	//Key input class
     private class KeyLis extends KeyAdapter {
         public void keyPressed(KeyEvent e) {
         	String input = KeyEvent.getKeyText(e.getKeyCode()).toLowerCase();

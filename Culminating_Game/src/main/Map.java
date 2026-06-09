@@ -1,5 +1,6 @@
 package main;
 
+import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.URL;
@@ -18,7 +19,7 @@ public class Map {
     public Room room2;
 
     public Room currentRoom;
-
+    
     public Map() {
 
         loadMap();
@@ -46,13 +47,13 @@ public class Map {
 
         // x, y, width, height
         room1 =
-            new Room(0, 0, 800, 600);
+            new Room(31, 252, 160, 90);
 
         hallway1 =
-            new Room(800, 0, 300, 600);
+            new Room(191, 162, 110, 160);
 
         room2 =
-            new Room(1100, 0, 800, 600);
+            new Room(160, 11, 92, 170);
 
         // Linked list
         room1.next = hallway1;
@@ -65,8 +66,8 @@ public class Map {
         // Door rectangles
         room1.nextDoor =
             new java.awt.Rectangle(
-                750, 250,
-                50, 100);
+                181-31, 272-252,
+                10, 30);
 
         hallway1.previousDoor =
             new java.awt.Rectangle(
@@ -98,6 +99,24 @@ public class Map {
 		return currentRoom;
 		
 	}
+	
+	public Color getPixelColor(int x, int y) {
+
+	    BufferedImage roomImg = getCurrentRoomImage();
+
+	    if(x < 0 || y < 0 ||
+	       x >= roomImg.getWidth() ||
+	       y >= roomImg.getHeight()) {
+
+	        return Color.BLACK;
+	    }
+
+	    return new Color(
+	        roomImg.getRGB(x, y)
+	    );
+	}
+	
+	
     
 	/**
 	 * read img

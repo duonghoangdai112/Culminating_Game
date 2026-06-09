@@ -8,28 +8,28 @@ public class Room {
     public Room next;
     public Room previous;
 
-    // Section of the large map image
+    public Rectangle nextDoor;
+    public Rectangle previousDoor;
+
+    public ArrayList<Monster> mons = new ArrayList<>();
+
     private int mapX;
     private int mapY;
     private int mapWidth;
     private int mapHeight;
 
-    // Door hitboxes
-    public Rectangle nextDoor;
-    public Rectangle previousDoor;
-
-    ArrayList<Tiles> tiles = new ArrayList<>();
-    ArrayList<Monster> mons = new ArrayList<>();
-
-    public Room(int mapX, int mapY,
-                int mapWidth, int mapHeight) {
-
+    public Room(int mapX, int mapY,int mapWidth, int mapHeight) {
         this.mapX = mapX;
         this.mapY = mapY;
         this.mapWidth = mapWidth;
         this.mapHeight = mapHeight;
     }
 
+    public boolean isClear() {
+        return mons.isEmpty();
+    }
+
+    // getters...
     public int getMapX() {
         return mapX;
     }
@@ -46,23 +46,7 @@ public class Room {
         return mapHeight;
     }
 
-
- /**
-     * check all monster is clear if yes change room clear to true
-     * to do later 
-     */
-    public void checkRoom(){
-        boolean roomClear;
-		if (mons.isEmpty() && roomClear == false) {
-            roomClear = true;
-            for (Tiles t: tiles){
-                if (t.getName().equals("door")){
-                    t.setCrossable(true);
-                }
-            }
-        }
-    }
-
+	 
     /**
      * to do later 
      * @param charX
@@ -91,8 +75,8 @@ public class Room {
 
         }
         return monDamage;
+    
     }
-
 
 }
 
