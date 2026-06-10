@@ -1,67 +1,82 @@
 package absFrame;
+
+import java.awt.Rectangle;
 import java.util.ArrayList;
+import java.util.Iterator;
 
+/**
+ * Stores the data for one room in the big map image.
+ *
+ * sourceRect = the part of mainmap.png that belongs to this room.
+ * nextDoor / previousDoor = door hitboxes inside this room, using room-local coordinates.
+ * monsters = the monsters that belong to this room.
+ */
 public class Room {
-    private int width; 
-    private int length; 
-    ArrayList<Tiles> tiles = new ArrayList<Tiles>(); 
-    ArrayList<Monster> mons =new ArrayList<Monster>();
-    Boolean roomClear;
+    private String name;
+    private Rectangle sourceRect;
+    private ArrayList<Monster> monsters = new ArrayList<Monster>();
 
-    public Room(int width, int length, ArrayList<Tiles> tiles, ArrayList<Monster> mons){
-        // think of a way to add in tiles and monster to a room 
-        this.width = width;
-        this.length = length;
-        this.tiles = tiles;
-        this.mons = mons;
+    public Room next;
+    public Room previous;
 
+    public Rectangle nextDoor;
+    public Rectangle previousDoor;
+
+    public Room(String name, int mapX, int mapY, int mapWidth, int mapHeight) {
+        this.name = name;
+        this.sourceRect = new Rectangle(mapX, mapY, mapWidth, mapHeight);
     }
 
+    public String getName() {
+        return name;
+    }
 
-    /**
-     * check all monster is clear if yes change room clear to true
-     * to do later 
-     */
-    public void checkRoom(){
-        if (mons.isEmpty() && roomClear == false) {
-            roomClear = true;
-            for (Tiles t: tiles){
-                if (t.getName().equals("door")){
-                    t.setCrossable(true);
-                }
+    public Rectangle getSourceRect() {
+        return sourceRect;
+    }
+
+    public int getMapX() {
+        return sourceRect.x;
+    }
+
+    public int getMapY() {
+        return sourceRect.y;
+    }
+
+    public int getMapWidth() {
+        return sourceRect.width;
+    }
+
+    public int getMapHeight() {
+        return sourceRect.height;
+    }
+
+    public ArrayList<Monster> getMonsters() {
+        return monsters;
+    }
+
+    public void addMonster(Monster monster) {
+        if (monster != null) {
+            monsters.add(monster);
+        }
+    }
+
+    public void clearMonsters() {
+        monsters.clear();
+    }
+
+    public void removeDefeatedMonsters() {
+        Iterator<Monster> it = monsters.iterator();
+        while (it.hasNext()) {
+            Monster monster = it.next();
+            if (monster.getHealth() <= 0) {
+                it.remove();
             }
         }
     }
 
-    /**
-     * to do later 
-     * @param charX
-     * @param charY
-     * @param charProj
-     * @return
-     */
-
-    public double checkResult(int charX, int charY, ArrayList<Projectile> charProj){
-        int monDamage = 0;
-
-        for (Monster m : mons ){
-//            monDamage += m.checkProjectile(charX, charY, tiles);
-
-            for (Projectile p: charProj){
-//                if(m.getX() <= p.getX() + p.getHitBox() 
-//                    && m.getX() >= p.getX()- p.getX()){
-//                        if(m.getY() <= p.getY() + p.getHitBox() 
-//                        && m.getY() >= p.getY()- p.getHitBox()){
-//                            m.reduceHealth(p.getDamage());
-//                            p.setVisibility(false);
-//                            if(m.getHealth() ==0){mons.remove(m);}
-//                        }
-//                }
-            }
-
-        }
-        return monDamage;
+    public boolean isClear() {
+        removeDefeatedMonsters();
+        return monsters.isEmpty();
     }
-
-
 }

@@ -5,10 +5,19 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
-import absFrame.*;
-import sprite.*;
+import absFrame.Monster;
+import sprite.Archer;
+import sprite.RangeMonster;
 
-import java.awt.*;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Rectangle;
+import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
@@ -16,13 +25,14 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 public class GamePanel extends JPanel implements ActionListener {
-    Timer timer;
+    private Timer timer;
 
     // Lets MainClass decide what happens when the player confirms returning to menu.
     public interface ReturnToMenuListener {
@@ -49,63 +59,37 @@ public class GamePanel extends JPanel implements ActionListener {
     // 0 = YES, 1 = NO. Start on NO so Enter does not accidentally leave the game.
     private int returnDialogSelection = 1;
 
-    //Time record variable
-    int TIMERSPEED =10; // speed
-    int GAMETIME = 0; // time in ms
-    int countSec =0; // time in s
-    double FULLTIME =0; // time in s and ms
+    // Time record variable.
+    private int TIMERSPEED = 10;
+    private int GAMETIME = 0;
+    private int countSec = 0;
+    private double FULLTIME = 0;
 
-    // Panel Width and Height
+    // Panel width and height.
     private int width = 1000;
     private int height = 1000;
 
-    //Object Initialization
-    Monster m1;
-    Monster mDecoy,mDecoy2, mDecoy3;
-    ArrayList<Monster> monsters = new ArrayList <Monster>();
+    private Archer archer = new Archer(100, 5, 100, 5, 10, 10, "Archer");
+    private RoomMap roomMap = new RoomMap();
+    private ArrayList<Monster> monsters = roomMap.getCurrentMonsters();
 
-    Room r;
-
-    Archer archer = new Archer(100,5,100,5,10,10,"Archer");
-
-    Map map = new Map(width, height, 1);
-
-    public GamePanel(HashMap<String, Integer> hashMap){ //later on sep the hash into a new class
+    public GamePanel(HashMap<String, Integer> hashMap) {
         this(hashMap, "Archer", "Bow");
     }
 
-    public GamePanel(HashMap<String, Integer> hashMap, String characterName, String weaponName){ //later on sep the hash into a new class
-        //Panel setup
-        this.setPreferredSize(new Dimension(width, height));
-        this.addKeyListener(new KeyLis());
-        this.addMouseListener(new MouseLis());
-        this.setFocusable(true);
-        this.setFocusTraversalKeysEnabled(false);
+    public GamePanel(HashMap<String, Integer> hashMap, String characterName, String weaponName) {
+        setPreferredSize(new Dimension(width, height));
+        addKeyListener(new KeyLis());
+        addMouseListener(new MouseLis());
+        setFocusable(true);
+        setFocusTraversalKeysEnabled(false);
 
         setupPlayerLoadout(characterName, weaponName);
+        setupRoomMonsters(hashMap);
 
-        //timer
         timer = new Timer(TIMERSPEED, this);
         timer.start();
         timer.setInitialDelay(10);
-
-        //init of stuff
-        // this should later be move into room
-        m1 = new RangeMonster(hashMap,0,100,100,50,50,0.3);
-//        mDecoy2 = new RangeMonster(m1Stats,0,100,100,100,800);
-//        mDecoy3 = new RangeMonster(m1Stats,0,100,100,800,100);
-
-        mDecoy = new RangeMonster(hashMap,0,100,100,800,800,0.3);
-        monsters.add(m1);
-        monsters.add(mDecoy);
-//        monsters.add(mDecoy2);
-//        monsters.add(mDecoy3);
-
-//        ArrayList<Monster> m1A = new ArrayList<Monster>();
-//        m1A.add(m1);
-//
-//
-//        Room r = new Room(200,200,null,m1A);
     }
 
     /**
@@ -116,7 +100,6 @@ public class GamePanel extends JPanel implements ActionListener {
         // Archer_animation.png is the gameplay sprite sheet.
         // Frame 0 is the idle/resting image, and the other frames create walking movement.
         archer.setWalkAnimation(loadImage("Archer_animation.png"), 5);
-
         setupWeapon(weaponName);
     }
 
@@ -157,8 +140,23 @@ public class GamePanel extends JPanel implements ActionListener {
         }
     }
 
-    // maybe move this to absFrame later
-    BufferedImage loadImage(String filename) {
+    /**
+     * Puts monsters into rooms instead of keeping one global monster list.
+     * This makes it much easier to add room-specific enemies later.
+     */
+    private void setupRoomMonsters(HashMap<String, Integer> monsterStats) {
+        roomMap.clearAllMonsters();
+
+        roomMap.addMonsterToRoom("room1", new RangeMonster(monsterStats, 0, 100, 100, 720, 720, 0.3));
+        roomMap.addMonsterToRoom("room1", new RangeMonster(monsterStats, 0, 100, 100, 480, 260, 0.3));
+
+        roomMap.addMonsterToRoom("room2", new RangeMonster(monsterStats, 0, 100, 100, 680, 360, 0.25));
+        roomMap.addMonsterToRoom("room3", new RangeMonster(monsterStats, 0, 100, 100, 520, 520, 0.25));
+
+        monsters = roomMap.getCurrentMonsters();
+    }
+
+    private BufferedImage loadImage(String filename) {
         String[] resourceNames = {"/" + filename, "/assests/" + filename};
         for (String resourceName : resourceNames) {
             URL url = this.getClass().getResource(resourceName);
@@ -190,36 +188,58 @@ public class GamePanel extends JPanel implements ActionListener {
     }
 
     public void paintComponent(Graphics g) {
-        //setup
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g;
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-        //Map
-//      g2.drawImage(map.scaleImg,0, 0,null);
-        g2.drawImage(
-                map.scaleImg,
-                map.dx1, map.dy1,
-                map.dx2, map.dy2,
-                map.sx1, map.sy1,
-                map.sx2, map.sy2,
-                null);
+        /*
+         * The game world uses a fixed 1000 x 1000 coordinate system.
+         * When the window is resized, we scale the drawing instead of changing
+         * the collision math. This keeps the room image, player, monsters, and
+         * door hitboxes lined up correctly at every window size.
+         */
+        Graphics2D worldG = (Graphics2D) g2.create();
+        double scaleX = getWidth() / (double) width;
+        double scaleY = getHeight() / (double) height;
+        worldG.scale(scaleX, scaleY);
 
-        //Character
-        g2.drawImage(archer.getCurrentImage(), (int)archer.getX(), archer.y, (int)archer.getWidth(), archer.height, null);
-        archer.weapon.draw(g,archer);
-        archer.drawCharacter(g);
+        roomMap.drawCurrentRoom(worldG, width, height);
+        // Uncomment this while editing door locations.
+        // roomMap.drawDebugDoors(worldG, width, height);
 
-        //Mons
-        for(Monster m: monsters) {
-            g2.draw(m);
+        worldG.drawImage(archer.getCurrentImage(), (int) archer.getX(), archer.y,
+                (int) archer.getWidth(), archer.height, null);
+        archer.weapon.draw(worldG, archer);
+
+        monsters = roomMap.getCurrentMonsters();
+        for (Monster monster : monsters) {
+            worldG.draw(monster);
         }
 
+        worldG.dispose();
+
+        // UI is drawn after the world, using real panel pixels, so it stays sharp
+        // and remains clickable after resizing.
+        archer.drawCharacter(g2);
+        drawRoomLabel(g2);
         drawCloseButton(g2);
 
         if (returnDialogOpen) {
             drawReturnDialog(g2);
         }
+    }
+
+    private void drawRoomLabel(Graphics2D g2) {
+        String label = "Room: " + roomMap.getCurrentRoomName();
+        g2.setFont(new Font(Font.MONOSPACED, Font.BOLD, 16));
+        FontMetrics fm = g2.getFontMetrics();
+        int x = getWidth() - fm.stringWidth(label) - 75;
+        int y = 85;
+
+        g2.setColor(new Color(0, 0, 0, 140));
+        g2.fillRoundRect(x - 10, y - fm.getAscent(), fm.stringWidth(label) + 20, 28, 8, 8);
+        g2.setColor(new Color(240, 230, 200));
+        g2.drawString(label, x, y);
     }
 
     /**
@@ -251,7 +271,6 @@ public class GamePanel extends JPanel implements ActionListener {
         int W = getWidth();
         int H = getHeight();
 
-        // Dark transparent overlay.
         g2.setColor(new Color(0, 0, 0, 160));
         g2.fillRect(0, 0, W, H);
 
@@ -330,58 +349,75 @@ public class GamePanel extends JPanel implements ActionListener {
             return;
         }
 
-        //update timer
-        if(countSec == 1000) {
+        updateGameClock();
+        updatePlayerMovement();
+        updateWeaponAnimation();
+        updateMonsters();
+        checkCombatResults();
+        checkRoomTransition();
+        checkLosingCondition();
+
+        repaint();
+    }
+
+    private void updateGameClock() {
+        if (countSec == 1000) {
             GAMETIME++;
-            countSec =0;
-        }
-        else {
+            countSec = 0;
+        } else {
             countSec += TIMERSPEED;
         }
-        FULLTIME = ((double)(GAMETIME*1000+ countSec))/1000.0;
+        FULLTIME = ((double) (GAMETIME * 1000 + countSec)) / 1000.0;
+    }
 
-        updatePlayerMovement();
-
-        // weapon animation + rotation
-        if(archer.weapon.attack ==true) {
+    private void updateWeaponAnimation() {
+        if (archer.weapon.attack == true) {
             archer.weapon.switchFrame();
         }
+    }
 
-        //MONSTER ACTION
-        m1.move(archer.x, archer.y);
-        for(Monster m : monsters) {
-            m.move(archer.x, archer.y);
+    private void updateMonsters() {
+        monsters = roomMap.getCurrentMonsters();
+        for (Monster monster : monsters) {
+            monster.move(archer.x, archer.y);
         }
+    }
 
-        //CHECK RESULT
-        archer.RemoveProj(); //remove bad projectile
+    private void checkCombatResults() {
+        monsters = roomMap.getCurrentMonsters();
 
-        archer.checkProjectile(monsters); //check if projectile of character hit monster
-        ArrayList<Monster> temp = (ArrayList<Monster>) monsters.clone();
-        for(int i = 0;i<temp.size();i++) {
-            if(temp.get(i).getHealth() <=0) {
-                monsters.remove(i);
-            }
-        }
+        archer.RemoveProj();
+        archer.checkProjectile(monsters);
+        roomMap.getCurrentRoom().removeDefeatedMonsters();
+        monsters = roomMap.getCurrentMonsters();
 
-        //count down or grant immunity if got hit
-        if(!archer.countDownImmunity()) {
-            for(Monster m: monsters) { //check collision with character
-                m.checkCollision(archer.x, archer.y, null, archer);
+        if (!archer.countDownImmunity()) {
+            for (Monster monster : monsters) {
+                monster.checkCollision(archer.x, archer.y, null, archer);
             }
             archer.resetHitTimer();
         }
+    }
 
-        archer.checkCollision(width, height, map);
+    private void checkRoomTransition() {
+        if (roomMap.tryChangeRoom(archer, width, height)) {
+            monsters = roomMap.getCurrentMonsters();
+            clearProjectiles();
+        }
+    }
 
-        //losing condition
-        if(archer.health <=0) {
+    private void clearProjectiles() {
+        archer.projectile.clear();
+        if (archer.weapon != null) {
+            archer.weapon.wProj = archer.projectile;
+        }
+    }
+
+    private void checkLosingCondition() {
+        if (archer.health <= 0) {
             timer.stop();
             System.out.println("Game end");
         }
-
-        //repaint
-        this.repaint();
     }
 
     /**
@@ -477,10 +513,10 @@ public class GamePanel extends JPanel implements ActionListener {
             }
         }
 
+        roomMap.keepPlayerInsideRoom(archer, width, height);
         archer.updateWalkAnimation(moving);
     }
 
-    //Mouse input class
     private class MouseLis extends MouseAdapter {
         @Override
         public void mousePressed(MouseEvent e) {
@@ -490,8 +526,7 @@ public class GamePanel extends JPanel implements ActionListener {
                 if (yesButtonBounds.contains(e.getPoint())) {
                     returnDialogSelection = 0;
                     returnToMainMenu();
-                }
-                else if (noButtonBounds.contains(e.getPoint())) {
+                } else if (noButtonBounds.contains(e.getPoint())) {
                     returnDialogSelection = 1;
                     closeReturnDialog();
                 }
@@ -504,12 +539,11 @@ public class GamePanel extends JPanel implements ActionListener {
         }
     }
 
-    //Key input class
     private class KeyLis extends KeyAdapter {
         @Override
         public void keyPressed(KeyEvent e) {
             if (returnDialogOpen) {
-                switch(e.getKeyCode()) {
+                switch (e.getKeyCode()) {
                     case KeyEvent.VK_A:
                     case KeyEvent.VK_W:
                     case KeyEvent.VK_LEFT:
@@ -541,7 +575,7 @@ public class GamePanel extends JPanel implements ActionListener {
                 return;
             }
 
-            switch(e.getKeyCode()) {
+            switch (e.getKeyCode()) {
                 case KeyEvent.VK_X:
                     openReturnDialog();
                     break;
@@ -560,11 +594,10 @@ public class GamePanel extends JPanel implements ActionListener {
                     archer.flip(false);
                     break;
                 case KeyEvent.VK_J:
+                    monsters = roomMap.getCurrentMonsters();
                     if (archer.weapon.Ready(FULLTIME)) {
                         archer.Attack(monsters);
                         archer.weapon.logTime(FULLTIME);
-                        // maybe later modified so the attack is invoke every second
-                        // it will not only attack but only do aiming and rotation calling
                         archer.weapon.attack = true;
                     }
                     break;
@@ -573,7 +606,7 @@ public class GamePanel extends JPanel implements ActionListener {
 
         @Override
         public void keyReleased(KeyEvent e) {
-            switch(e.getKeyCode()) {
+            switch (e.getKeyCode()) {
                 case KeyEvent.VK_W:
                     moveUp = false;
                     break;

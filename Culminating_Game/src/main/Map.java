@@ -3,6 +3,7 @@ package main;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.io.File;
 import java.net.URL;
 
 import javax.imageio.ImageIO;
@@ -56,22 +57,34 @@ public class Map {
 	 * @return an BufferedImg object
 	 */
     BufferedImage loadImage(String filename) {
-        URL url = this.getClass().getResource("/" + filename);
-        BufferedImage img = null;
-
-        if (url != null) {
-            try {
-                img = ImageIO.read(url);
-            } catch (IOException e) {
-                System.out.println(e.toString());
-                JOptionPane.showMessageDialog(null, "An image failed to load: " + filename,
-                        "Error", JOptionPane.ERROR_MESSAGE);
+        String[] resourceNames = {"/" + filename, "/assests/" + filename};
+        for (String resourceName : resourceNames) {
+            URL url = this.getClass().getResource(resourceName);
+            if (url != null) {
+                try {
+                    return ImageIO.read(url);
+                } catch (IOException e) {
+                    System.out.println("Could not load image resource: " + resourceName);
+                }
             }
-        } else {
-            System.out.println("URL is null for: " + filename);
         }
 
-        return img;
+        String[] fileNames = {filename, "assests/" + filename};
+        for (String fileName : fileNames) {
+            File file = new File(fileName);
+            if (file.exists()) {
+                try {
+                    return ImageIO.read(file);
+                } catch (IOException e) {
+                    System.out.println("Could not load image file: " + fileName);
+                }
+            }
+        }
+
+        System.out.println("Image not found: " + filename);
+        JOptionPane.showMessageDialog(null, "An image failed to load: " + filename,
+                "Error", JOptionPane.ERROR_MESSAGE);
+        return null;
     }
     
     /**
