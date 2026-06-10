@@ -2,7 +2,6 @@ package absFrame;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.*;
-import main.Map;
 
 public abstract class Character extends Rectangle {
 	public int health,mana,speed,visionRange,cooldown,maxHealth,maxMana;
@@ -103,13 +102,14 @@ public abstract class Character extends Rectangle {
 			if(curManaBar>0 ) {
 				g2.setColor(Color.BLUE);
 				g2.fillRect(10+i*barW, 70, barW, barL);
-				numbBar--;
+				curManaBar--;
 			}
 			
 			g2.setColor(Color.WHITE);
 			g2.drawRect(10+i*barW, 70, barW, barL);
 			
 		}
+		g2.dispose();
 	}
 	
 	
@@ -133,7 +133,7 @@ public abstract class Character extends Rectangle {
 
 		int frameW = sheet.getWidth() / frameCount;
 		int frameH = sheet.getHeight();
-		double scale = 100.0/frameW;
+		double scale = 50.0/frameW;
 		System.out.println(scale);
 		this.width = (int)(frameW*scale);
 		this.height = (int)(frameH*scale);
@@ -265,43 +265,6 @@ public abstract class Character extends Rectangle {
 		
 	}
 	
-	public void checkCollision(int screenW,int screenH,Map map){
-		this.screenW = screenW;
-		this.screenH = screenH;
-				
-		//case left
-		if(x <0) {
-			boolean cameraMoved = map.changeBackground(new int[] {-1, 0});
-
-			if (cameraMoved) {x = screenW - width;} 
-			else {x = 0;}
-		}
-		
-		//case up
-		if(y <0) {
-			boolean cameraMoved = map.changeBackground(new int[] {0, -1});
-
-			if (cameraMoved) {
-				y = screenH - height;} 
-			else {y = 0;}
-		}
-
-		//case right
-		if(x> screenW-this.width) { 
-			boolean cameraMoved = map.changeBackground(new int[] {1, 0}); 
-
-		    if (cameraMoved) { x = 0; } 
-		    else {x = screenW - width;}
-		}
-		
-		// case down
-		if(y> screenH-this.height) {
-			boolean cameraMoved = map.changeBackground(new int[] {0, 1});
-
-			if (cameraMoved) {y = 0;} 
-			else {y = screenH - height;}
-		}		
-	}
 	
 	
 	public int Find() {

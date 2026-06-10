@@ -172,7 +172,7 @@ public class Weapon {
 	}
 
 	/**
-	 * Finds the muzzle/end point of the weapon in screen coordinates.
+	 * Finds the muzzle/end point of the weapon in world coordinates.
 	 * The weapon sprite points right before rotation and is drawn starting at
 	 * the character centre, so the muzzle is one scaled weapon-width away
 	 * in the current weapon angle.
@@ -194,7 +194,6 @@ public class Weapon {
 	
 	public void draw(Graphics g,Character character) {
 		Graphics2D g2 = (Graphics2D) g.create();
-		g2.drawString("Hello ", 100, 100);
 		
 		  int drawW = (int)(width * ratio);
 		  int drawH = (int)(height * ratio);
@@ -239,6 +238,7 @@ public class Weapon {
 	        sy2,
 	        null
 	    );
+		g2.dispose();
 	}
 	
 	public void setAngle(Character character, Monster target) {

@@ -70,8 +70,9 @@ public class GamePanel extends JPanel implements ActionListener {
     private int height = 1000;
 
     private Archer archer = new Archer(100, 5, 100, 5, 10, 10, "Archer");
-    private RoomMap roomMap = new RoomMap();
-    private ArrayList<Monster> monsters = roomMap.getCurrentMonsters();
+    private WorldMap worldMap = new WorldMap();
+    private Camera camera = new Camera();
+    private ArrayList<Monster> monsters = worldMap.getMonsters();
 
     public GamePanel(HashMap<String, Integer> hashMap) {
         this(hashMap, "Archer", "Bow");
@@ -85,7 +86,8 @@ public class GamePanel extends JPanel implements ActionListener {
         setFocusTraversalKeysEnabled(false);
 
         setupPlayerLoadout(characterName, weaponName);
-        setupRoomMonsters(hashMap);
+        worldMap.placeCharacterInArea(archer, "room1", 0.45, 0.50);
+        setupWorldMonsters(hashMap);
 
         timer = new Timer(TIMERSPEED, this);
         timer.start();
@@ -141,19 +143,19 @@ public class GamePanel extends JPanel implements ActionListener {
     }
 
     /**
-     * Puts monsters into rooms instead of keeping one global monster list.
-     * This makes it much easier to add room-specific enemies later.
+     * Puts monsters onto the full connected world map.
+     * Room names are only used as placement zones now; they do not switch maps.
      */
-    private void setupRoomMonsters(HashMap<String, Integer> monsterStats) {
-        roomMap.clearAllMonsters();
+    private void setupWorldMonsters(HashMap<String, Integer> monsterStats) {
+        worldMap.clearMonsters();
 
-        roomMap.addMonsterToRoom("room1", new RangeMonster(monsterStats, 0, 100, 100, 720, 720, 0.3));
-        roomMap.addMonsterToRoom("room1", new RangeMonster(monsterStats, 0, 100, 100, 480, 260, 0.3));
+        worldMap.addMonsterToArea("room1", new RangeMonster(monsterStats, 0, 100, 100, 0, 0, 0.3), 0.65, 0.55);
+        worldMap.addMonsterToArea("room1", new RangeMonster(monsterStats, 0, 100, 100, 0, 0, 0.3), 0.35, 0.35);
+        worldMap.addMonsterToArea("room2", new RangeMonster(monsterStats, 0, 100, 100, 0, 0, 0.25), 0.55, 0.60);
+        worldMap.addMonsterToArea("room3", new RangeMonster(monsterStats, 0, 100, 100, 0, 0, 0.25), 0.55, 0.55);
+        worldMap.addMonsterToArea("room4", new RangeMonster(monsterStats, 0, 100, 100, 0, 0, 0.25), 0.70, 0.45);
 
-        roomMap.addMonsterToRoom("room2", new RangeMonster(monsterStats, 0, 100, 100, 680, 360, 0.25));
-        roomMap.addMonsterToRoom("room3", new RangeMonster(monsterStats, 0, 100, 100, 520, 520, 0.25));
-
-        monsters = roomMap.getCurrentMonsters();
+        monsters = worldMap.getMonsters();
     }
 
     private BufferedImage loadImage(String filename) {
@@ -192,36 +194,34 @@ public class GamePanel extends JPanel implements ActionListener {
         Graphics2D g2 = (Graphics2D) g;
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-        /*
-         * The game world uses a fixed 1000 x 1000 coordinate system.
-         * When the window is resized, we scale the drawing instead of changing
-         * the collision math. This keeps the room image, player, monsters, and
-         * door hitboxes lined up correctly at every window size.
-         */
-        Graphics2D worldG = (Graphics2D) g2.create();
-        double scaleX = getWidth() / (double) width;
-        double scaleY = getHeight() / (double) height;
-        worldG.scale(scaleX, scaleY);
+        int viewW = getViewWidth();
+        int viewH = getViewHeight();
+        updateCamera(viewW, viewH);
 
-        roomMap.drawCurrentRoom(worldG, width, height);
-        // Uncomment this while editing door locations.
-        // roomMap.drawDebugDoors(worldG, width, height);
+        // Draw the game world through the camera. Everything inside worldG uses
+        // world coordinates; the camera translation decides where it appears on screen.
+        g2.setColor(Color.BLACK);
+        g2.fillRect(0, 0, viewW, viewH);
+
+        Graphics2D worldG = (Graphics2D) g2.create();
+        worldG.scale(camera.getZoom(), camera.getZoom());
+        worldG.translate(-camera.getX(), -camera.getY());
+
+        worldMap.draw(worldG);
 
         worldG.drawImage(archer.getCurrentImage(), (int) archer.getX(), archer.y,
                 (int) archer.getWidth(), archer.height, null);
         archer.weapon.draw(worldG, archer);
 
-        monsters = roomMap.getCurrentMonsters();
+        monsters = worldMap.getMonsters();
         for (Monster monster : monsters) {
             worldG.draw(monster);
         }
-
         worldG.dispose();
 
-        // UI is drawn after the world, using real panel pixels, so it stays sharp
-        // and remains clickable after resizing.
+        // UI is drawn after the camera so it stays fixed to the screen.
         archer.drawCharacter(g2);
-        drawRoomLabel(g2);
+        drawAreaLabel(g2);
         drawCloseButton(g2);
 
         if (returnDialogOpen) {
@@ -229,8 +229,20 @@ public class GamePanel extends JPanel implements ActionListener {
         }
     }
 
-    private void drawRoomLabel(Graphics2D g2) {
-        String label = "Room: " + roomMap.getCurrentRoomName();
+    private int getViewWidth() {
+        return getWidth() > 0 ? getWidth() : width;
+    }
+
+    private int getViewHeight() {
+        return getHeight() > 0 ? getHeight() : height;
+    }
+
+    private void updateCamera(int viewW, int viewH) {
+        camera.follow(archer, viewW, viewH, worldMap.getWorldWidth(), worldMap.getWorldHeight());
+    }
+
+    private void drawAreaLabel(Graphics2D g2) {
+        String label = "Area: " + worldMap.getAreaNameAt(archer);
         g2.setFont(new Font(Font.MONOSPACED, Font.BOLD, 16));
         FontMetrics fm = g2.getFontMetrics();
         int x = getWidth() - fm.stringWidth(label) - 75;
@@ -354,7 +366,6 @@ public class GamePanel extends JPanel implements ActionListener {
         updateWeaponAnimation();
         updateMonsters();
         checkCombatResults();
-        checkRoomTransition();
         checkLosingCondition();
 
         repaint();
@@ -377,39 +388,25 @@ public class GamePanel extends JPanel implements ActionListener {
     }
 
     private void updateMonsters() {
-        monsters = roomMap.getCurrentMonsters();
+        monsters = worldMap.getMonsters();
         for (Monster monster : monsters) {
             monster.move(archer.x, archer.y);
         }
     }
 
     private void checkCombatResults() {
-        monsters = roomMap.getCurrentMonsters();
+        monsters = worldMap.getMonsters();
 
         archer.RemoveProj();
         archer.checkProjectile(monsters);
-        roomMap.getCurrentRoom().removeDefeatedMonsters();
-        monsters = roomMap.getCurrentMonsters();
+        worldMap.removeDefeatedMonsters();
+        monsters = worldMap.getMonsters();
 
         if (!archer.countDownImmunity()) {
             for (Monster monster : monsters) {
                 monster.checkCollision(archer.x, archer.y, null, archer);
             }
             archer.resetHitTimer();
-        }
-    }
-
-    private void checkRoomTransition() {
-        if (roomMap.tryChangeRoom(archer, width, height)) {
-            monsters = roomMap.getCurrentMonsters();
-            clearProjectiles();
-        }
-    }
-
-    private void clearProjectiles() {
-        archer.projectile.clear();
-        if (archer.weapon != null) {
-            archer.weapon.wProj = archer.projectile;
         }
     }
 
@@ -513,7 +510,7 @@ public class GamePanel extends JPanel implements ActionListener {
             }
         }
 
-        roomMap.keepPlayerInsideRoom(archer, width, height);
+        worldMap.keepInsideWorld(archer);
         archer.updateWalkAnimation(moving);
     }
 
@@ -584,17 +581,15 @@ public class GamePanel extends JPanel implements ActionListener {
                     break;
                 case KeyEvent.VK_A:
                     moveLeft = true;
-                    archer.flip(true);
                     break;
                 case KeyEvent.VK_S:
                     moveDown = true;
                     break;
                 case KeyEvent.VK_D:
                     moveRight = true;
-                    archer.flip(false);
                     break;
                 case KeyEvent.VK_J:
-                    monsters = roomMap.getCurrentMonsters();
+                    monsters = worldMap.getMonsters();
                     if (archer.weapon.Ready(FULLTIME)) {
                         archer.Attack(monsters);
                         archer.weapon.logTime(FULLTIME);

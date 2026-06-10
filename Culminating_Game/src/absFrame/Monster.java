@@ -35,6 +35,13 @@ public abstract class Monster extends Rectangle {
 		this.startTime = startTime;
 	}
 	
+	public void setWorldPosition(int x, int y) {
+		this.x = x;
+		this.y = y;
+		this.xx = x;
+		this.yy = y;
+	}
+
 	public double getHealth() {
 		return health;
 	}
