@@ -2,7 +2,6 @@ package absFrame;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.*;
-import main.Map;
 
 public abstract class Character extends Rectangle {
 	public int health,mana,speed,visionRange,cooldown,maxHealth,maxMana;
@@ -15,6 +14,13 @@ public abstract class Character extends Rectangle {
 	public Weapon weapon; 
 	
 	public boolean faceLeft = true; 
+
+	// Walking animation. When the character is not moving, cIMG is used again.
+	private BufferedImage[] walkFrames;
+	private int walkFrameIndex = 0;
+	private int walkFrameCounter = 0;
+	private int walkFrameDelay = 8;
+	private boolean isWalking = false;
 	
 	public int startTime;
 	
@@ -96,13 +102,14 @@ public abstract class Character extends Rectangle {
 			if(curManaBar>0 ) {
 				g2.setColor(Color.BLUE);
 				g2.fillRect(10+i*barW, 70, barW, barL);
-				numbBar--;
+				curManaBar--;
 			}
 			
 			g2.setColor(Color.WHITE);
 			g2.drawRect(10+i*barW, 70, barW, barL);
 			
 		}
+		g2.dispose();
 	}
 	
 	
@@ -111,17 +118,81 @@ public abstract class Character extends Rectangle {
 	 * @param img
 	 */
 	public void setCharIMG(BufferedImage img) {cIMG = img;}
+
+	/**
+	 * Gives the character a walking sprite sheet.
+	 * The sheet should have equal-width frames in one row.
+	 * Frame 0 is the resting / idle image.
+	 */
+	public void setWalkAnimation(BufferedImage sheet, int frameCount) {
+		if (sheet == null || frameCount <= 0) {
+			return;
+		}
+
+		walkFrames = new BufferedImage[frameCount];
+
+		int frameW = sheet.getWidth() / frameCount;
+		int frameH = sheet.getHeight();
+		double scale = 50.0/frameW;
+		System.out.println(scale);
+		this.width = (int)(frameW*scale);
+		this.height = (int)(frameH*scale);
+
+		for (int i = 0; i < frameCount; i++) {
+			walkFrames[i] = sheet.getSubimage(i * frameW, 0, frameW, frameH);
+		}
+
+		// The first frame of the sprite sheet is now the idle image.
+		cIMG = walkFrames[0];
+	}
+
+	/**
+	 * Updates the walking animation. Passing false resets the character back to
+	 * the first frame, which is the resting / idle image.
+	 */
+	public void updateWalkAnimation(boolean moving) {
+		if (walkFrames == null || walkFrames.length == 0) {
+			return;
+		}
+
+		if (!moving) {
+			isWalking = false;
+			walkFrameIndex = 0;
+			walkFrameCounter = 0;
+			return;
+		}
+		
+		isWalking = true;
+		walkFrameCounter++;
+
+		if (walkFrameCounter >= walkFrameDelay) {
+			walkFrameCounter = 0;
+			walkFrameIndex = (walkFrameIndex + 1) % walkFrames.length;
+		}
+	}
+
+	/**
+	 * Chooses the current sprite sheet frame.
+	 * If no animation sheet was loaded, it falls back to cIMG.
+	 */
+	public BufferedImage getCurrentImage() {
+		if (walkFrames != null && walkFrames.length > 0) {
+			return walkFrames[walkFrameIndex];
+		}
+
+		return cIMG;
+	}
+
 	/**
 	 * create the weapon
 	 */
 	public void weaponInit(int manaCost,int vx,int vy,double cd,int damage,
-			String name, BufferedImage wIMG,int maxFrameW,double d,BufferedImage projImage) {
+			String name, BufferedImage wIMG,int maxFrameW,double ratio,BufferedImage projImage) {
 		int angel = 0;
 		int width = wIMG.getWidth()/maxFrameW;
 		int height = wIMG.getHeight();
-		System.out.println(d);
 		weapon = new Weapon(manaCost,vx,vy,cd,damage,angel,name,width,height,wIMG,projImage); 
-		weapon.setImage(maxFrameW,d);
+		weapon.setImage(maxFrameW,ratio);
 		this.projIMG = projImage;
 	}
 	/**
@@ -194,43 +265,6 @@ public abstract class Character extends Rectangle {
 		
 	}
 	
-	public void checkCollision(int screenW,int screenH,Map map){
-		this.screenW = screenW;
-		this.screenH = screenH;
-				
-		//case left
-		if(x <0) {
-			boolean cameraMoved = map.changeBackground(new int[] {-1, 0});
-
-			if (cameraMoved) {x = screenW - width;} 
-			else {x = 0;}
-		}
-		
-		//case up
-		if(y <0) {
-			boolean cameraMoved = map.changeBackground(new int[] {0, -1});
-
-			if (cameraMoved) {
-				y = screenH - height;} 
-			else {y = 0;}
-		}
-
-		//case right
-		if(x> screenW-this.width) { 
-			boolean cameraMoved = map.changeBackground(new int[] {1, 0}); 
-
-		    if (cameraMoved) { x = 0; } 
-		    else {x = screenW - width;}
-		}
-		
-		// case down
-		if(y> screenH-this.height) {
-			boolean cameraMoved = map.changeBackground(new int[] {0, 1});
-
-			if (cameraMoved) {y = 0;} 
-			else {y = screenH - height;}
-		}		
-	}
 	
 	
 	public int Find() {

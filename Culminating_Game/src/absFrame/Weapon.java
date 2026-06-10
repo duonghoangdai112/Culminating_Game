@@ -149,7 +149,7 @@ public class Weapon {
 		return new Projectile(
 				(int)Math.round(startX - projW / 2.0),
 				(int)Math.round(startY - projH / 2.0),
-				projW, projH, projVx, projVy, damage,projImg);
+				projW, projH, projVx, projVy, damage, projImg, projectileAngle);
 	}
 
 	/**
@@ -168,11 +168,11 @@ public class Weapon {
 		return new Projectile(
 				(int)Math.round(muzzle[0] - projW / 2.0),
 				(int)Math.round(muzzle[1] - projH / 2.0),
-				projW, projH, projVx, projVy, damage,projImg);
+				projW, projH, projVx, projVy, damage, projImg, angle);
 	}
 
 	/**
-	 * Finds the muzzle/end point of the weapon in screen coordinates.
+	 * Finds the muzzle/end point of the weapon in world coordinates.
 	 * The weapon sprite points right before rotation and is drawn starting at
 	 * the character centre, so the muzzle is one scaled weapon-width away
 	 * in the current weapon angle.
@@ -194,13 +194,12 @@ public class Weapon {
 	
 	public void draw(Graphics g,Character character) {
 		Graphics2D g2 = (Graphics2D) g.create();
-		g2.drawString("Hello ", 100, 100);
 		
 		  int drawW = (int)(width * ratio);
 		  int drawH = (int)(height * ratio);
 
-		  int centerX = character.x + character.width / 2;
-		  int centerY = character.y + character.height / 2;
+		  int centerX = character.x+6 + character.width / 2;
+		  int centerY = character.y+6 + character.height / 2;
 
 		  dx1 = centerX- drawW / 2;
 		  dy1 = centerY - drawH / 2;
@@ -212,9 +211,18 @@ public class Weapon {
 			  dy1 = dy2;
 			  dy2 = temp;
 		  }
+		  // draw projectile
 		  for (Projectile p: wProj) {
 	    		p.move();
-	    		g2.drawImage(p.bulletImg, p.x, p.y, p.width, p.height, null);
+	    		
+	    	  int PdrawW = (int)(p.width * p.ratio);
+	   		  int PdrawH = (int)(p.height * p.ratio);
+
+	    		
+	    		Graphics2D projG = (Graphics2D) g2.create();
+	    		projG.rotate(p.angle, p.x + p.width / 2.0, p.y + p.height / 2.0);
+	    		projG.drawImage(p.bulletImg, p.x, p.y, PdrawW, PdrawH, null);
+	    		projG.dispose();
 //	    		if(p.intersects(m1)) {
 //	    			System.out.println("hit");
 //	    			p.setVisibility(false);
@@ -242,6 +250,7 @@ public class Weapon {
 	        sy2,
 	        null
 	    );
+		g2.dispose();
 	}
 	
 	public void setAngle(Character character, Monster target) {

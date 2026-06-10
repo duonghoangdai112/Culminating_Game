@@ -11,19 +11,29 @@ public class Projectile extends Rectangle {
 	double speedY;
 	double damage;
 	double xx,yy;
+	public double angle; // projectile image rotation, in radians
+	public double ratio =2.0;
 	//image
 	public BufferedImage bulletImg;
 	
 	
 	public Projectile(int x,int y,int width, int height,
 			double speedX,double speedY , double damage, BufferedImage img){
+		this(x, y, width, height, speedX, speedY, damage, img, Math.atan2(speedY, speedX));
+	}
+
+	public Projectile(int x,int y,int width, int height,
+			double speedX,double speedY , double damage, BufferedImage img, double angle){
 		super(x,y,width,height);
 		xx =x;
 		yy= y;
 		this.damage = damage;
 		this.speedX = speedX; 
 		this.speedY = speedY;
+		this.angle = angle;
 		bulletImg = img;
+		
+		
 	}
 
 	public double getDamage(){

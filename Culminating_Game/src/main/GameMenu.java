@@ -6,6 +6,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.io.File;
 import java.net.URL;
  
 /**
@@ -86,6 +87,24 @@ public class GameMenu extends JPanel {
                 handleKey(e.getKeyCode());
             }
         });
+
+        // Mouse input for clicking the custom-drawn menu buttons.
+        addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                for (int i = 0; i < OPTIONS.length; i++) {
+                    if (getButtonBounds(i).contains(e.getPoint())) {
+                        selectedIndex = i;
+                        repaint();
+
+                        if (selectionListener != null) {
+                            selectionListener.onSelect(selectedIndex, OPTIONS[selectedIndex]);
+                        }
+                        break;
+                    }
+                }
+            }
+        });
  
         // Glow animation loop (~60 fps)
         new Timer(16, e -> {
@@ -96,22 +115,34 @@ public class GameMenu extends JPanel {
  
     // -- Image loading --------------------------------------------------------
     BufferedImage loadImage(String filename) {
-        URL url = this.getClass().getResource("/" + filename);
-        BufferedImage img = null;
-
-        if (url != null) {
-            try {
-                img = ImageIO.read(url);
-            } catch (IOException e) {
-                System.out.println(e.toString());
-                JOptionPane.showMessageDialog(null, "An image failed to load: " + filename,
-                        "Error", JOptionPane.ERROR_MESSAGE);
+        String[] resourceNames = {"/" + filename, "/assests/" + filename};
+        for (String resourceName : resourceNames) {
+            URL url = this.getClass().getResource(resourceName);
+            if (url != null) {
+                try {
+                    return ImageIO.read(url);
+                } catch (IOException e) {
+                    System.out.println("Could not load image resource: " + resourceName);
+                }
             }
-        } else {
-            System.out.println("URL is null for: " + filename);
         }
 
-        return img;
+        String[] fileNames = {filename, "assests/" + filename};
+        for (String fileName : fileNames) {
+            File file = new File(fileName);
+            if (file.exists()) {
+                try {
+                    return ImageIO.read(file);
+                } catch (IOException e) {
+                    System.out.println("Could not load image file: " + fileName);
+                }
+            }
+        }
+
+        System.out.println("Image not found: " + filename);
+        JOptionPane.showMessageDialog(null, "An image failed to load: " + filename,
+                "Error", JOptionPane.ERROR_MESSAGE);
+        return null;
     }
  
     // -- Key handling ---------------------------------------------------------
@@ -393,6 +424,15 @@ public class GameMenu extends JPanel {
         String hint = "W / S to navigate     Enter to select";
         FontMetrics fm = g2.getFontMetrics();
         g2.drawString(hint, (W - fm.stringWidth(hint)) / 2, H - 18);
+    }
+ 
+    private Rectangle getButtonBounds(int index) {
+        int totalH = (OPTIONS.length - 1) * BTN_GAP + BTN_H;
+        int startY = (getHeight() - totalH) / 2 + 30;
+        int bx = (getWidth() - BTN_W) / 2;
+        int by = startY + index * BTN_GAP;
+
+        return new Rectangle(bx, by, BTN_W, BTN_H);
     }
  
     // -- Getters --------------------------------------------------------------
