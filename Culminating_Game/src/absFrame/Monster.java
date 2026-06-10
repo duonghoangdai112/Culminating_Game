@@ -75,13 +75,6 @@ public abstract class Monster extends Rectangle {
 
 		else {xCorrect = 2; }
 		
-		System.out.println("charX: "+charX);
-		System.out.println("charY: "+charY);
-		System.out.println(speedX);
-		System.out.println(speedY);
-		System.out.println(xCorrect);
-		System.out.println(yCorrect);
-
 		
 		// velocity correction 
 		xx += (speedX*xCorrect);

@@ -149,7 +149,7 @@ public class Weapon {
 		return new Projectile(
 				(int)Math.round(startX - projW / 2.0),
 				(int)Math.round(startY - projH / 2.0),
-				projW, projH, projVx, projVy, damage,projImg);
+				projW, projH, projVx, projVy, damage, projImg, projectileAngle);
 	}
 
 	/**
@@ -168,7 +168,7 @@ public class Weapon {
 		return new Projectile(
 				(int)Math.round(muzzle[0] - projW / 2.0),
 				(int)Math.round(muzzle[1] - projH / 2.0),
-				projW, projH, projVx, projVy, damage,projImg);
+				projW, projH, projVx, projVy, damage, projImg, angle);
 	}
 
 	/**
@@ -212,9 +212,14 @@ public class Weapon {
 			  dy1 = dy2;
 			  dy2 = temp;
 		  }
+		  // draw projectile
 		  for (Projectile p: wProj) {
 	    		p.move();
-	    		g2.drawImage(p.bulletImg, p.x, p.y, p.width, p.height, null);
+
+	    		Graphics2D projG = (Graphics2D) g2.create();
+	    		projG.rotate(p.angle, p.x + p.width / 2.0, p.y + p.height / 2.0);
+	    		projG.drawImage(p.bulletImg, p.x, p.y, p.width, p.height, null);
+	    		projG.dispose();
 //	    		if(p.intersects(m1)) {
 //	    			System.out.println("hit");
 //	    			p.setVisibility(false);

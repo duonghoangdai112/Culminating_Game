@@ -15,6 +15,13 @@ public abstract class Character extends Rectangle {
 	public Weapon weapon; 
 	
 	public boolean faceLeft = true; 
+
+	// Walking animation. When the character is not moving, cIMG is used again.
+	private BufferedImage[] walkFrames;
+	private int walkFrameIndex = 0;
+	private int walkFrameCounter = 0;
+	private int walkFrameDelay = 8;
+	private boolean isWalking = false;
 	
 	public int startTime;
 	
@@ -111,6 +118,71 @@ public abstract class Character extends Rectangle {
 	 * @param img
 	 */
 	public void setCharIMG(BufferedImage img) {cIMG = img;}
+
+	/**
+	 * Gives the character a walking sprite sheet.
+	 * The sheet should have equal-width frames in one row.
+	 * Frame 0 is the resting / idle image.
+	 */
+	public void setWalkAnimation(BufferedImage sheet, int frameCount) {
+		if (sheet == null || frameCount <= 0) {
+			return;
+		}
+
+		walkFrames = new BufferedImage[frameCount];
+
+		int frameW = sheet.getWidth() / frameCount;
+		int frameH = sheet.getHeight();
+		double scale = 100.0/frameW;
+		System.out.println(scale);
+		this.width = (int)(frameW*scale);
+		this.height = (int)(frameH*scale);
+
+		for (int i = 0; i < frameCount; i++) {
+			walkFrames[i] = sheet.getSubimage(i * frameW, 0, frameW, frameH);
+		}
+
+		// The first frame of the sprite sheet is now the idle image.
+		cIMG = walkFrames[0];
+	}
+
+	/**
+	 * Updates the walking animation. Passing false resets the character back to
+	 * the first frame, which is the resting / idle image.
+	 */
+	public void updateWalkAnimation(boolean moving) {
+		if (walkFrames == null || walkFrames.length == 0) {
+			return;
+		}
+
+		if (!moving) {
+			isWalking = false;
+			walkFrameIndex = 0;
+			walkFrameCounter = 0;
+			return;
+		}
+		
+		isWalking = true;
+		walkFrameCounter++;
+
+		if (walkFrameCounter >= walkFrameDelay) {
+			walkFrameCounter = 0;
+			walkFrameIndex = (walkFrameIndex + 1) % walkFrames.length;
+		}
+	}
+
+	/**
+	 * Chooses the current sprite sheet frame.
+	 * If no animation sheet was loaded, it falls back to cIMG.
+	 */
+	public BufferedImage getCurrentImage() {
+		if (walkFrames != null && walkFrames.length > 0) {
+			return walkFrames[walkFrameIndex];
+		}
+
+		return cIMG;
+	}
+
 	/**
 	 * create the weapon
 	 */
@@ -119,7 +191,6 @@ public abstract class Character extends Rectangle {
 		int angel = 0;
 		int width = wIMG.getWidth()/maxFrameW;
 		int height = wIMG.getHeight();
-		System.out.println(d);
 		weapon = new Weapon(manaCost,vx,vy,cd,damage,angel,name,width,height,wIMG,projImage); 
 		weapon.setImage(maxFrameW,d);
 		this.projIMG = projImage;
