@@ -17,6 +17,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.io.File;
 import java.net.URL;
 import java.util.*;
 
@@ -70,6 +71,10 @@ public class GamePanel extends JPanel implements ActionListener {
     Map map = new Map(width, height, 1);
 
     public GamePanel(HashMap<String, Integer> hashMap){ //later on sep the hash into a new class
+        this(hashMap, "Archer", "Bow");
+    }
+
+    public GamePanel(HashMap<String, Integer> hashMap, String characterName, String weaponName){ //later on sep the hash into a new class
         //Panel setup
         this.setPreferredSize(new Dimension(width, height));
         this.addKeyListener(new KeyLis());
@@ -77,11 +82,7 @@ public class GamePanel extends JPanel implements ActionListener {
         this.setFocusable(true);
         this.setFocusTraversalKeysEnabled(false);
 
-        // Character setup
-        // Archer_animation.png is the gameplay sprite sheet.
-        // Frame 0 is the idle/resting image, and the other frames create walking movement.
-        archer.setWalkAnimation(loadImage("Archer_animation.png"), 5);
-        archer.weaponInit(10,4,4,0.1,10,"Bow",loadImage("staff-animation.png"),4,0.7,loadImage("Bullet.png")); // to flip the img use negative value
+        setupPlayerLoadout(characterName, weaponName);
 
         //timer
         timer = new Timer(TIMERSPEED, this);
@@ -107,24 +108,85 @@ public class GamePanel extends JPanel implements ActionListener {
 //        Room r = new Room(200,200,null,m1A);
     }
 
-    // maybe move this to absFrame later
-    BufferedImage loadImage(String filename) {
-        URL url = this.getClass().getResource("/" + filename);
-        BufferedImage img = null;
+    /**
+     * Sets up the chosen character and chosen weapon.
+     * Right now Archer is the only character, but this keeps the game ready for more later.
+     */
+    private void setupPlayerLoadout(String characterName, String weaponName) {
+        // Archer_animation.png is the gameplay sprite sheet.
+        // Frame 0 is the idle/resting image, and the other frames create walking movement.
+        archer.setWalkAnimation(loadImage("Archer_animation.png"), 5);
 
-        if (url != null) {
-            try {
-                img = ImageIO.read(url);
-            } catch (IOException e) {
-                System.out.println(e.toString());
-                JOptionPane.showMessageDialog(null, "An image failed to load: " + filename,
-                        "Error", JOptionPane.ERROR_MESSAGE);
-            }
-        } else {
-            System.out.println("URL is null for: " + filename);
+        setupWeapon(weaponName);
+    }
+
+    /**
+     * Applies the weapon that was selected on LoadoutScreen.
+     */
+    private void setupWeapon(String weaponName) {
+        if (weaponName == null) {
+            weaponName = "Bow";
         }
 
-        return img;
+        switch (weaponName) {
+            case "Staff":
+                archer.weaponInit(12, 5, 5, 0.18, 12, "Staff",
+                        loadImage("staff-animation.png"), 4, 0.55, loadImage("magic.png"));
+                break;
+
+            case "Glock":
+                archer.weaponInit(8, 8, 8, 0.12, 8, "Glock",
+                        loadImage("glock-animation.png"), 3, 0.38, loadImage("Bullet.png"));
+                break;
+
+            case "Sniper":
+                archer.weaponInit(16, 12, 12, 0.45, 25, "Sniper",
+                        loadImage("Sniper-animation.png"), 3, 0.45, loadImage("Bullet.png"));
+                break;
+
+            case "Rifle":
+                archer.weaponInit(10, 10, 10, 0.16, 10, "Rifle",
+                        loadImage("47-animation.png"), 4, 0.48, loadImage("Bullet.png"));
+                break;
+
+            case "Bow":
+            default:
+                archer.weaponInit(10, 6, 6, 0.20, 10, "Bow",
+                        loadImage("Bow-animation.png"), 9, 0.70, loadImage("Bullet.png"));
+                break;
+        }
+    }
+
+    // maybe move this to absFrame later
+    BufferedImage loadImage(String filename) {
+        String[] resourceNames = {"/" + filename, "/assests/" + filename};
+        for (String resourceName : resourceNames) {
+            URL url = this.getClass().getResource(resourceName);
+            if (url != null) {
+                try {
+                    return ImageIO.read(url);
+                } catch (IOException e) {
+                    System.out.println("Could not load image resource: " + resourceName);
+                }
+            }
+        }
+
+        String[] fileNames = {filename, "assests/" + filename};
+        for (String fileName : fileNames) {
+            File file = new File(fileName);
+            if (file.exists()) {
+                try {
+                    return ImageIO.read(file);
+                } catch (IOException e) {
+                    System.out.println("Could not load image file: " + fileName);
+                }
+            }
+        }
+
+        System.out.println("Image not found: " + filename);
+        JOptionPane.showMessageDialog(null, "An image failed to load: " + filename,
+                "Error", JOptionPane.ERROR_MESSAGE);
+        return null;
     }
 
     public void paintComponent(Graphics g) {

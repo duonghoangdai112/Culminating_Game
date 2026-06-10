@@ -38,23 +38,47 @@ public class MainClass {
         menu.requestFocusInWindow();
 
         menu.setSelectionListener((idx, label) -> {
-            if (label.equals("Play")) {
-                showGamePanel(frame, m);
+            if (label.equals("Play") || label.equals("Characters")) {
+                showLoadoutScreen(frame, m);
             }
             else if (label.equals("Rules")) {
                 System.out.println("Open rules screen here");
-            }
-            else if (label.equals("Characters")) {
-                System.out.println("Open character screen here");
             }
         });
     }
 
     /**
+     * Shows the character + weapon selection screen.
+     */
+    private static void showLoadoutScreen(JFrame frame, MainClass m) {
+        LoadoutScreen loadoutScreen = new LoadoutScreen();
+
+        loadoutScreen.setLoadoutListener(new LoadoutScreen.LoadoutListener() {
+            @Override
+            public void onStart(String characterName, String weaponName) {
+                showGamePanel(frame, m, characterName, weaponName);
+            }
+
+            @Override
+            public void onBack() {
+                showMainMenu(frame, m);
+            }
+        });
+
+        frame.setContentPane(loadoutScreen);
+        frame.pack();
+        frame.setLocationRelativeTo(null);
+        frame.revalidate();
+        frame.repaint();
+
+        loadoutScreen.requestFocusInWindow();
+    }
+
+    /**
      * Shows the actual game panel.
      */
-    private static void showGamePanel(JFrame frame, MainClass m) {
-        GamePanel panel = new GamePanel(m.rMonCons());
+    private static void showGamePanel(JFrame frame, MainClass m, String characterName, String weaponName) {
+        GamePanel panel = new GamePanel(m.rMonCons(), characterName, weaponName);
 
         // This is called when the player clicks X, then chooses YES.
         panel.setReturnToMenuListener(() -> showMainMenu(frame, m));
