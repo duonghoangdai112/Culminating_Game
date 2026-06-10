@@ -51,7 +51,28 @@ public class GamePanel extends JPanel implements ActionListener {
     
 	Map map = new Map();
 
+	private Rectangle getDoorScreenRect(Rectangle door) {
 
+	    BufferedImage roomImage =
+	            map.getCurrentRoomImage();
+
+	    double scaleX =
+	            (double)getWidth() /
+	            roomImage.getWidth();
+
+	    double scaleY =
+	            (double)getHeight() /
+	            roomImage.getHeight();
+
+	    return new Rectangle(
+	            (int)(door.x * scaleX),
+	            (int)(door.y * scaleY),
+	            (int)(door.width * scaleX),
+	            (int)(door.height * scaleY)
+	    );
+	}
+
+	
     public GamePanel(HashMap<String,Integer> m1Stats){ //later on sep the hash into a new class
     	//Panel setup
         this.setPreferredSize(new Dimension(width, height));
@@ -115,6 +136,8 @@ public class GamePanel extends JPanel implements ActionListener {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g;
         Random rd = new Random();
+        g2.setColor(Color.BLACK);
+        
 		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		
 		// Draw room
@@ -151,9 +174,6 @@ public class GamePanel extends JPanel implements ActionListener {
 	            (int)(room.nextDoor.height * scale)
 	        );
 	    }
-
-	    g2.setColor(Color.RED);
-	    g2.fillRect(100, 100, 50, 50);
 	    
 	    if(room.previousDoor != null) {
 
@@ -242,8 +262,11 @@ public class GamePanel extends JPanel implements ActionListener {
 
 		if(map.currentRoom.nextDoor != null) {
 
-		    if(archer.intersects(
-		            map.currentRoom.nextDoor)) {
+		    Rectangle nextDoorScreen =
+		            getDoorScreenRect(
+		                    map.currentRoom.nextDoor);
+
+		    if(archer.intersects(nextDoorScreen)) {
 
 		        atNextDoor = true;
 		    }
@@ -251,12 +274,16 @@ public class GamePanel extends JPanel implements ActionListener {
 
 		if(map.currentRoom.previousDoor != null) {
 
-		    if(archer.intersects(
-		            map.currentRoom.previousDoor)) {
+		    Rectangle prevDoorScreen =
+		            getDoorScreenRect(
+		                    map.currentRoom.previousDoor);
+
+		    if(archer.intersects(prevDoorScreen)) {
 
 		        atPreviousDoor = true;
 		    }
 		}
+		
 		
 		if(atNextDoor &&
 				   map.currentRoom.next != null) {
@@ -268,12 +295,12 @@ public class GamePanel extends JPanel implements ActionListener {
 				}
 		
 		if(atPreviousDoor &&
-				   map.currentRoom.next != null) {
+				   map.currentRoom.previous != null) {
 
 				    map.currentRoom =
-				        map.currentRoom.next;
+				        map.currentRoom.previous;
 
-				    archer.x = 50;
+				    archer.x = 700;
 				}
 		
 	

@@ -17,7 +17,11 @@ public class Map {
     public Room room1;
     public Room hallway1;
     public Room room2;
-
+    public Room hallway2;
+    public Room room3;
+    public Room hallway3;
+    public Room room4;
+    
     public Room currentRoom;
     
     public Map() {
@@ -50,10 +54,20 @@ public class Map {
             new Room(31, 252, 160, 90);
 
         hallway1 =
-            new Room(191, 162, 110, 160);
+            new Room(191, 162, 110, 161);
 
         room2 =
-            new Room(160, 11, 92, 170);
+            new Room(161, 12, 90, 160);
+        
+        hallway2 =
+            new Room(241, 32, 100, 50);
+        
+        room3 =
+            new Room(331, 12, 160, 90);
+        
+        room4 =
+            new Room(121, 362, 250, 130);
+        
 
         // Linked list
         room1.next = hallway1;
@@ -62,7 +76,16 @@ public class Map {
         hallway1.next = room2;
 
         room2.previous = hallway1;
+        room2.next = hallway2;
 
+        hallway2.previous = room2;
+        hallway2.next = room3;
+
+        room3.previous = hallway2;
+        room3.next = room4;
+
+        room4.previous = room3;
+        
         // Door rectangles
         room1.nextDoor =
             new java.awt.Rectangle(
@@ -71,18 +94,39 @@ public class Map {
 
         hallway1.previousDoor =
             new java.awt.Rectangle(
-                0, 250,
-                50, 100);
+                191-191, 272-161,
+                10, 30);
 
         hallway1.nextDoor =
             new java.awt.Rectangle(
-                250, 250,
-                50, 100);
+                191-191, 171-162,
+                30, 10);
 
         room2.previousDoor =
             new java.awt.Rectangle(
                 0, 250,
                 50, 100);
+        
+        room2.nextDoor =
+        	new java.awt.Rectangle(
+                    241, 42,
+                    10, 30);
+
+        hallway2.previousDoor =
+        	new java.awt.Rectangle(
+        			241, 42,
+                    10, 30);
+
+        hallway2.nextDoor =
+        	new java.awt.Rectangle(
+                    331, 42,
+                    10, 30);
+
+        //next door 
+        room3.nextDoor =
+        	new java.awt.Rectangle(
+        			331, 42,
+                    10, 30);
     }
 
     public BufferedImage getCurrentRoomImage() {
@@ -116,6 +160,14 @@ public class Map {
 	    );
 	}
 	
+	public boolean isWall(Color c) {
+
+	    return c.getRed() > 100 &&
+	           c.getRed() < 170 &&
+	           c.getGreen() > 40 &&
+	           c.getGreen() < 100 &&
+	           c.getBlue() < 60;
+	}
 	
     
 	/**
