@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Random;
 
 public class GamePanel extends JPanel implements ActionListener {
     private Timer timer;
@@ -45,6 +46,18 @@ public class GamePanel extends JPanel implements ActionListener {
         this.returnToMenuListener = listener;
     }
 
+    // Lets MainClass decide what happens when the player chooses from the death screen.
+    public interface DeathScreenListener {
+        void onRestart();
+        void onReturnToMenu();
+    }
+
+    private DeathScreenListener deathScreenListener;
+
+    public void setDeathScreenListener(DeathScreenListener listener) {
+        this.deathScreenListener = listener;
+    }
+
     // Track held movement keys so multiple keys can move the player diagonally.
     private boolean moveUp = false;
     private boolean moveDown = false;
@@ -58,6 +71,13 @@ public class GamePanel extends JPanel implements ActionListener {
     private Rectangle noButtonBounds = new Rectangle();
     // 0 = YES, 1 = NO. Start on NO so Enter does not accidentally leave the game.
     private int returnDialogSelection = 1;
+
+    // Death screen state.
+    private boolean deathScreenOpen = false;
+    private Rectangle restartButtonBounds = new Rectangle();
+    private Rectangle menuButtonBounds = new Rectangle();
+    // 0 = RESTART, 1 = MENU.
+    private int deathScreenSelection = 0;
 
     // Time record variable.
     private int TIMERSPEED = 10;
@@ -143,19 +163,60 @@ public class GamePanel extends JPanel implements ActionListener {
     }
 
     /**
-     * Puts monsters onto the full connected world map.
-     * Room names are only used as placement zones now; they do not switch maps.
+     * Randomly spawns monsters inside each room on the full connected world map.
+     * Hallways are skipped so monsters appear in rooms instead of narrow paths.
      */
     private void setupWorldMonsters(HashMap<String, Integer> monsterStats) {
         worldMap.clearMonsters();
 
-        worldMap.addMonsterToArea("room1", new RangeMonster(monsterStats, 0, 100, 100, 0, 0, 0.3), 0.65, 0.55);
-        worldMap.addMonsterToArea("room1", new RangeMonster(monsterStats, 0, 100, 100, 0, 0, 0.3), 0.35, 0.35);
-        worldMap.addMonsterToArea("room2", new RangeMonster(monsterStats, 0, 100, 100, 0, 0, 0.25), 0.55, 0.60);
-        worldMap.addMonsterToArea("room3", new RangeMonster(monsterStats, 0, 100, 100, 0, 0, 0.25), 0.55, 0.55);
-        worldMap.addMonsterToArea("room4", new RangeMonster(monsterStats, 0, 100, 100, 0, 0, 0.25), 0.70, 0.45);
+        Random random = new Random();
+        int minMonstersPerRoom = 1;
+        int maxMonstersPerRoom = 3;
+        BufferedImage enemyImage = loadImage("Zombie.png");
+        BufferedImage enemyWalkSheet = loadImage("Zombie.png");
+
+        for (String roomName : worldMap.getCombatRoomNames()) {
+            int monsterCount = randomBetween(random, minMonstersPerRoom, maxMonstersPerRoom);
+
+            for (int i = 0; i < monsterCount; i++) {
+                RangeMonster monster = new RangeMonster(monsterStats, 0, 100, 100, 0, 0, 0.25);
+                monster.setMonsterImage(enemyImage);
+                monster.setWalkAnimation(enemyWalkSheet, 4);
+                placeMonsterRandomlyInRoom(roomName, monster, random);
+                worldMap.addMonster(monster);
+            }
+        }
 
         monsters = worldMap.getMonsters();
+    }
+
+    private void placeMonsterRandomlyInRoom(String roomName, Monster monster, Random random) {
+        int maxAttempts = 20;
+        int safeDistanceFromPlayer = 180;
+
+        for (int attempt = 0; attempt < maxAttempts; attempt++) {
+            java.awt.Point spawnPoint = worldMap.getRandomSpawnPointInArea(roomName, random, monster.width, monster.height);
+            monster.setWorldPosition(spawnPoint.x, spawnPoint.y);
+
+            if (!isTooCloseToPlayer(monster, safeDistanceFromPlayer)) {
+                return;
+            }
+        }
+    }
+
+    private boolean isTooCloseToPlayer(Monster monster, int safeDistance) {
+        int playerCenterX = archer.x + archer.width / 2;
+        int playerCenterY = archer.y + archer.height / 2;
+        int monsterCenterX = monster.x + monster.width / 2;
+        int monsterCenterY = monster.y + monster.height / 2;
+
+        int dx = playerCenterX - monsterCenterX;
+        int dy = playerCenterY - monsterCenterY;
+        return dx * dx + dy * dy < safeDistance * safeDistance;
+    }
+
+    private int randomBetween(Random random, int min, int max) {
+        return min + random.nextInt(max - min + 1);
     }
 
     private BufferedImage loadImage(String filename) {
@@ -215,16 +276,21 @@ public class GamePanel extends JPanel implements ActionListener {
 
         monsters = worldMap.getMonsters();
         for (Monster monster : monsters) {
-            worldG.draw(monster);
+            monster.drawMonster(worldG);
         }
         worldG.dispose();
 
         // UI is drawn after the camera so it stays fixed to the screen.
         archer.drawCharacter(g2);
         drawAreaLabel(g2);
-        drawCloseButton(g2);
 
-        if (returnDialogOpen) {
+        if (!deathScreenOpen) {
+            drawCloseButton(g2);
+        }
+
+        if (deathScreenOpen) {
+            drawDeathScreen(g2);
+        } else if (returnDialogOpen) {
             drawReturnDialog(g2);
         }
     }
@@ -330,6 +396,61 @@ public class GamePanel extends JPanel implements ActionListener {
         g2.drawString(controls, controlsX, boxY + boxH - 12);
     }
 
+    /**
+     * Draws the game-over screen after the player dies.
+     */
+    private void drawDeathScreen(Graphics2D g2) {
+        int W = getWidth();
+        int H = getHeight();
+
+        g2.setColor(new Color(0, 0, 0, 190));
+        g2.fillRect(0, 0, W, H);
+
+        int boxW = 470;
+        int boxH = 240;
+        int boxX = (W - boxW) / 2;
+        int boxY = (H - boxH) / 2;
+
+        g2.setColor(new Color(40, 28, 32));
+        g2.fillRoundRect(boxX, boxY, boxW, boxH, 18, 18);
+
+        g2.setColor(new Color(190, 80, 80));
+        g2.setStroke(new BasicStroke(3f));
+        g2.drawRoundRect(boxX, boxY, boxW, boxH, 18, 18);
+
+        g2.setFont(new Font(Font.MONOSPACED, Font.BOLD, 36));
+        String title = "YOU DIED";
+        FontMetrics titleFm = g2.getFontMetrics();
+        int titleX = boxX + (boxW - titleFm.stringWidth(title)) / 2;
+        g2.setColor(new Color(245, 215, 195));
+        g2.drawString(title, titleX, boxY + 65);
+
+        g2.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 15));
+        String subtitle = "Choose what you want to do next.";
+        FontMetrics subFm = g2.getFontMetrics();
+        int subX = boxX + (boxW - subFm.stringWidth(subtitle)) / 2;
+        g2.drawString(subtitle, subX, boxY + 100);
+
+        int btnW = 150;
+        int btnH = 48;
+        int gap = 35;
+        int btnY = boxY + 135;
+        int restartX = boxX + (boxW - btnW * 2 - gap) / 2;
+        int menuX = restartX + btnW + gap;
+
+        restartButtonBounds.setBounds(restartX, btnY, btnW, btnH);
+        menuButtonBounds.setBounds(menuX, btnY, btnW, btnH);
+
+        drawPopupButton(g2, restartButtonBounds, "RESTART", deathScreenSelection == 0);
+        drawPopupButton(g2, menuButtonBounds, "MENU", deathScreenSelection == 1);
+
+        g2.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 13));
+        String controls = "Use W/A/S/D to choose, Enter/J/Space to confirm";
+        FontMetrics controlsFm = g2.getFontMetrics();
+        int controlsX = boxX + (boxW - controlsFm.stringWidth(controls)) / 2;
+        g2.drawString(controls, controlsX, boxY + boxH - 18);
+    }
+
     private void drawPopupButton(Graphics2D g2, Rectangle bounds, String text, boolean selected) {
         if (selected) {
             g2.setColor(new Color(135, 112, 70));
@@ -356,8 +477,8 @@ public class GamePanel extends JPanel implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (returnDialogOpen) {
-            // Pause the game updates while the confirmation popup is open.
+        if (returnDialogOpen || deathScreenOpen) {
+            // Pause the game updates while a popup screen is open.
             return;
         }
 
@@ -411,23 +532,94 @@ public class GamePanel extends JPanel implements ActionListener {
     }
 
     private void checkLosingCondition() {
-        if (archer.health <= 0) {
-            timer.stop();
-            System.out.println("Game end");
+        if (archer.health <= 0 && !deathScreenOpen) {
+            openDeathScreen();
         }
+    }
+
+    /**
+     * Opens the death screen and freezes player movement.
+     */
+    private void openDeathScreen() {
+        deathScreenOpen = true;
+        deathScreenSelection = 0;
+        archer.health = 0;
+        stopPlayerMovement();
+        repaint();
+    }
+
+    /**
+     * Confirms whichever death-screen option is currently selected.
+     */
+    private void confirmDeathScreenSelection() {
+        if (deathScreenSelection == 0) {
+            restartGame();
+        } else {
+            returnToMainMenuFromDeathScreen();
+        }
+    }
+
+    /**
+     * Moves the death-screen selection between RESTART and MENU.
+     */
+    private void moveDeathScreenSelection(int direction) {
+        if (direction == 0) {
+            return;
+        }
+
+        deathScreenSelection += direction;
+        if (deathScreenSelection < 0) {
+            deathScreenSelection = 1;
+        } else if (deathScreenSelection > 1) {
+            deathScreenSelection = 0;
+        }
+        repaint();
+    }
+
+    /**
+     * Restarts the game by asking MainClass to create a fresh GamePanel.
+     */
+    private void restartGame() {
+        timer.stop();
+        if (deathScreenListener != null) {
+            deathScreenListener.onRestart();
+        }
+    }
+
+    /**
+     * Returns to the main menu from the death screen.
+     */
+    private void returnToMainMenuFromDeathScreen() {
+        timer.stop();
+        if (deathScreenListener != null) {
+            deathScreenListener.onReturnToMenu();
+        } else {
+            returnToMainMenu();
+        }
+    }
+
+    /**
+     * Stops all held movement keys and resets the walking animation.
+     */
+    private void stopPlayerMovement() {
+        moveUp = false;
+        moveDown = false;
+        moveLeft = false;
+        moveRight = false;
+        archer.updateWalkAnimation(false);
     }
 
     /**
      * Opens the return-to-menu confirmation and freezes player movement.
      */
     private void openReturnDialog() {
+        if (deathScreenOpen) {
+            return;
+        }
+
         returnDialogOpen = true;
         returnDialogSelection = 1;
-        moveUp = false;
-        moveDown = false;
-        moveLeft = false;
-        moveRight = false;
-        archer.updateWalkAnimation(false);
+        stopPlayerMovement();
         repaint();
     }
 
@@ -498,10 +690,32 @@ public class GamePanel extends JPanel implements ActionListener {
             dirY++;
         }
 
-        boolean moving = dirX != 0 || dirY != 0;
+        boolean tryingToMove = dirX != 0 || dirY != 0;
+        boolean actuallyMoved = false;
 
-        if (moving) {
-            archer.Move(dirX, dirY);
+        if (tryingToMove) {
+            int oldX = archer.x;
+            int oldY = archer.y;
+
+            // Move on X and Y separately. This lets the player slide along a
+            // wall instead of getting completely stuck when moving diagonally.
+            if (dirX != 0) {
+                archer.x += dirX * archer.speed;
+                worldMap.keepInsideWorld(archer);
+                if (!worldMap.canCharacterStand(archer)) {
+                    archer.x = oldX;
+                }
+            }
+
+            if (dirY != 0) {
+                archer.y += dirY * archer.speed;
+                worldMap.keepInsideWorld(archer);
+                if (!worldMap.canCharacterStand(archer)) {
+                    archer.y = oldY;
+                }
+            }
+
+            actuallyMoved = archer.x != oldX || archer.y != oldY;
 
             if (dirX < 0) {
                 archer.flip(false);
@@ -511,13 +725,24 @@ public class GamePanel extends JPanel implements ActionListener {
         }
 
         worldMap.keepInsideWorld(archer);
-        archer.updateWalkAnimation(moving);
+        archer.updateWalkAnimation(actuallyMoved);
     }
 
     private class MouseLis extends MouseAdapter {
         @Override
         public void mousePressed(MouseEvent e) {
             requestFocusInWindow();
+
+            if (deathScreenOpen) {
+                if (restartButtonBounds.contains(e.getPoint())) {
+                    deathScreenSelection = 0;
+                    restartGame();
+                } else if (menuButtonBounds.contains(e.getPoint())) {
+                    deathScreenSelection = 1;
+                    returnToMainMenuFromDeathScreen();
+                }
+                return;
+            }
 
             if (returnDialogOpen) {
                 if (yesButtonBounds.contains(e.getPoint())) {
@@ -539,6 +764,39 @@ public class GamePanel extends JPanel implements ActionListener {
     private class KeyLis extends KeyAdapter {
         @Override
         public void keyPressed(KeyEvent e) {
+            if (deathScreenOpen) {
+                switch (e.getKeyCode()) {
+                    case KeyEvent.VK_A:
+                    case KeyEvent.VK_W:
+                    case KeyEvent.VK_LEFT:
+                    case KeyEvent.VK_UP:
+                        moveDeathScreenSelection(-1);
+                        break;
+                    case KeyEvent.VK_D:
+                    case KeyEvent.VK_S:
+                    case KeyEvent.VK_RIGHT:
+                    case KeyEvent.VK_DOWN:
+                        moveDeathScreenSelection(1);
+                        break;
+                    case KeyEvent.VK_ENTER:
+                    case KeyEvent.VK_SPACE:
+                    case KeyEvent.VK_J:
+                        confirmDeathScreenSelection();
+                        break;
+                    case KeyEvent.VK_R:
+                        deathScreenSelection = 0;
+                        restartGame();
+                        break;
+                    case KeyEvent.VK_M:
+                    case KeyEvent.VK_ESCAPE:
+                    case KeyEvent.VK_X:
+                        deathScreenSelection = 1;
+                        returnToMainMenuFromDeathScreen();
+                        break;
+                }
+                return;
+            }
+
             if (returnDialogOpen) {
                 switch (e.getKeyCode()) {
                     case KeyEvent.VK_A:

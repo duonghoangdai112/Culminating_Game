@@ -83,6 +83,19 @@ public class MainClass {
         // This is called when the player clicks X, then chooses YES.
         panel.setReturnToMenuListener(() -> showMainMenu(frame, m));
 
+        // This is called from the death screen.
+        panel.setDeathScreenListener(new GamePanel.DeathScreenListener() {
+            @Override
+            public void onRestart() {
+                showGamePanel(frame, m, characterName, weaponName);
+            }
+
+            @Override
+            public void onReturnToMenu() {
+                showMainMenu(frame, m);
+            }
+        });
+
         frame.setContentPane(panel);
         frame.pack();
         frame.setLocationRelativeTo(null);

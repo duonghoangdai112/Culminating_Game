@@ -184,7 +184,7 @@ public abstract class Character extends Rectangle {
 	}
 
 	/**
-	 * create the weapon
+	 * create the flippon
 	 */
 	public void weaponInit(int manaCost,int vx,int vy,double cd,int damage,
 			String name, BufferedImage wIMG,int maxFrameW,double d,BufferedImage projImage) {
