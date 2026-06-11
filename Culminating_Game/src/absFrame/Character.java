@@ -26,7 +26,10 @@ public abstract class Character extends Rectangle {
 	
 	
 	public boolean isAleardyHit = false;
-	public int tImmune = 100;
+	// Number of timer ticks the player is immune after taking damage.
+	// The GamePanel timer runs every 10 ms, so 100 ticks is about 1 second.
+	public int tImmune = 0;
+	public final int maxImmuneTime = 100;
 	
 	public ArrayList<Projectile> projectile = new ArrayList<Projectile>();
 	
@@ -45,30 +48,46 @@ public abstract class Character extends Rectangle {
 		this.y = 200;
 		this.width = 100;
 		this.height =100;
-		tImmune = 3;
+		tImmune = 0;
 	}
 	
 	/**
-	 * grant immune for tImmune time after the character got hit 
-	 * Countdown tImmune if immune is already granted
-	 * @param hit
+	 * Counts down the immunity timer after the character has been hit.
+	 * Returns true while the character is still immune.
 	 */
 	public boolean countDownImmunity() {
-		if(tImmune<=0) {
-			isAleardyHit = false;
+		if (tImmune > 0) {
+			tImmune--;
+			isAleardyHit = true;
 		}
 		else {
-			isAleardyHit = true; 
-			tImmune --;
+			tImmune = 0;
+			isAleardyHit = false;
 		}
+
 		return isAleardyHit;
 	}
 	
 	/**
-	 * reset tImunity 
+	 * Starts the immunity timer after the character takes damage.
 	 */
 	public void resetHitTimer() {
-		tImmune = 3;
+		tImmune = maxImmuneTime;
+		isAleardyHit = true;
+	}
+
+	/**
+	 * Applies damage only if the character is not currently immune.
+	 * Returns true if damage was actually taken.
+	 */
+	public boolean takeDamage(int damage) {
+		if (damage <= 0 || isAleardyHit || tImmune > 0) {
+			return false;
+		}
+
+		health -= damage;
+		resetHitTimer();
+		return true;
 	}
 	
 	
@@ -187,11 +206,11 @@ public abstract class Character extends Rectangle {
 	 * create the flippon
 	 */
 	public void weaponInit(int manaCost,int vx,int vy,double cd,int damage,
-			String name, BufferedImage wIMG,int maxFrameW,double ratio,BufferedImage projImage) {
+			String name, BufferedImage wIMG,int maxFrameW,double ratio,BufferedImage projImage,double projRatio) {
 		int angel = 0;
 		int width = wIMG.getWidth()/maxFrameW;
 		int height = wIMG.getHeight();
-		weapon = new Weapon(manaCost,vx,vy,cd,damage,angel,name,width,height,wIMG,projImage); 
+		weapon = new Weapon(manaCost,vx,vy,cd,damage,angel,name,width,height,wIMG,projImage, projRatio); 
 		weapon.setImage(maxFrameW,ratio);
 		this.projIMG = projImage;
 	}

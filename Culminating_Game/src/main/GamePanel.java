@@ -8,6 +8,7 @@ import javax.swing.Timer;
 import absFrame.Monster;
 import sprite.Archer;
 import sprite.RangeMonster;
+import sprite.WolfMonster;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -74,10 +75,22 @@ public class GamePanel extends JPanel implements ActionListener {
 
     // Death screen state.
     private boolean deathScreenOpen = false;
+    private boolean winScreenOpen = false;
     private Rectangle restartButtonBounds = new Rectangle();
     private Rectangle menuButtonBounds = new Rectangle();
     // 0 = RESTART, 1 = MENU.
     private int deathScreenSelection = 0;
+
+    // Survival / wave settings.
+    private static final int SURVIVAL_TIME_SECONDS = 100;
+    private static final double MONSTER_SPAWN_INTERVAL_SECONDS = 2.0;
+    private static final int MAX_ALIVE_MONSTERS = 35;
+    private double lastMonsterSpawnTime = 0.0;
+    private Random spawnRandom = new Random();
+    private HashMap<String, Integer> monsterStats;
+    private BufferedImage enemyImage;
+    private BufferedImage enemyWalkSheet;
+    private BufferedImage wolfDashEffect;
 
     // Time record variable.
     private int TIMERSPEED = 10;
@@ -132,30 +145,30 @@ public class GamePanel extends JPanel implements ActionListener {
 
         switch (weaponName) {
             case "Staff":
-                archer.weaponInit(12, 5, 5, 0.4, 12, "Staff",
-                        loadImage("staff-animation.png"), 4, 0.4, loadImage("magic.png"));
+                archer.weaponInit(12, 5, 5, 0.7, 10, "Staff",
+                        loadImage("staff-animation.png"), 4, 0.4, loadImage("magic.png"),1.4);
                 break;
 
             case "Glock":
-                archer.weaponInit(8, 8, 8, 0.12, 8, "Glock",
-                        loadImage("glock-animation.png"), 3, 0.25, loadImage("Bullet.png"));
+                archer.weaponInit(8, 8, 8, 0.25, 8, "Glock",
+                        loadImage("glock-animation.png"), 3, 0.25, loadImage("Bullet.png"),1.0);
                 break;
 
             case "Sniper":
-                archer.weaponInit(16, 12, 12, 0.45, 25, "Sniper",
-                        loadImage("Sniper-animation.png"), 3, 0.45, loadImage("Bullet.png"));
+                archer.weaponInit(16, 12, 12, 0.8, 25, "Sniper",
+                        loadImage("Sniper-animation.png"), 3, 0.45, loadImage("Bullet.png"),1.1);
                 break;
 
             case "Rifle":
-                archer.weaponInit(10, 8, 8, 0.16, 10, "Rifle",
+                archer.weaponInit(10, 8, 8, 0.35, 10, "Rifle",
                         loadImage("47-"
-                        		+ "animation.png"), 4, 0.30, loadImage("Bullet.png"));
+                        		+ "animation.png"), 4, 0.30, loadImage("Bullet.png"),0.8);
                 break;
 
             case "Bow":
             default:
                 archer.weaponInit(10, 6, 6, 0.50, 10, "Bow",
-                        loadImage("Bow-animation.png"), 9, -0.70, loadImage("Arrow.png"));
+                        loadImage("Bow-animation.png"), 9, -0.70, loadImage("Arrow.png"),2);
                 break;
         }
     }
@@ -165,27 +178,68 @@ public class GamePanel extends JPanel implements ActionListener {
      * Hallways are skipped so monsters appear in rooms instead of narrow paths.
      */
     private void setupWorldMonsters(HashMap<String, Integer> monsterStats) {
+        this.monsterStats = monsterStats;
+        this.enemyImage = loadImage("Wolf.png");
+        this.enemyWalkSheet = loadImage("Wolf.png");
+        this.wolfDashEffect = loadImage("WolfDash.png");
+
         worldMap.clearMonsters();
 
-        Random random = new Random();
-        int minMonstersPerRoom = 1;
-        int maxMonstersPerRoom = 3;
-        BufferedImage enemyImage = loadImage("Zombie.png");
-        BufferedImage enemyWalkSheet = loadImage("Zombie.png");
-
+        // Start with a few monsters already present.
         for (String roomName : worldMap.getCombatRoomNames()) {
-            int monsterCount = randomBetween(random, minMonstersPerRoom, maxMonstersPerRoom);
-
-            for (int i = 0; i < monsterCount; i++) {
-                RangeMonster monster = new RangeMonster(monsterStats, 0, 100, 100, 0, 0, 0.25);
-                monster.setMonsterImage(enemyImage);
-                monster.setWalkAnimation(enemyWalkSheet, 4);
-                placeMonsterRandomlyInRoom(roomName, monster, random);
-                worldMap.addMonster(monster);
-            }
+            spawnMonsterInRoom(roomName);
         }
 
         monsters = worldMap.getMonsters();
+    }
+
+    /**
+     * Keeps spawning monsters until the survival timer reaches 100 seconds.
+     */
+    private void updateMonsterSpawning() {
+        if (FULLTIME >= SURVIVAL_TIME_SECONDS || monsterStats == null) {
+            return;
+        }
+
+        monsters = worldMap.getMonsters();
+        if (monsters.size() >= MAX_ALIVE_MONSTERS) {
+            return;
+        }
+
+        if (FULLTIME - lastMonsterSpawnTime < MONSTER_SPAWN_INTERVAL_SECONDS) {
+            return;
+        }
+
+        lastMonsterSpawnTime = FULLTIME;
+
+        // Spawn more enemies later in the round so the game ramps up.
+        int spawnCount = FULLTIME >= 50 ? 2 : 1;
+        for (int i = 0; i < spawnCount && worldMap.getMonsters().size() < MAX_ALIVE_MONSTERS; i++) {
+            spawnMonsterAtRandomZone();
+        }
+    }
+
+    private void spawnMonsterAtRandomZone() {
+        String[] spawnZones = worldMap.getCombatRoomNames();
+        if (spawnZones == null || spawnZones.length == 0) {
+            return;
+        }
+
+        String roomName = spawnZones[spawnRandom.nextInt(spawnZones.length)];
+        spawnMonsterInRoom(roomName);
+    }
+
+    private void spawnMonsterInRoom(String roomName) {
+        if (monsterStats == null) {
+            return;
+        }
+
+        WolfMonster monster = new WolfMonster(monsterStats, 0, 100, 100, 0, 0, 0.25);
+        monster.setMonsterImage(enemyImage);
+        monster.setWalkAnimation(enemyWalkSheet, 4);
+        monster.setDashEffectImage(wolfDashEffect);
+        placeMonsterRandomlyInRoom(roomName, monster, spawnRandom);
+        worldMap.addMonster(monster);
     }
 
     private void placeMonsterRandomlyInRoom(String roomName, Monster monster, Random random) {
@@ -281,12 +335,15 @@ public class GamePanel extends JPanel implements ActionListener {
         // UI is drawn after the camera so it stays fixed to the screen.
         archer.drawCharacter(g2);
         drawAreaLabel(g2);
+        drawSurvivalTimer(g2);
 
-        if (!deathScreenOpen) {
+        if (!deathScreenOpen && !winScreenOpen) {
             drawCloseButton(g2);
         }
 
-        if (deathScreenOpen) {
+        if (winScreenOpen) {
+            drawWinScreen(g2);
+        } else if (deathScreenOpen) {
             drawDeathScreen(g2);
         } else if (returnDialogOpen) {
             drawReturnDialog(g2);
@@ -316,6 +373,25 @@ public class GamePanel extends JPanel implements ActionListener {
         g2.fillRoundRect(x - 10, y - fm.getAscent(), fm.stringWidth(label) + 20, 28, 8, 8);
         g2.setColor(new Color(240, 230, 200));
         g2.drawString(label, x, y);
+    }
+
+    private void drawSurvivalTimer(Graphics2D g2) {
+        int timeLeft = Math.max(0, SURVIVAL_TIME_SECONDS - (int) FULLTIME);
+        String label = "Survive: " + timeLeft + "s";
+
+        g2.setFont(new Font(Font.MONOSPACED, Font.BOLD, 18));
+        FontMetrics fm = g2.getFontMetrics();
+
+        int x = 10;
+        int y = 145;
+        int boxW = fm.stringWidth(label) + 20;
+        int boxH = 30;
+
+        g2.setColor(new Color(0, 0, 0, 150));
+        g2.fillRoundRect(x, y - fm.getAscent(), boxW, boxH, 8, 8);
+
+        g2.setColor(new Color(255, 235, 150));
+        g2.drawString(label, x + 10, y);
     }
 
     /**
@@ -449,6 +525,61 @@ public class GamePanel extends JPanel implements ActionListener {
         g2.drawString(controls, controlsX, boxY + boxH - 18);
     }
 
+    /**
+     * Draws the victory screen after surviving for 100 seconds.
+     */
+    private void drawWinScreen(Graphics2D g2) {
+        int W = getWidth();
+        int H = getHeight();
+
+        g2.setColor(new Color(0, 0, 0, 180));
+        g2.fillRect(0, 0, W, H);
+
+        int boxW = 470;
+        int boxH = 240;
+        int boxX = (W - boxW) / 2;
+        int boxY = (H - boxH) / 2;
+
+        g2.setColor(new Color(32, 48, 38));
+        g2.fillRoundRect(boxX, boxY, boxW, boxH, 18, 18);
+
+        g2.setColor(new Color(120, 210, 120));
+        g2.setStroke(new BasicStroke(3f));
+        g2.drawRoundRect(boxX, boxY, boxW, boxH, 18, 18);
+
+        g2.setFont(new Font(Font.MONOSPACED, Font.BOLD, 36));
+        String title = "YOU WIN!";
+        FontMetrics titleFm = g2.getFontMetrics();
+        int titleX = boxX + (boxW - titleFm.stringWidth(title)) / 2;
+        g2.setColor(new Color(230, 255, 210));
+        g2.drawString(title, titleX, boxY + 65);
+
+        g2.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 15));
+        String subtitle = "You survived for 100 seconds.";
+        FontMetrics subFm = g2.getFontMetrics();
+        int subX = boxX + (boxW - subFm.stringWidth(subtitle)) / 2;
+        g2.drawString(subtitle, subX, boxY + 100);
+
+        int btnW = 150;
+        int btnH = 48;
+        int gap = 35;
+        int btnY = boxY + 135;
+        int restartX = boxX + (boxW - btnW * 2 - gap) / 2;
+        int menuX = restartX + btnW + gap;
+
+        restartButtonBounds.setBounds(restartX, btnY, btnW, btnH);
+        menuButtonBounds.setBounds(menuX, btnY, btnW, btnH);
+
+        drawPopupButton(g2, restartButtonBounds, "RESTART", deathScreenSelection == 0);
+        drawPopupButton(g2, menuButtonBounds, "MENU", deathScreenSelection == 1);
+
+        g2.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 13));
+        String controls = "Use W/A/S/D to choose, Enter/J/Space to confirm";
+        FontMetrics controlsFm = g2.getFontMetrics();
+        int controlsX = boxX + (boxW - controlsFm.stringWidth(controls)) / 2;
+        g2.drawString(controls, controlsX, boxY + boxH - 18);
+    }
+
     private void drawPopupButton(Graphics2D g2, Rectangle bounds, String text, boolean selected) {
         if (selected) {
             g2.setColor(new Color(135, 112, 70));
@@ -475,17 +606,18 @@ public class GamePanel extends JPanel implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (returnDialogOpen || deathScreenOpen) {
+        if (returnDialogOpen || deathScreenOpen || winScreenOpen) {
             // Pause the game updates while a popup screen is open.
             return;
         }
 
         updateGameClock();
+        updateMonsterSpawning();
         updatePlayerMovement();
         updateWeaponAnimation();
         updateMonsters();
         checkCombatResults();
-        checkLosingCondition();
+        checkGameEndConditions();
 
         repaint();
     }
@@ -521,17 +653,23 @@ public class GamePanel extends JPanel implements ActionListener {
         worldMap.removeDefeatedMonsters();
         monsters = worldMap.getMonsters();
 
-        if (!archer.countDownImmunity()) {
-            for (Monster monster : monsters) {
-                monster.checkCollision(archer.x, archer.y, null, archer);
-            }
-            archer.resetHitTimer();
+        // Count down immunity every tick, then let each monster test collision.
+        // Character.takeDamage(...) decides whether damage should actually happen,
+        // so multiple monsters touching the player cannot one-shot them in one tick.
+        archer.countDownImmunity();
+        for (Monster monster : monsters) {
+            monster.checkCollision(archer.x, archer.y, null, archer);
         }
     }
 
-    private void checkLosingCondition() {
+    private void checkGameEndConditions() {
         if (archer.health <= 0 && !deathScreenOpen) {
             openDeathScreen();
+            return;
+        }
+
+        if (FULLTIME >= SURVIVAL_TIME_SECONDS && archer.health > 0 && !winScreenOpen) {
+            openWinScreen();
         }
     }
 
@@ -547,7 +685,17 @@ public class GamePanel extends JPanel implements ActionListener {
     }
 
     /**
-     * Confirms whichever death-screen option is currently selected.
+     * Opens the win screen and freezes player movement.
+     */
+    private void openWinScreen() {
+        winScreenOpen = true;
+        deathScreenSelection = 0;
+        stopPlayerMovement();
+        repaint();
+    }
+
+    /**
+     * Confirms whichever death-screen or win-screen option is currently selected.
      */
     private void confirmDeathScreenSelection() {
         if (deathScreenSelection == 0) {
@@ -611,7 +759,7 @@ public class GamePanel extends JPanel implements ActionListener {
      * Opens the return-to-menu confirmation and freezes player movement.
      */
     private void openReturnDialog() {
-        if (deathScreenOpen) {
+        if (deathScreenOpen || winScreenOpen) {
             return;
         }
 
@@ -731,7 +879,7 @@ public class GamePanel extends JPanel implements ActionListener {
         public void mousePressed(MouseEvent e) {
             requestFocusInWindow();
 
-            if (deathScreenOpen) {
+            if (deathScreenOpen || winScreenOpen) {
                 if (restartButtonBounds.contains(e.getPoint())) {
                     deathScreenSelection = 0;
                     restartGame();
@@ -762,7 +910,7 @@ public class GamePanel extends JPanel implements ActionListener {
     private class KeyLis extends KeyAdapter {
         @Override
         public void keyPressed(KeyEvent e) {
-            if (deathScreenOpen) {
+            if (deathScreenOpen || winScreenOpen) {
                 switch (e.getKeyCode()) {
                     case KeyEvent.VK_A:
                     case KeyEvent.VK_W:
