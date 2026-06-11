@@ -278,7 +278,7 @@ public class SlimeKingBoss extends Monster {
                 projG.rotate(projectile.angle,
                         projectile.x + projectile.width / 2.0,
                         projectile.y + projectile.height / 2.0);
-                projG.drawImage(projectile.bulletImg, drawX, drawY, drawW*5, drawH*5, null);
+                projG.drawImage(projectile.bulletImg, drawX, drawY, drawW*3, drawH*3, null);
                 projG.dispose();
             } else {
                 g2.setColor(new Color(80, 230, 70, 230));

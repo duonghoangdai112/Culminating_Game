@@ -172,7 +172,7 @@ public class GamePanel extends JPanel implements ActionListener {
             case "Bow":
             default:
                 archer.weaponInit(10, 6, 6, 0.50, 10, "Bow",
-                        loadImage("Bow-animation.png"), 9, -0.70, loadImage("Arrow.png"),-5);
+                        loadImage("Bow-animation.png"), 9, -0.70, loadImage("Arrow.png"),-3);
                 break;
         }
     }
