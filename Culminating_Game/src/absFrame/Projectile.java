@@ -31,6 +31,8 @@ public class Projectile extends Rectangle {
 		this.speedY = speedY;
 		this.angle = angle;
 		bulletImg = img;
+		
+		
 	}
 
 	public double getDamage(){

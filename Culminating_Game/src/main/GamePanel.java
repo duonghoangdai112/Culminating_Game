@@ -94,9 +94,6 @@ public class GamePanel extends JPanel implements ActionListener {
     private Camera camera = new Camera();
     private ArrayList<Monster> monsters = worldMap.getMonsters();
 
-    public GamePanel(HashMap<String, Integer> hashMap) {
-        this(hashMap, "Archer", "Bow");
-    }
 
     public GamePanel(HashMap<String, Integer> hashMap, String characterName, String weaponName) {
         setPreferredSize(new Dimension(width, height));
@@ -135,13 +132,13 @@ public class GamePanel extends JPanel implements ActionListener {
 
         switch (weaponName) {
             case "Staff":
-                archer.weaponInit(12, 5, 5, 0.18, 12, "Staff",
-                        loadImage("staff-animation.png"), 4, 0.55, loadImage("magic.png"));
+                archer.weaponInit(12, 5, 5, 0.4, 12, "Staff",
+                        loadImage("staff-animation.png"), 4, 0.4, loadImage("magic.png"));
                 break;
 
             case "Glock":
                 archer.weaponInit(8, 8, 8, 0.12, 8, "Glock",
-                        loadImage("glock-animation.png"), 3, 0.38, loadImage("Bullet.png"));
+                        loadImage("glock-animation.png"), 3, 0.25, loadImage("Bullet.png"));
                 break;
 
             case "Sniper":
@@ -150,14 +147,15 @@ public class GamePanel extends JPanel implements ActionListener {
                 break;
 
             case "Rifle":
-                archer.weaponInit(10, 10, 10, 0.16, 10, "Rifle",
-                        loadImage("47-animation.png"), 4, 0.48, loadImage("Bullet.png"));
+                archer.weaponInit(10, 8, 8, 0.16, 10, "Rifle",
+                        loadImage("47-"
+                        		+ "animation.png"), 4, 0.30, loadImage("Bullet.png"));
                 break;
 
             case "Bow":
             default:
-                archer.weaponInit(10, 6, 6, 0.20, 10, "Bow",
-                        loadImage("Bow-animation.png"), 9, 0.70, loadImage("Bullet.png"));
+                archer.weaponInit(10, 6, 6, 0.50, 10, "Bow",
+                        loadImage("Bow-animation.png"), 9, -0.70, loadImage("Arrow.png"));
                 break;
         }
     }

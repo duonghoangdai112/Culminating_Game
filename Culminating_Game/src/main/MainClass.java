@@ -108,16 +108,16 @@ public class MainClass {
     // stats holder for range Monster
     public HashMap<String,Integer> rMonCons() {
         HashMap<String,Integer> rangeMon = new HashMap<String,Integer>();
-        rangeMon.put("health",100);
+        rangeMon.put("health",500);
         rangeMon.put("damage",10);
-        rangeMon.put("visionRange",5);
+        rangeMon.put("visionRange",1);
 
-        rangeMon.put("speedX", 1);
-        rangeMon.put("speedY", 1);
+        rangeMon.put("speedX", 4);
+        rangeMon.put("speedY", 4);
 
         rangeMon.put("width", 1);
         rangeMon.put("width", 1);
-        rangeMon.put("cooldown",1);
+        rangeMon.put("cooldown",10);
         rangeMon.put("x",5);
 
         rangeMon.put("y",5);

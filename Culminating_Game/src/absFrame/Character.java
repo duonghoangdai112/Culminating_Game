@@ -187,12 +187,12 @@ public abstract class Character extends Rectangle {
 	 * create the flippon
 	 */
 	public void weaponInit(int manaCost,int vx,int vy,double cd,int damage,
-			String name, BufferedImage wIMG,int maxFrameW,double d,BufferedImage projImage) {
+			String name, BufferedImage wIMG,int maxFrameW,double ratio,BufferedImage projImage) {
 		int angel = 0;
 		int width = wIMG.getWidth()/maxFrameW;
 		int height = wIMG.getHeight();
 		weapon = new Weapon(manaCost,vx,vy,cd,damage,angel,name,width,height,wIMG,projImage); 
-		weapon.setImage(maxFrameW,d);
+		weapon.setImage(maxFrameW,ratio);
 		this.projIMG = projImage;
 	}
 	/**

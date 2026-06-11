@@ -198,8 +198,8 @@ public class Weapon {
 		  int drawW = (int)(width * ratio);
 		  int drawH = (int)(height * ratio);
 
-		  int centerX = character.x + character.width / 2;
-		  int centerY = character.y + character.height / 2;
+		  int centerX = character.x+6 + character.width / 2;
+		  int centerY = character.y+6 + character.height / 2;
 
 		  dx1 = centerX- drawW / 2;
 		  dy1 = centerY - drawH / 2;
@@ -214,10 +214,14 @@ public class Weapon {
 		  // draw projectile
 		  for (Projectile p: wProj) {
 	    		p.move();
+	    		
+	    	  int PdrawW = (int)(p.width * p.ratio);
+	   		  int PdrawH = (int)(p.height * p.ratio);
 
+	    		
 	    		Graphics2D projG = (Graphics2D) g2.create();
 	    		projG.rotate(p.angle, p.x + p.width / 2.0, p.y + p.height / 2.0);
-	    		projG.drawImage(p.bulletImg, p.x, p.y, p.width, p.height, null);
+	    		projG.drawImage(p.bulletImg, p.x, p.y, PdrawW, PdrawH, null);
 	    		projG.dispose();
 //	    		if(p.intersects(m1)) {
 //	    			System.out.println("hit");
