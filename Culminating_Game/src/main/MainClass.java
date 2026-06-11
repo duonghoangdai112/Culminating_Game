@@ -2,6 +2,7 @@ package main;
 
 import java.util.HashMap;
 
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
@@ -20,7 +21,31 @@ public class MainClass {
 
             frame.setLocationRelativeTo(null);
             frame.setVisible(true);
+            // Give the menu keyboard focus now that the window is on screen.
+            frame.getContentPane().requestFocusInWindow();
         });
+    }
+
+    /**
+     * Swaps the visible panel while keeping the window's current size and
+     * position. The window is only packed and centred on the very first show
+     * (before it becomes visible); after that, whatever size the player has
+     * resized the window to is preserved across every screen change.
+     */
+    private static void swapContent(JFrame frame, JComponent panel) {
+        if (frame.isShowing()) {
+            // Already on screen: keep the player's current size/position and
+            // just re-lay-out the new panel to fill it. No pack() => no snap-back.
+            frame.setContentPane(panel);
+            frame.revalidate();
+            frame.repaint();
+        } else {
+            // First launch: size to the panel's preferred size and centre it.
+            frame.setContentPane(panel);
+            frame.pack();
+            frame.setLocationRelativeTo(null);
+        }
+        panel.requestFocusInWindow();
     }
 
     /**
@@ -28,14 +53,6 @@ public class MainClass {
      */
     private static void showMainMenu(JFrame frame, MainClass m) {
         GameMenu menu = new GameMenu();
-
-        frame.setContentPane(menu);
-        frame.pack();
-        frame.setLocationRelativeTo(null);
-        frame.revalidate();
-        frame.repaint();
-
-        menu.requestFocusInWindow();
 
         menu.setSelectionListener((idx, label) -> {
             if (label.equals("Play") || label.equals("Characters")) {
@@ -45,6 +62,8 @@ public class MainClass {
                 System.out.println("Open rules screen here");
             }
         });
+
+        swapContent(frame, menu);
     }
 
     /**
@@ -65,20 +84,14 @@ public class MainClass {
             }
         });
 
-        frame.setContentPane(loadoutScreen);
-        frame.pack();
-        frame.setLocationRelativeTo(null);
-        frame.revalidate();
-        frame.repaint();
-
-        loadoutScreen.requestFocusInWindow();
+        swapContent(frame, loadoutScreen);
     }
 
     /**
      * Shows the actual game panel.
      */
     private static void showGamePanel(JFrame frame, MainClass m, String characterName, String weaponName) {
-        GamePanel panel = new GamePanel(m.rMonCons(), characterName, weaponName);
+        GamePanel panel = new GamePanel(m.rZomCons(), characterName, weaponName);
 
         // This is called when the player clicks X, then chooses YES.
         panel.setReturnToMenuListener(() -> showMainMenu(frame, m));
@@ -96,33 +109,27 @@ public class MainClass {
             }
         });
 
-        frame.setContentPane(panel);
-        frame.pack();
-        frame.setLocationRelativeTo(null);
-        frame.revalidate();
-        frame.repaint();
-
-        panel.requestFocusInWindow();
+        swapContent(frame, panel);
     }
 
     // stats holder for range Monster
-    public HashMap<String,Integer> rMonCons() {
-        HashMap<String,Integer> rangeMon = new HashMap<String,Integer>();
-        rangeMon.put("health",500);
-        rangeMon.put("damage",10);
-        rangeMon.put("visionRange",1);
+    public HashMap<String,Integer> rZomCons() {
+        HashMap<String,Integer> ZomMon = new HashMap<String,Integer>();
+        ZomMon.put("health",500);
+        ZomMon.put("damage",10);
+        ZomMon.put("visionRange",1);
 
-        rangeMon.put("speedX", 4);
-        rangeMon.put("speedY", 4);
+        ZomMon.put("speedX", 4);
+        ZomMon.put("speedY", 4);
 
-        rangeMon.put("width", 1);
-        rangeMon.put("width", 1);
-        rangeMon.put("cooldown",10);
-        rangeMon.put("x",5);
+        ZomMon.put("width", 1);
+        ZomMon.put("width", 1);
+        ZomMon.put("cooldown",10);
+        ZomMon.put("x",5);
 
-        rangeMon.put("y",5);
+        ZomMon.put("y",5);
 
-        return rangeMon;
+        return ZomMon;
     }
 
     public HashMap<String, Integer[]> rWeaponCons(){

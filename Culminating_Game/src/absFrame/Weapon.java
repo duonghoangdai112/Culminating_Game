@@ -28,11 +28,12 @@ public class Weapon {
 	public boolean firstAttack=true;
 	
 	public double startTime=0; // time of the last attack 
+	public double projRatio = 1;
 	
 	
 	
 	public Weapon(int manaCost, int vx, int vy, double cooldown, int damage, 
-			int angle,String name,int width,int height,BufferedImage wIMG,BufferedImage projImage) {
+			int angle,String name,int width,int height,BufferedImage wIMG,BufferedImage projImage,double projRatio) {
 		this.manaCost = manaCost;
 		this.vx = vx;
 		this.vy = vy;
@@ -51,7 +52,7 @@ public class Weapon {
 		sy2 = height; 
 		sx1 = 0;
 		sx2 = sx1+width;
-		
+		this.projRatio = projRatio;
 	}
 	/**
 	 * set the status for the weapon img 
@@ -149,7 +150,7 @@ public class Weapon {
 		return new Projectile(
 				(int)Math.round(startX - projW / 2.0),
 				(int)Math.round(startY - projH / 2.0),
-				projW, projH, projVx, projVy, damage, projImg, projectileAngle);
+				projW, projH, projVx, projVy, damage, projImg, projRatio);
 	}
 
 	/**
@@ -168,7 +169,7 @@ public class Weapon {
 		return new Projectile(
 				(int)Math.round(muzzle[0] - projW / 2.0),
 				(int)Math.round(muzzle[1] - projH / 2.0),
-				projW, projH, projVx, projVy, damage, projImg, angle);
+				projW, projH, projVx, projVy, damage, projImg, projRatio);
 	}
 
 	/**
@@ -214,14 +215,17 @@ public class Weapon {
 		  // draw projectile
 		  for (Projectile p: wProj) {
 	    		p.move();
+	    	
 	    		
+	    	  int pX = p.x-10;
+	    	  int pY = p.y-10;
 	    	  int PdrawW = (int)(p.width * p.ratio);
 	   		  int PdrawH = (int)(p.height * p.ratio);
 
 	    		
 	    		Graphics2D projG = (Graphics2D) g2.create();
 	    		projG.rotate(p.angle, p.x + p.width / 2.0, p.y + p.height / 2.0);
-	    		projG.drawImage(p.bulletImg, p.x, p.y, PdrawW, PdrawH, null);
+	    		projG.drawImage(p.bulletImg, pX, pY, PdrawW, PdrawH, null);
 	    		projG.dispose();
 //	    		if(p.intersects(m1)) {
 //	    			System.out.println("hit");
@@ -230,14 +234,6 @@ public class Weapon {
 		  }
 	 
 		  g2.rotate(angle,centerX,centerY);
-		  for (Projectile p: wProj) {
-	    		p.move();
-	    		g2.drawImage(p.bulletImg, p.x, p.y, p.width, p.height, null);
-//	    		if(p.intersects(m1)) {
-//	    			System.out.println("hit");
-//	    			p.setVisibility(false);
-//	    			}
-		  }
 	 g2.drawImage(
 	        wImg,
 	        dx1,

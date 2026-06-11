@@ -8,21 +8,21 @@ import java.util.HashMap;
 
 public abstract class Monster extends Rectangle {
     
-    double health, damage, visionRange;    
-    double cooldown; 
+    protected double health, damage, visionRange;    
+    protected double cooldown; 
     
-    double dx,dy;
-    double xx,yy;
-    ArrayList<Projectile> projectiles; 
+    protected double dx,dy;
+    protected double xx,yy;
+    protected ArrayList<Projectile> projectiles; 
     int startTime; 
 
     // Enemy image / animation.
-    private BufferedImage monsterImage;
-    private BufferedImage[] walkFrames;
-    private int walkFrameIndex = 0;
-    private int walkFrameCounter = 0;
-    private int walkFrameDelay = 8;
-    private boolean faceLeft = true;
+    protected BufferedImage monsterImage;
+    protected BufferedImage[] walkFrames;
+    protected int walkFrameIndex = 0;
+    protected int walkFrameCounter = 0;
+    protected int walkFrameDelay = 8;
+    protected boolean faceLeft = true;
     
     // initialize all attribute here 
     public Monster(HashMap<String,Integer> stats,int startTime,int x, int y,int width,int height,double speed){
@@ -93,7 +93,7 @@ public abstract class Monster extends Rectangle {
         }
     }
 
-    private void updateWalkAnimation(boolean moving) {
+    protected void updateWalkAnimation(boolean moving) {
         if (walkFrames == null || walkFrames.length == 0) {
             walkFrameIndex = 0;
             walkFrameCounter = 0;
@@ -149,6 +149,14 @@ public abstract class Monster extends Rectangle {
         } else {
             // Flip horizontally when the monster is facing right.
             g2.drawImage(img, x + width, y, -width, height, null);
+        }
+    }
+
+    protected void setFacingFromDelta(double deltaX) {
+        if (deltaX < 0) {
+            faceLeft = true;
+        } else if (deltaX > 0) {
+            faceLeft = false;
         }
     }
 
@@ -231,12 +239,8 @@ public abstract class Monster extends Rectangle {
      * @return
      */
     public void checkCollision (int charX, int charY, ArrayList<Tiles> Rtiles, Character c) {
-        double monDamage = 0;
-        if(charX == x && charY == y) {
-            int collisionDamage = 5;
-            monDamage += (double) collisionDamage;
+        if (c != null && this.intersects(c)) {
+            c.takeDamage((int) damage);
         }
-
-        c.health-= (int) monDamage;
     }
 }

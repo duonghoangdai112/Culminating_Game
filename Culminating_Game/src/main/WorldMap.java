@@ -14,58 +14,73 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Random;
 
 /**
- * Draws and manages one full connected map.
+ * Draws and manages one full arena map.
  *
- * There is no room teleporting or cropped-room switching anymore.
- * Player, monsters, weapons, and projectiles use world coordinates.
+ * The new mainmap.png is a single large room, so the game no longer needs room
+ * switching. Player, monsters, weapons, and projectiles use world coordinates.
  * Camera.java decides which part of this world is visible on screen.
  */
 public class WorldMap {
-    private static final int MAP_SCALE = 4;
+    // The new arena image is 1254 x 1254, so scale 2 keeps the world large
+    // without making monsters take too long to reach the player.
+    private static final int MAP_SCALE = 2;
 
     private BufferedImage mapImage;
-    private boolean[][] walkableMask;
     private ArrayList<Monster> monsters = new ArrayList<Monster>();
 
-    // Collision colors are read from mainmap.png.
-    // Peach/yellow pixels are walkable. Brown/orange wall pixels and large black
-    // empty areas are blocked. Small black grid lines beside floor tiles are
-    // treated as walkable so the player does not get stuck on tile outlines.
-    private static final int FLOOR_R = 229;
-    private static final int FLOOR_G = 170;
-    private static final int FLOOR_B = 122;
-    private static final int DOOR_R = 255;
-    private static final int DOOR_G = 194;
-    private static final int DOOR_B = 14;
-    private static final int COLOR_TOLERANCE = 18;
-    private static final int GRID_LINE_RADIUS = 2;
+    // Areas are written in original image pixel coordinates, not scaled world
+    // coordinates. They are converted using MAP_SCALE when needed.
+    private LinkedHashMap<String, Rectangle> areas = new LinkedHashMap<String, Rectangle>();
 
-    // Optional room/area labels. They do not switch the map; they only describe
-    // where the player currently is and help place monsters.
-    private HashMap<String, Rectangle> areas = new HashMap<String, Rectangle>();
+    // Main walkable floor area inside the orange outer walls.
+    private Rectangle arenaBounds;
 
-    // These are the actual rooms where enemies can spawn. Hallways are left out
-    // so enemies do not appear in narrow transition spaces.
-    private String[] combatRooms = {"room1", "room2", "room3", "room4"};
+    // Simple obstacle rectangles for raised pillars/blocks on the arena floor.
+    // These stop the player from walking through the obvious raised objects.
+    private ArrayList<Rectangle> blockedMapAreas = new ArrayList<Rectangle>();
+
+    // Spawn zones around the arena. These are used by GamePanel's random monster
+    // spawning code.
+    private String[] combatRooms = {"spawnNW", "spawnNE", "spawnSW", "spawnSE"};
 
     public WorldMap() {
         mapImage = loadImage("mainmap.png");
-        buildWalkableMask();
         createAreas();
     }
 
     private void createAreas() {
-        areas.put("room1", new Rectangle(31, 252, 160, 90));
-        areas.put("hallway1", new Rectangle(191, 162, 110, 161));
-        areas.put("room2", new Rectangle(161, 12, 90, 160));
-        areas.put("hallway2", new Rectangle(241, 32, 100, 50));
-        areas.put("room3", new Rectangle(331, 12, 160, 90));
-        areas.put("room4", new Rectangle(121, 362, 250, 130));
+        // This rectangle is the playable floor inside the orange walls. It is
+        // intentionally a little smaller than the visible floor so the player
+        // cannot clip into wall shadows or wall blocks.
+        arenaBounds = new Rectangle(110, 130, 1035, 1000);
+        areas.put("arena", arenaBounds);
+
+        // Corner/edge spawn zones. They match the four decorative circular pads
+        // in the new arena map.
+        areas.put("spawnNW", new Rectangle(125, 150, 260, 260));
+        areas.put("spawnNE", new Rectangle(870, 150, 260, 260));
+        areas.put("spawnSW", new Rectangle(125, 850, 260, 260));
+        areas.put("spawnSE", new Rectangle(870, 850, 260, 260));
+
+        // Raised pillars/blocks. These are optional gameplay obstacles. The
+        // center floor design is not blocked because it looks flat/walkable.
+        addBlockedArea(370, 135, 80, 105);   // upper-left inner pillar
+        addBlockedArea(805, 135, 80, 105);   // upper-right inner pillar
+        addBlockedArea(105, 365, 90, 110);   // left middle pillar
+        addBlockedArea(1060, 365, 90, 110);  // right middle pillar
+        addBlockedArea(105, 750, 90, 110);   // left lower pillar
+        addBlockedArea(1060, 750, 90, 110);  // right lower pillar
+        addBlockedArea(370, 1040, 80, 95);   // lower-left inner pillar
+        addBlockedArea(805, 1040, 80, 95);   // lower-right inner pillar
+    }
+
+    private void addBlockedArea(int x, int y, int width, int height) {
+        blockedMapAreas.add(new Rectangle(x, y, width, height));
     }
 
     public void draw(Graphics2D g2) {
@@ -79,56 +94,8 @@ public class WorldMap {
     }
 
     /**
-     * Builds a simple collision mask from mainmap.png.
-     *
-     * The artist only needs to keep the map colors consistent:
-     * - peach floor tiles are walkable
-     * - yellow door/portal pixels are walkable
-     * - brown/orange wall pixels are blocked
-     * - large black empty areas are blocked
-     *
-     * The code also allows tiny black grid lines if they are very close to a
-     * floor tile. That lets the player walk across tile outlines without making
-     * the big black void outside the map walkable.
-     */
-    private void buildWalkableMask() {
-        if (mapImage == null) {
-            walkableMask = null;
-            return;
-        }
-
-        int mapW = mapImage.getWidth();
-        int mapH = mapImage.getHeight();
-        boolean[][] baseWalkable = new boolean[mapW][mapH];
-        walkableMask = new boolean[mapW][mapH];
-
-        for (int x = 0; x < mapW; x++) {
-            for (int y = 0; y < mapH; y++) {
-                int rgb = mapImage.getRGB(x, y);
-                if (isFloorColor(rgb) || isDoorColor(rgb)) {
-                    baseWalkable[x][y] = true;
-                    walkableMask[x][y] = true;
-                }
-            }
-        }
-
-        for (int x = 0; x < mapW; x++) {
-            for (int y = 0; y < mapH; y++) {
-                if (walkableMask[x][y]) {
-                    continue;
-                }
-
-                int rgb = mapImage.getRGB(x, y);
-                if (isBlackColor(rgb) && hasFloorNearby(baseWalkable, x, y, GRID_LINE_RADIUS)) {
-                    walkableMask[x][y] = true;
-                }
-            }
-        }
-    }
-
-    /**
      * Checks whether the character's lower body can stand at its current world
-     * position. This is used after movement to prevent crossing wall pixels.
+     * position. This prevents the player from crossing the orange arena walls.
      */
     public boolean canCharacterStand(Character character) {
         if (character == null) {
@@ -180,64 +147,33 @@ public class WorldMap {
                 && isWorldPointWalkable(right, bottom);
     }
 
-    private boolean isWorldPointWalkable(int worldX, int worldY) {
-        if (walkableMask == null || mapImage == null) {
-            return true;
-        }
+    private boolean isWorldRectangleWalkable(Rectangle box) {
+        return isCollisionBoxWalkable(box);
+    }
 
+    private boolean isWorldPointWalkable(int worldX, int worldY) {
         int mapX = worldX / MAP_SCALE;
         int mapY = worldY / MAP_SCALE;
+
+        if (mapImage == null) {
+            return true;
+        }
 
         if (mapX < 0 || mapY < 0 || mapX >= mapImage.getWidth() || mapY >= mapImage.getHeight()) {
             return false;
         }
 
-        return walkableMask[mapX][mapY];
-    }
+        if (arenaBounds == null || !arenaBounds.contains(mapX, mapY)) {
+            return false;
+        }
 
-    private boolean hasFloorNearby(boolean[][] baseWalkable, int x, int y, int radius) {
-        int mapW = baseWalkable.length;
-        int mapH = baseWalkable[0].length;
-
-        for (int dx = -radius; dx <= radius; dx++) {
-            for (int dy = -radius; dy <= radius; dy++) {
-                int checkX = x + dx;
-                int checkY = y + dy;
-
-                if (checkX >= 0 && checkY >= 0 && checkX < mapW && checkY < mapH && baseWalkable[checkX][checkY]) {
-                    return true;
-                }
+        for (Rectangle blocked : blockedMapAreas) {
+            if (blocked.contains(mapX, mapY)) {
+                return false;
             }
         }
 
-        return false;
-    }
-
-    private boolean isFloorColor(int rgb) {
-        int r = (rgb >> 16) & 0xff;
-        int g = (rgb >> 8) & 0xff;
-        int b = rgb & 0xff;
-        return colorClose(r, g, b, FLOOR_R, FLOOR_G, FLOOR_B);
-    }
-
-    private boolean isDoorColor(int rgb) {
-        int r = (rgb >> 16) & 0xff;
-        int g = (rgb >> 8) & 0xff;
-        int b = rgb & 0xff;
-        return colorClose(r, g, b, DOOR_R, DOOR_G, DOOR_B);
-    }
-
-    private boolean isBlackColor(int rgb) {
-        int r = (rgb >> 16) & 0xff;
-        int g = (rgb >> 8) & 0xff;
-        int b = rgb & 0xff;
-        return r < 35 && g < 35 && b < 35;
-    }
-
-    private boolean colorClose(int r, int g, int b, int targetR, int targetG, int targetB) {
-        return Math.abs(r - targetR) <= COLOR_TOLERANCE
-                && Math.abs(g - targetG) <= COLOR_TOLERANCE
-                && Math.abs(b - targetB) <= COLOR_TOLERANCE;
+        return true;
     }
 
     public int getWorldWidth() {
@@ -273,15 +209,15 @@ public class WorldMap {
     }
 
     /**
-     * Returns only the room names where monsters should randomly spawn.
+     * Returns the arena zones where monsters should randomly spawn.
      */
     public String[] getCombatRoomNames() {
         return combatRooms.clone();
     }
 
     /**
-     * Picks a random top-left world position inside a named area.
-     * The object width/height are used so the monster stays fully inside the room.
+     * Picks a random top-left world position inside a named spawn area.
+     * The object width/height are used so the monster stays fully inside the map.
      */
     public Point getRandomSpawnPointInArea(String areaName, Random random, int objectWidth, int objectHeight) {
         Rectangle area = getWorldArea(areaName);
@@ -289,7 +225,7 @@ public class WorldMap {
             return new Point(getWorldWidth() / 2, getWorldHeight() / 2);
         }
 
-        int padding = 8 * MAP_SCALE;
+        int padding = 12 * MAP_SCALE;
         int minX = area.x + padding;
         int minY = area.y + padding;
         int maxX = area.x + area.width - objectWidth - padding;
@@ -304,8 +240,19 @@ public class WorldMap {
             maxY = minY;
         }
 
-        int x = minX + random.nextInt(maxX - minX + 1);
-        int y = minY + random.nextInt(maxY - minY + 1);
+        for (int attempt = 0; attempt < 80; attempt++) {
+            int x = minX + random.nextInt(maxX - minX + 1);
+            int y = minY + random.nextInt(maxY - minY + 1);
+            Rectangle spawnBox = new Rectangle(x, y, objectWidth, objectHeight);
+
+            if (isWorldRectangleWalkable(spawnBox)) {
+                return new Point(x, y);
+            }
+        }
+
+        // Fallback: use the center of the zone if random attempts fail.
+        int x = area.x + Math.max(0, (area.width - objectWidth) / 2);
+        int y = area.y + Math.max(0, (area.height - objectHeight) / 2);
         return new Point(x, y);
     }
 
@@ -393,14 +340,12 @@ public class WorldMap {
         int mapX = (target.x + target.width / 2) / MAP_SCALE;
         int mapY = (target.y + target.height / 2) / MAP_SCALE;
 
-        for (String name : areas.keySet()) {
-            Rectangle area = areas.get(name);
-            if (area.contains(mapX, mapY)) {
-                return name;
-            }
+        // The new map is one big arena, so keep the label simple.
+        if (arenaBounds != null && arenaBounds.contains(mapX, mapY)) {
+            return "Arena";
         }
 
-        return "World";
+        return "Wall";
     }
 
     private int clamp(int value, int min, int max) {

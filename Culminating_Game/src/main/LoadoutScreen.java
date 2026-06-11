@@ -302,7 +302,16 @@ public class LoadoutScreen extends JPanel {
         int cardW = 270;
         int cardH = 285;
         int gap = 42;
-        int y = 110;
+
+        // Vertically centre the two cards in the screen. Clamp so they stay
+        // clear of the title (top) and the START/BACK buttons (bottom) on
+        // smaller windows, but sit in the true middle on large/maximised ones.
+        int topLimit = 100;          // just below the title plate (title ends ~88)
+        int bottomLimit = H - 95;    // just above the bottom buttons (buttons at H-82)
+        int y = (H - cardH) / 2;
+        if (y < topLimit) y = topLimit;
+        if (y + cardH > bottomLimit) y = bottomLimit - cardH;
+
         int x1 = (W - cardW * 2 - gap) / 2;
         int x2 = x1 + cardW + gap;
 
