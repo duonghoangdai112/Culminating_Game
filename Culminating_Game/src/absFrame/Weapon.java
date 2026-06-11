@@ -217,10 +217,10 @@ public class Weapon {
 	    		p.move();
 	    	
 	    		
-	    	  int pX = p.x;
-	    	  int pY = p.y;
-	    	  int PdrawW = (int)(p.width * p.ratio);
-	   		  int PdrawH = (int)(p.height * p.ratio);
+	    	  int pX = p.x+30;
+	    	  int pY = p.y+30;
+	    	  int PdrawW = (int)(p.width * p.ratio)+30;
+	   		  int PdrawH = (int)(p.height * p.ratio)+30;
 
 	    		
 	    		Graphics2D projG = (Graphics2D) g2.create();

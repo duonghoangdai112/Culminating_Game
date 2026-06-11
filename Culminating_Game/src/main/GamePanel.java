@@ -9,6 +9,7 @@ import absFrame.Monster;
 import sprite.Archer;
 import sprite.Zombie;
 import sprite.WolfMonster;
+import sprite.SlimeKingBoss;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -82,7 +83,7 @@ public class GamePanel extends JPanel implements ActionListener {
     private int deathScreenSelection = 0;
 
     // Survival / wave settings.
-    private static final int SURVIVAL_TIME_SECONDS = 100;
+    private static final int SURVIVAL_TIME_SECONDS = 10;
     private static final double MONSTER_SPAWN_INTERVAL_SECONDS = 2.0;
     private static final int MAX_ALIVE_MONSTERS = 35;
     private double lastMonsterSpawnTime = 0.0;
@@ -91,6 +92,10 @@ public class GamePanel extends JPanel implements ActionListener {
     private BufferedImage zombieWalkSheet;
     private BufferedImage wolfWalkSheet;
     private BufferedImage wolfDashEffect;
+    private BufferedImage slimeKingSheet;
+    private BufferedImage slimeProjectileImage;
+    private SlimeKingBoss slimeKingBoss;
+    private boolean bossPhaseStarted = false;
 
     // Time record variable.
     private int TIMERSPEED = 10;
@@ -167,7 +172,7 @@ public class GamePanel extends JPanel implements ActionListener {
             case "Bow":
             default:
                 archer.weaponInit(10, 6, 6, 0.50, 10, "Bow",
-                        loadImage("Bow-animation.png"), 9, -0.70, loadImage("Arrow.png"),3);
+                        loadImage("Bow-animation.png"), 9, -0.70, loadImage("Arrow.png"),-5);
                 break;
         }
     }
@@ -181,6 +186,8 @@ public class GamePanel extends JPanel implements ActionListener {
         this.zombieWalkSheet = loadImage("Zombie.png");
         this.wolfWalkSheet = loadImage("Wolf.png");
         this.wolfDashEffect = loadImage("WolfDash.png");
+        this.slimeKingSheet = loadImage("SlimeKing.png");
+        this.slimeProjectileImage = loadImage("magic.png");
 
         worldMap.clearMonsters();
 
@@ -196,7 +203,7 @@ public class GamePanel extends JPanel implements ActionListener {
      * Keeps spawning monsters until the survival timer reaches 100 seconds.
      */
     private void updateMonsterSpawning() {
-        if (FULLTIME >= SURVIVAL_TIME_SECONDS || monsterStats == null) {
+        if (bossPhaseStarted || FULLTIME >= SURVIVAL_TIME_SECONDS || monsterStats == null) {
             return;
         }
 
@@ -279,6 +286,29 @@ public class GamePanel extends JPanel implements ActionListener {
 
     private int randomBetween(Random random, int min, int max) {
         return min + random.nextInt(max - min + 1);
+    }
+
+    /**
+     * Starts the boss phase after the player survives the normal 100-second wave.
+     * Regular monsters are cleared so the final fight focuses on the Slime King.
+     */
+    private void startBossPhase() {
+        bossPhaseStarted = true;
+        worldMap.clearMonsters();
+
+        HashMap<String, Integer> bossStats = new HashMap<String, Integer>();
+        bossStats.put("health", 5000);
+        bossStats.put("damage", 16);
+        bossStats.put("visionRange", 1);
+        bossStats.put("speedX", 1);
+        bossStats.put("speedY", 1);
+
+        slimeKingBoss = new SlimeKingBoss(bossStats, 0, 260, 260, 0, 0, 1.0);
+        slimeKingBoss.setBossAnimation(slimeKingSheet, 4, 280);
+        slimeKingBoss.setProjectileImage(slimeProjectileImage);
+
+        worldMap.addMonsterToArea("arena", slimeKingBoss, 0.50, 0.50);
+        monsters = worldMap.getMonsters();
     }
 
     private BufferedImage loadImage(String filename) {
@@ -387,7 +417,12 @@ public class GamePanel extends JPanel implements ActionListener {
 
     private void drawSurvivalTimer(Graphics2D g2) {
         int timeLeft = Math.max(0, SURVIVAL_TIME_SECONDS - (int) FULLTIME);
-        String label = "Survive: " + timeLeft + "s";
+        String label;
+        if (bossPhaseStarted) {
+            label = "Boss: Slime King";
+        } else {
+            label = "Survive: " + timeLeft + "s";
+        }
 
         g2.setFont(new Font(Font.MONOSPACED, Font.BOLD, 18));
         FontMetrics fm = g2.getFontMetrics();
@@ -565,7 +600,7 @@ public class GamePanel extends JPanel implements ActionListener {
         g2.drawString(title, titleX, boxY + 65);
 
         g2.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 15));
-        String subtitle = "You survived for 100 seconds.";
+        String subtitle = "You defeated the Slime King.";
         FontMetrics subFm = g2.getFontMetrics();
         int subX = boxX + (boxW - subFm.stringWidth(subtitle)) / 2;
         g2.drawString(subtitle, subX, boxY + 100);
@@ -678,7 +713,18 @@ public class GamePanel extends JPanel implements ActionListener {
             return;
         }
 
-        if (FULLTIME >= SURVIVAL_TIME_SECONDS && archer.health > 0 && !winScreenOpen) {
+        // At 100 seconds, survival mode changes into the boss fight instead of
+        // instantly winning. The player wins only after the Slime King dies.
+        if (FULLTIME >= SURVIVAL_TIME_SECONDS && archer.health > 0 && !bossPhaseStarted) {
+            startBossPhase();
+            return;
+        }
+
+        if (bossPhaseStarted
+                && slimeKingBoss != null
+                && slimeKingBoss.getHealth() <= 0
+                && archer.health > 0
+                && !winScreenOpen) {
             openWinScreen();
         }
     }
