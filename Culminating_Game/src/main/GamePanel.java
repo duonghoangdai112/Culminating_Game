@@ -7,7 +7,7 @@ import javax.swing.Timer;
 
 import absFrame.Monster;
 import sprite.Archer;
-import sprite.RangeMonster;
+import sprite.Zombie;
 import sprite.WolfMonster;
 
 import java.awt.BasicStroke;
@@ -88,8 +88,8 @@ public class GamePanel extends JPanel implements ActionListener {
     private double lastMonsterSpawnTime = 0.0;
     private Random spawnRandom = new Random();
     private HashMap<String, Integer> monsterStats;
-    private BufferedImage enemyImage;
-    private BufferedImage enemyWalkSheet;
+    private BufferedImage zombieWalkSheet;
+    private BufferedImage wolfWalkSheet;
     private BufferedImage wolfDashEffect;
 
     // Time record variable.
@@ -146,7 +146,7 @@ public class GamePanel extends JPanel implements ActionListener {
         switch (weaponName) {
             case "Staff":
                 archer.weaponInit(12, 5, 5, 0.7, 10, "Staff",
-                        loadImage("staff-animation.png"), 4, 0.4, loadImage("magic.png"),1.4);
+                        loadImage("staff-animation.png"), 4, 0.4, loadImage("magic.png"),2.0);
                 break;
 
             case "Glock":
@@ -160,15 +160,14 @@ public class GamePanel extends JPanel implements ActionListener {
                 break;
 
             case "Rifle":
-                archer.weaponInit(10, 8, 8, 0.35, 10, "Rifle",
-                        loadImage("47-"
-                        		+ "animation.png"), 4, 0.30, loadImage("Bullet.png"),0.8);
+                archer.weaponInit(10, 8, 8, 0.3, 10, "Rifle",
+                        loadImage("47-animation.png"), 4, 0.30, loadImage("Bullet.png"),0.8);
                 break;
 
             case "Bow":
             default:
                 archer.weaponInit(10, 6, 6, 0.50, 10, "Bow",
-                        loadImage("Bow-animation.png"), 9, -0.70, loadImage("Arrow.png"),2);
+                        loadImage("Bow-animation.png"), 9, -0.70, loadImage("Arrow.png"),3);
                 break;
         }
     }
@@ -179,8 +178,8 @@ public class GamePanel extends JPanel implements ActionListener {
      */
     private void setupWorldMonsters(HashMap<String, Integer> monsterStats) {
         this.monsterStats = monsterStats;
-        this.enemyImage = loadImage("Wolf.png");
-        this.enemyWalkSheet = loadImage("Wolf.png");
+        this.zombieWalkSheet = loadImage("Zombie.png");
+        this.wolfWalkSheet = loadImage("Wolf.png");
         this.wolfDashEffect = loadImage("WolfDash.png");
 
         worldMap.clearMonsters();
@@ -234,10 +233,21 @@ public class GamePanel extends JPanel implements ActionListener {
             return;
         }
 
-        WolfMonster monster = new WolfMonster(monsterStats, 0, 100, 100, 0, 0, 0.25);
-        monster.setMonsterImage(enemyImage);
-        monster.setWalkAnimation(enemyWalkSheet, 4);
-        monster.setDashEffectImage(wolfDashEffect);
+        Monster monster;
+
+        // Randomly choose the enemy type every time something spawns.
+        // Zombies are simple chasers. Wolves use their dash state machine.
+        if (spawnRandom.nextBoolean()) {
+            Zombie zombie = new Zombie(monsterStats, 0, 100, 100, 0, 0, 0.25);
+            zombie.setWalkAnimation(zombieWalkSheet, 4);
+            monster = zombie;
+        } else {
+            WolfMonster wolf = new WolfMonster(monsterStats, 0, 100, 100, 0, 0, 0.25);
+            wolf.setWalkAnimation(wolfWalkSheet, 4);
+            wolf.setDashEffectImage(wolfDashEffect);
+            monster = wolf;
+        }
+
         placeMonsterRandomlyInRoom(roomName, monster, spawnRandom);
         worldMap.addMonster(monster);
     }
@@ -464,7 +474,7 @@ public class GamePanel extends JPanel implements ActionListener {
         drawPopupButton(g2, noButtonBounds, "NO", returnDialogSelection == 1);
 
         g2.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 13));
-        String controls = "Use W/A/S/D to choose, Enter/J/Space to confirm";
+        String controls = "Use joystic to choose, A to confirm";
         FontMetrics controlsFm = g2.getFontMetrics();
         int controlsX = boxX + (boxW - controlsFm.stringWidth(controls)) / 2;
         g2.drawString(controls, controlsX, boxY + boxH - 12);
@@ -519,7 +529,7 @@ public class GamePanel extends JPanel implements ActionListener {
         drawPopupButton(g2, menuButtonBounds, "MENU", deathScreenSelection == 1);
 
         g2.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 13));
-        String controls = "Use W/A/S/D to choose, Enter/J/Space to confirm";
+        String controls = "Use Joystick to choose, A to confirm";
         FontMetrics controlsFm = g2.getFontMetrics();
         int controlsX = boxX + (boxW - controlsFm.stringWidth(controls)) / 2;
         g2.drawString(controls, controlsX, boxY + boxH - 18);
@@ -574,7 +584,7 @@ public class GamePanel extends JPanel implements ActionListener {
         drawPopupButton(g2, menuButtonBounds, "MENU", deathScreenSelection == 1);
 
         g2.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 13));
-        String controls = "Use W/A/S/D to choose, Enter/J/Space to confirm";
+        String controls = "Use Joystick to choose, A to confirm";
         FontMetrics controlsFm = g2.getFontMetrics();
         int controlsX = boxX + (boxW - controlsFm.stringWidth(controls)) / 2;
         g2.drawString(controls, controlsX, boxY + boxH - 18);

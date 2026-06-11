@@ -4,6 +4,8 @@ import javax.swing.*;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.File;
@@ -59,6 +61,18 @@ public class GameMenu extends JPanel {
     private static final int BTN_GAP  =  62;   // centre-to-centre row spacing
     private static final int TITLE_W  = 290;
     private static final int TITLE_H  =  58;
+    private static final int GAP_TITLE_BUTTONS = 40; // space between title and first button
+    private static final int GROUP_PAD = 30;   // breathing room around the whole group
+
+    // -- Responsive layout ----------------------------------------------------
+    // The title + buttons are laid out once in a fixed "design space", then the
+    // whole group is centred and scaled to fit whatever size the window is.
+    // This keeps every button in the exact middle (horizontally and vertically)
+    // at any window size, and prevents the title from clipping off the top.
+    private int designW, designH;          // size of the design canvas
+    private int titleDX, titleDY;          // title top-left, in design space
+    private int[] btnDX, btnDY;            // each button top-left, in design space
+    private AffineTransform menuTransform = new AffineTransform(); // design -> screen
  
     // -- Selection-changed callback ------------------------------------------
     public interface SelectionListener {
@@ -76,7 +90,10 @@ public class GameMenu extends JPanel {
         setFocusable(true);
         setBackground(BG_DARK);
         setPreferredSize(new Dimension(800, 500));
- 
+
+        // Build the fixed design-space layout for the title + buttons.
+        computeDesignLayout();
+
         // Load the background image from src/assets/background.png
         backgroundImage = loadImage("bg.png");
  
@@ -89,11 +106,19 @@ public class GameMenu extends JPanel {
         });
 
         // Mouse input for clicking the custom-drawn menu buttons.
+        // The menu is drawn through a scale/translate transform, so map the
+        // click back into design space before testing the button bounds.
         addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
+                Point2D p;
+                try {
+                    p = menuTransform.inverseTransform(e.getPoint(), null);
+                } catch (Exception ex) {
+                    return; // non-invertible transform (degenerate size) - ignore
+                }
                 for (int i = 0; i < OPTIONS.length; i++) {
-                    if (getButtonBounds(i).contains(e.getPoint())) {
+                    if (getButtonBounds(i).contains(p)) {
                         selectedIndex = i;
                         repaint();
 
@@ -167,6 +192,59 @@ public class GameMenu extends JPanel {
         }
     }
  
+    // -- Responsive layout helpers -------------------------------------------
+    /**
+     * Lays the title and buttons out once in a fixed "design space" whose origin
+     * is the top-left of the whole menu group. computeMenuTransform() then maps
+     * this design space onto the live panel, centred and scaled to fit.
+     */
+    private void computeDesignLayout() {
+        int n = OPTIONS.length;
+        int buttonsH = (n - 1) * BTN_GAP + BTN_H;
+        int contentW = Math.max(TITLE_W, BTN_W);
+
+        designW = contentW + GROUP_PAD * 2;
+        designH = TITLE_H + GAP_TITLE_BUTTONS + buttonsH + GROUP_PAD * 2;
+
+        // Title centred at the top of the group.
+        titleDX = (designW - TITLE_W) / 2;
+        titleDY = GROUP_PAD;
+
+        // Button stack centred horizontally, directly under the title.
+        int buttonsTop = GROUP_PAD + TITLE_H + GAP_TITLE_BUTTONS;
+        btnDX = new int[n];
+        btnDY = new int[n];
+        for (int i = 0; i < n; i++) {
+            btnDX[i] = (designW - BTN_W) / 2;
+            btnDY[i] = buttonsTop + i * BTN_GAP;
+        }
+    }
+
+    /**
+     * Builds the design->screen transform: scale the whole group so it fits the
+     * current window (with a small margin), then centre it both ways. Buttons
+     * therefore stay in the exact middle at any window size, and the title never
+     * clips off the top.
+     */
+    private AffineTransform computeMenuTransform() {
+        int W = getWidth();
+        int H = getHeight();
+
+        // Fit within ~90% width and ~84% height so nothing touches the edges,
+        // but allow the group to grow a little on very large windows.
+        double scale = Math.min((W * 0.90) / designW, (H * 0.84) / designH);
+        scale = Math.min(scale, 1.4);
+        if (scale <= 0) scale = 0.01;
+
+        double drawW = designW * scale;
+        double drawH = designH * scale;
+
+        AffineTransform at = new AffineTransform();
+        at.translate((W - drawW) / 2.0, (H - drawH) / 2.0);
+        at.scale(scale, scale);
+        return at;
+    }
+
     // -- Painting -------------------------------------------------------------
     @Override
     protected void paintComponent(Graphics g) {
@@ -179,8 +257,15 @@ public class GameMenu extends JPanel {
         int H = getHeight();
  
         paintBackground(g2, W, H);
-        paintTitle(g2, W, H);
-        paintButtons(g2, W, H);
+
+        // Centre + scale the title and buttons as one group.
+        menuTransform = computeMenuTransform();
+        AffineTransform saved = g2.getTransform();
+        g2.transform(menuTransform);
+        paintTitle(g2);
+        paintButtons(g2);
+        g2.setTransform(saved);
+
         paintHints(g2, W, H);
  
         g2.dispose();
@@ -240,9 +325,9 @@ public class GameMenu extends JPanel {
     }
  
     // -- Stone-plate title ----------------------------------------------------
-    private void paintTitle(Graphics2D g2, int W, int H) {
-        int tx = (W - TITLE_W) / 2;
-        int ty = H / 2 - BTN_H / 2 - BTN_GAP * OPTIONS.length / 2 - TITLE_H - 30;
+    private void paintTitle(Graphics2D g2) {
+        int tx = titleDX;
+        int ty = titleDY;
  
         // Outer border shadow
         g2.setColor(new Color(0, 0, 0, 120));
@@ -284,16 +369,10 @@ public class GameMenu extends JPanel {
     }
  
     // -- Menu buttons ---------------------------------------------------------
-    private void paintButtons(Graphics2D g2, int W, int H) {
-        // Centre the button stack vertically
-        int totalH = (OPTIONS.length - 1) * BTN_GAP + BTN_H;
-        int startY = (H - totalH) / 2 + 30;   // slight downward offset for the title
-        int bx = (W - BTN_W) / 2;
- 
+    private void paintButtons(Graphics2D g2) {
         for (int i = 0; i < OPTIONS.length; i++) {
-            int by = startY + i * BTN_GAP;
             boolean active = (i == selectedIndex);
-            paintButton(g2, bx, by, OPTIONS[i], active);
+            paintButton(g2, btnDX[i], btnDY[i], OPTIONS[i], active);
         }
     }
  
@@ -427,12 +506,9 @@ public class GameMenu extends JPanel {
     }
  
     private Rectangle getButtonBounds(int index) {
-        int totalH = (OPTIONS.length - 1) * BTN_GAP + BTN_H;
-        int startY = (getHeight() - totalH) / 2 + 30;
-        int bx = (getWidth() - BTN_W) / 2;
-        int by = startY + index * BTN_GAP;
-
-        return new Rectangle(bx, by, BTN_W, BTN_H);
+        // Bounds are in design space; the mouse handler maps clicks into this
+        // same space via the inverse of menuTransform before testing them.
+        return new Rectangle(btnDX[index], btnDY[index], BTN_W, BTN_H);
     }
  
     // -- Getters --------------------------------------------------------------

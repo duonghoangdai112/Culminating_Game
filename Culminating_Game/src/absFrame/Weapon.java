@@ -215,14 +215,17 @@ public class Weapon {
 		  // draw projectile
 		  for (Projectile p: wProj) {
 	    		p.move();
+	    	
 	    		
+	    	  int pX = p.x;
+	    	  int pY = p.y;
 	    	  int PdrawW = (int)(p.width * p.ratio);
 	   		  int PdrawH = (int)(p.height * p.ratio);
 
 	    		
 	    		Graphics2D projG = (Graphics2D) g2.create();
 	    		projG.rotate(p.angle, p.x + p.width / 2.0, p.y + p.height / 2.0);
-	    		projG.drawImage(p.bulletImg, p.x, p.y, PdrawW, PdrawH, null);
+	    		projG.drawImage(p.bulletImg, pX, pY, PdrawW, PdrawH, null);
 	    		projG.dispose();
 //	    		if(p.intersects(m1)) {
 //	    			System.out.println("hit");
