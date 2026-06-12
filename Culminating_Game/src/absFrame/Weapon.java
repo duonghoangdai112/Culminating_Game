@@ -112,10 +112,8 @@ public class Weapon {
 
 		if(time<cooldown && firstAttack) {
 			firstAttack = false;
-			System.out.println("succes");
 			return true;
 		}
-		System.out.println("fail");
 
 		return false;
 	}
@@ -217,10 +215,10 @@ public class Weapon {
 	    		p.move();
 	    	
 	    		
-	    	  int pX = p.x-10;
-	    	  int pY = p.y-10;
-	    	  int PdrawW = (int)(p.width * p.ratio);
-	   		  int PdrawH = (int)(p.height * p.ratio);
+	    	  int pX = p.x+30;
+	    	  int pY = p.y+30;
+	    	  int PdrawW = (int)(p.width * p.ratio)+30;
+	   		  int PdrawH = (int)(p.height * p.ratio)+30;
 
 	    		
 	    		Graphics2D projG = (Graphics2D) g2.create();

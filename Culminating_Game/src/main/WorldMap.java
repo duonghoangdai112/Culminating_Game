@@ -313,14 +313,16 @@ public class WorldMap {
         return new Point(mapX * MAP_SCALE, mapY * MAP_SCALE);
     }
 
-    public void removeDefeatedMonsters() {
-        Iterator<Monster> it = monsters.iterator();
-        while (it.hasNext()) {
-            Monster monster = it.next();
+    public int removeDefeatedMonsters() {
+        ArrayList<Monster> copy = new ArrayList<>(monsters);
+        int monsKilled = 0;
+        for (Monster monster : copy) {
             if (monster.getHealth() <= 0) {
-                it.remove();
+                monsters.remove(monster);
+                monsKilled +=1;
             }
         }
+        return monsKilled; 
     }
 
     public void keepInsideWorld(Character character) {

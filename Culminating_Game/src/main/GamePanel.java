@@ -9,6 +9,7 @@ import absFrame.Monster;
 import sprite.Archer;
 import sprite.Zombie;
 import sprite.WolfMonster;
+import sprite.SlimeKingBoss;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -81,8 +82,15 @@ public class GamePanel extends JPanel implements ActionListener {
     // 0 = RESTART, 1 = MENU.
     private int deathScreenSelection = 0;
 
+    // Level-up screen state.
+    private boolean levelUpScreenOpen = false;
+    private int levelUpSelection = 0;
+    private Rectangle healthUpgradeBounds = new Rectangle();
+    private Rectangle damageUpgradeBounds = new Rectangle();
+    private Rectangle speedUpgradeBounds = new Rectangle();
+
     // Survival / wave settings.
-    private static final int SURVIVAL_TIME_SECONDS = 100;
+    private static final int SURVIVAL_TIME_SECONDS = 30;
     private static final double MONSTER_SPAWN_INTERVAL_SECONDS = 2.0;
     private static final int MAX_ALIVE_MONSTERS = 35;
     private double lastMonsterSpawnTime = 0.0;
@@ -91,6 +99,10 @@ public class GamePanel extends JPanel implements ActionListener {
     private BufferedImage zombieWalkSheet;
     private BufferedImage wolfWalkSheet;
     private BufferedImage wolfDashEffect;
+    private BufferedImage slimeKingSheet;
+    private BufferedImage slimeProjectileImage;
+    private SlimeKingBoss slimeKingBoss;
+    private boolean bossPhaseStarted = false;
 
     // Time record variable.
     private int TIMERSPEED = 10;
@@ -146,7 +158,7 @@ public class GamePanel extends JPanel implements ActionListener {
         switch (weaponName) {
             case "Staff":
                 archer.weaponInit(12, 5, 5, 0.7, 10, "Staff",
-                        loadImage("staff-animation.png"), 4, 0.4, loadImage("magic.png"),2.2);
+                        loadImage("staff-animation.png"), 4, 0.4, loadImage("magic.png"),2.0);
                 break;
 
             case "Glock":
@@ -155,8 +167,8 @@ public class GamePanel extends JPanel implements ActionListener {
                 break;
 
             case "Sniper":
-                archer.weaponInit(16, 12, 12, 0.8, 30, "Sniper",
-                        loadImage("Sniper-animation.png"), 3, 0.30, loadImage("Bullet.png"),1.1);
+                archer.weaponInit(16, 12, 12, 0.8, 25, "Sniper",
+                        loadImage("Sniper-animation.png"), 3, 0.45, loadImage("Bullet.png"),1.1);
                 break;
 
             case "Rifle":
@@ -167,7 +179,7 @@ public class GamePanel extends JPanel implements ActionListener {
             case "Bow":
             default:
                 archer.weaponInit(10, 6, 6, 0.50, 10, "Bow",
-                        loadImage("Bow-animation.png"), 9, -0.70, loadImage("Arrow.png"),3);
+                        loadImage("Bow-animation.png"), 9, -0.70, loadImage("Arrow.png"),-3);
                 break;
         }
     }
@@ -181,6 +193,8 @@ public class GamePanel extends JPanel implements ActionListener {
         this.zombieWalkSheet = loadImage("Zombie.png");
         this.wolfWalkSheet = loadImage("Wolf.png");
         this.wolfDashEffect = loadImage("WolfDash.png");
+        this.slimeKingSheet = loadImage("SlimeKing.png");
+        this.slimeProjectileImage = loadImage("magic.png");
 
         worldMap.clearMonsters();
 
@@ -196,7 +210,7 @@ public class GamePanel extends JPanel implements ActionListener {
      * Keeps spawning monsters until the survival timer reaches 100 seconds.
      */
     private void updateMonsterSpawning() {
-        if (FULLTIME >= SURVIVAL_TIME_SECONDS || monsterStats == null) {
+        if (bossPhaseStarted || FULLTIME >= SURVIVAL_TIME_SECONDS || monsterStats == null) {
             return;
         }
 
@@ -281,6 +295,29 @@ public class GamePanel extends JPanel implements ActionListener {
         return min + random.nextInt(max - min + 1);
     }
 
+    /**
+     * Starts the boss phase after the player survives the normal 100-second wave.
+     * Regular monsters are cleared so the final fight focuses on the Slime King.
+     */
+    private void startBossPhase() {
+        bossPhaseStarted = true;
+        worldMap.clearMonsters();
+
+        HashMap<String, Integer> bossStats = new HashMap<String, Integer>();
+        bossStats.put("health", 5000);
+        bossStats.put("damage", 16);
+        bossStats.put("visionRange", 1);
+        bossStats.put("speedX", 1);
+        bossStats.put("speedY", 1);
+
+        slimeKingBoss = new SlimeKingBoss(bossStats, 0, 260, 260, 0, 0, 1.0);
+        slimeKingBoss.setBossAnimation(slimeKingSheet, 4, 280);
+        slimeKingBoss.setProjectileImage(slimeProjectileImage);
+
+        worldMap.addMonsterToArea("arena", slimeKingBoss, 0.50, 0.50);
+        monsters = worldMap.getMonsters();
+    }
+
     private BufferedImage loadImage(String filename) {
         String[] resourceNames = {"/" + filename, "/assests/" + filename};
         for (String resourceName : resourceNames) {
@@ -344,8 +381,8 @@ public class GamePanel extends JPanel implements ActionListener {
 
         // UI is drawn after the camera so it stays fixed to the screen.
         archer.drawCharacter(g2);
-        drawAreaLabel(g2);
         drawSurvivalTimer(g2);
+        drawPlayerLevel(g2);
 
         if (!deathScreenOpen && !winScreenOpen) {
             drawCloseButton(g2);
@@ -355,6 +392,8 @@ public class GamePanel extends JPanel implements ActionListener {
             drawWinScreen(g2);
         } else if (deathScreenOpen) {
             drawDeathScreen(g2);
+        } else if (levelUpScreenOpen) {
+            drawLevelUpScreen(g2);
         } else if (returnDialogOpen) {
             drawReturnDialog(g2);
         }
@@ -372,22 +411,14 @@ public class GamePanel extends JPanel implements ActionListener {
         camera.follow(archer, viewW, viewH, worldMap.getWorldWidth(), worldMap.getWorldHeight());
     }
 
-    private void drawAreaLabel(Graphics2D g2) {
-        String label = "Area: " + worldMap.getAreaNameAt(archer);
-        g2.setFont(new Font(Font.MONOSPACED, Font.BOLD, 16));
-        FontMetrics fm = g2.getFontMetrics();
-        int x = getWidth() - fm.stringWidth(label) - 75;
-        int y = 85;
-
-        g2.setColor(new Color(0, 0, 0, 140));
-        g2.fillRoundRect(x - 10, y - fm.getAscent(), fm.stringWidth(label) + 20, 28, 8, 8);
-        g2.setColor(new Color(240, 230, 200));
-        g2.drawString(label, x, y);
-    }
-
     private void drawSurvivalTimer(Graphics2D g2) {
         int timeLeft = Math.max(0, SURVIVAL_TIME_SECONDS - (int) FULLTIME);
-        String label = "Survive: " + timeLeft + "s";
+        String label;
+        if (bossPhaseStarted) {
+            label = "Boss: Slime King";
+        } else {
+            label = "Survive: " + timeLeft + "s";
+        }
 
         g2.setFont(new Font(Font.MONOSPACED, Font.BOLD, 18));
         FontMetrics fm = g2.getFontMetrics();
@@ -401,6 +432,24 @@ public class GamePanel extends JPanel implements ActionListener {
         g2.fillRoundRect(x, y - fm.getAscent(), boxW, boxH, 8, 8);
 
         g2.setColor(new Color(255, 235, 150));
+        g2.drawString(label, x + 10, y);
+    }
+
+    private void drawPlayerLevel(Graphics2D g2) {
+        String label = "LV " + archer.level + "  EXP " + archer.exp + "/" + archer.expToNextLevel;
+
+        g2.setFont(new Font(Font.MONOSPACED, Font.BOLD, 18));
+        FontMetrics fm = g2.getFontMetrics();
+
+        int x = 10;
+        int y = 180;
+        int boxW = fm.stringWidth(label) + 20;
+        int boxH = 30;
+
+        g2.setColor(new Color(0, 0, 0, 150));
+        g2.fillRoundRect(x, y - fm.getAscent(), boxW, boxH, 8, 8);
+
+        g2.setColor(new Color(160, 230, 255));
         g2.drawString(label, x + 10, y);
     }
 
@@ -478,6 +527,60 @@ public class GamePanel extends JPanel implements ActionListener {
         FontMetrics controlsFm = g2.getFontMetrics();
         int controlsX = boxX + (boxW - controlsFm.stringWidth(controls)) / 2;
         g2.drawString(controls, controlsX, boxY + boxH - 12);
+    }
+
+    private void drawLevelUpScreen(Graphics2D g2) {
+        int W = getWidth();
+        int H = getHeight();
+
+        g2.setColor(new Color(0, 0, 0, 185));
+        g2.fillRect(0, 0, W, H);
+
+        int boxW = 540;
+        int boxH = 360;
+        int boxX = (W - boxW) / 2;
+        int boxY = (H - boxH) / 2;
+
+        g2.setColor(new Color(36, 42, 58));
+        g2.fillRoundRect(boxX, boxY, boxW, boxH, 18, 18);
+
+        g2.setColor(new Color(120, 210, 255));
+        g2.setStroke(new BasicStroke(3f));
+        g2.drawRoundRect(boxX, boxY, boxW, boxH, 18, 18);
+
+        g2.setFont(new Font(Font.MONOSPACED, Font.BOLD, 36));
+        String title = "LEVEL UP!";
+        FontMetrics titleFm = g2.getFontMetrics();
+        int titleX = boxX + (boxW - titleFm.stringWidth(title)) / 2;
+        g2.setColor(new Color(230, 250, 255));
+        g2.drawString(title, titleX, boxY + 58);
+
+        g2.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 15));
+        String subtitle = "Choose one upgrade";
+        FontMetrics subFm = g2.getFontMetrics();
+        int subX = boxX + (boxW - subFm.stringWidth(subtitle)) / 2;
+        g2.drawString(subtitle, subX, boxY + 88);
+
+        int btnW = 380;
+        int btnH = 48;
+        int btnX = boxX + (boxW - btnW) / 2;
+        int firstY = boxY + 120;
+        int gap = 18;
+
+        healthUpgradeBounds.setBounds(btnX, firstY, btnW, btnH);
+        damageUpgradeBounds.setBounds(btnX, firstY + btnH + gap, btnW, btnH);
+        speedUpgradeBounds.setBounds(btnX, firstY + (btnH + gap) * 2, btnW, btnH);
+
+        drawPopupButton(g2, healthUpgradeBounds, "1  HEALTH +20", levelUpSelection == 0);
+        drawPopupButton(g2, damageUpgradeBounds, "2  DAMAGE +5", levelUpSelection == 1);
+        drawPopupButton(g2, speedUpgradeBounds, "3  SPEED +1", levelUpSelection == 2);
+
+        g2.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 13));
+        String controls = "Use W/S or arrows to choose, J/Enter to confirm";
+        FontMetrics controlsFm = g2.getFontMetrics();
+        int controlsX = boxX + (boxW - controlsFm.stringWidth(controls)) / 2;
+        g2.setColor(new Color(230, 240, 255));
+        g2.drawString(controls, controlsX, boxY + boxH - 20);
     }
 
     /**
@@ -565,7 +668,7 @@ public class GamePanel extends JPanel implements ActionListener {
         g2.drawString(title, titleX, boxY + 65);
 
         g2.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 15));
-        String subtitle = "You survived for 100 seconds.";
+        String subtitle = "You defeated the Slime King.";
         FontMetrics subFm = g2.getFontMetrics();
         int subX = boxX + (boxW - subFm.stringWidth(subtitle)) / 2;
         g2.drawString(subtitle, subX, boxY + 100);
@@ -616,7 +719,7 @@ public class GamePanel extends JPanel implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (returnDialogOpen || deathScreenOpen || winScreenOpen) {
+        if (returnDialogOpen || deathScreenOpen || winScreenOpen || levelUpScreenOpen) {
             // Pause the game updates while a popup screen is open.
             return;
         }
@@ -660,7 +763,10 @@ public class GamePanel extends JPanel implements ActionListener {
 
         archer.RemoveProj();
         archer.checkProjectile(monsters);
-        worldMap.removeDefeatedMonsters();
+        int monsKilled = worldMap.removeDefeatedMonsters();
+        if (monsKilled > 0) {
+            gainExp(monsKilled);
+        }
         monsters = worldMap.getMonsters();
 
         // Count down immunity every tick, then let each monster test collision.
@@ -672,13 +778,77 @@ public class GamePanel extends JPanel implements ActionListener {
         }
     }
 
+    private void gainExp(int amount) {
+        archer.exp += amount;
+        checkForLevelUp();
+    }
+
+    private void checkForLevelUp() {
+        if (!levelUpScreenOpen && archer.levelUp()) {
+            openLevelUpScreen();
+        }
+    }
+
+    private void openLevelUpScreen() {
+        levelUpScreenOpen = true;
+        levelUpSelection = 0;
+        stopPlayerMovement();
+        repaint();
+    }
+
+    private void moveLevelUpSelection(int direction) {
+        levelUpSelection += direction;
+        if (levelUpSelection < 0) {
+            levelUpSelection = 2;
+        } else if (levelUpSelection > 2) {
+            levelUpSelection = 0;
+        }
+        repaint();
+    }
+
+    private void confirmLevelUpSelection() {
+        applyLevelUpChoice(levelUpSelection);
+    }
+
+    private void applyLevelUpChoice(int choice) {
+        if (choice == 0) {
+            archer.maxHealth += 20;
+            archer.health += 20;
+        } else if (choice == 1) {
+            if (archer.weapon != null) {
+                archer.weapon.damage += 5;
+            }
+        } else if (choice == 2) {
+            archer.speed += 1;
+        }
+
+        levelUpScreenOpen = false;
+        requestFocusInWindow();
+        repaint();
+
+        // If the player already has enough EXP for another level, open the
+        // screen again after applying this upgrade.
+        checkForLevelUp();
+    }
+
     private void checkGameEndConditions() {
         if (archer.health <= 0 && !deathScreenOpen) {
             openDeathScreen();
             return;
         }
 
-        if (FULLTIME >= SURVIVAL_TIME_SECONDS && archer.health > 0 && !winScreenOpen) {
+        // At 100 seconds, survival mode changes into the boss fight instead of
+        // instantly winning. The player wins only after the Slime King dies.
+        if (FULLTIME >= SURVIVAL_TIME_SECONDS && archer.health > 0 && !bossPhaseStarted) {
+            startBossPhase();
+            return;
+        }
+
+        if (bossPhaseStarted
+                && slimeKingBoss != null
+                && slimeKingBoss.getHealth() <= 0
+                && archer.health > 0
+                && !winScreenOpen) {
             openWinScreen();
         }
     }
@@ -769,7 +939,7 @@ public class GamePanel extends JPanel implements ActionListener {
      * Opens the return-to-menu confirmation and freezes player movement.
      */
     private void openReturnDialog() {
-        if (deathScreenOpen || winScreenOpen) {
+        if (deathScreenOpen || winScreenOpen || levelUpScreenOpen) {
             return;
         }
 
@@ -900,6 +1070,20 @@ public class GamePanel extends JPanel implements ActionListener {
                 return;
             }
 
+            if (levelUpScreenOpen) {
+                if (healthUpgradeBounds.contains(e.getPoint())) {
+                    levelUpSelection = 0;
+                    applyLevelUpChoice(0);
+                } else if (damageUpgradeBounds.contains(e.getPoint())) {
+                    levelUpSelection = 1;
+                    applyLevelUpChoice(1);
+                } else if (speedUpgradeBounds.contains(e.getPoint())) {
+                    levelUpSelection = 2;
+                    applyLevelUpChoice(2);
+                }
+                return;
+            }
+
             if (returnDialogOpen) {
                 if (yesButtonBounds.contains(e.getPoint())) {
                     returnDialogSelection = 0;
@@ -948,6 +1132,37 @@ public class GamePanel extends JPanel implements ActionListener {
                     case KeyEvent.VK_X:
                         deathScreenSelection = 1;
                         returnToMainMenuFromDeathScreen();
+                        break;
+                }
+                return;
+            }
+
+            if (levelUpScreenOpen) {
+                switch (e.getKeyCode()) {
+                    case KeyEvent.VK_W:
+                    case KeyEvent.VK_UP:
+                        moveLevelUpSelection(-1);
+                        break;
+                    case KeyEvent.VK_S:
+                    case KeyEvent.VK_DOWN:
+                        moveLevelUpSelection(1);
+                        break;
+                    case KeyEvent.VK_ENTER:
+                    case KeyEvent.VK_SPACE:
+                    case KeyEvent.VK_J:
+                        confirmLevelUpSelection();
+                        break;
+                    case KeyEvent.VK_1:
+                        levelUpSelection = 0;
+                        applyLevelUpChoice(0);
+                        break;
+                    case KeyEvent.VK_2:
+                        levelUpSelection = 1;
+                        applyLevelUpChoice(1);
+                        break;
+                    case KeyEvent.VK_3:
+                        levelUpSelection = 2;
+                        applyLevelUpChoice(2);
                         break;
                 }
                 return;
