@@ -112,10 +112,8 @@ public class Weapon {
 
 		if(time<cooldown && firstAttack) {
 			firstAttack = false;
-			System.out.println("succes");
 			return true;
 		}
-		System.out.println("fail");
 
 		return false;
 	}

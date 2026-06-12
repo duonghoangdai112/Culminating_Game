@@ -21,6 +21,9 @@ public abstract class Character extends Rectangle {
 	private int walkFrameCounter = 0;
 	private int walkFrameDelay = 8;
 	private boolean isWalking = false;
+	public int exp = 0;
+	public int level = 1;
+	public int expToNextLevel = 3;
 	
 	public int startTime;
 	
@@ -50,6 +53,22 @@ public abstract class Character extends Rectangle {
 		this.height =100;
 		tImmune = 0;
 	}
+
+	/**
+	 * Checks whether the character has enough EXP to level up.
+	 * Returns true when a level was gained.
+	 */
+	public boolean levelUp() {
+		if (exp < expToNextLevel) {
+			return false;
+		}
+
+		exp -= expToNextLevel;
+		level++;
+		expToNextLevel += 2;
+		return true;
+	}
+	
 	
 	/**
 	 * Counts down the immunity timer after the character has been hit.
@@ -244,6 +263,9 @@ public abstract class Character extends Rectangle {
 			for(Monster m : mons) {
 				if(m.intersects(p)) {
 					m.reduceHealth(p.damage);
+//					p.setVisibility(true);
+					// remove this will cause a bullet to only hit once
+					// To Do : need a balance 
 //					System.out.println(m.getHealth());
 				}
 			}
