@@ -45,7 +45,8 @@ public class LoadoutScreen extends JPanel {
     }
 
     private final CharacterOption[] characters = {
-            new CharacterOption("Archer", "Fast ranged fighter", "Archer.png")
+            new CharacterOption("Archer", "Fast ranged fighter", "Archer.png"),
+            new CharacterOption("Mech", "Heavy armored fighter", "Mech.png")
     };
 
     private final WeaponOption[] weapons = {

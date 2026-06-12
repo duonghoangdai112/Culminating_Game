@@ -59,11 +59,20 @@ public class MainClass {
                 showLoadoutScreen(frame, m);
             }
             else if (label.equals("Rules")) {
-                System.out.println("Open rules screen here");
+                showRulesScreen(frame, m);
             }
         });
 
         swapContent(frame, menu);
+    }
+
+    /**
+     * Shows the rules screen.
+     */
+    private static void showRulesScreen(JFrame frame, MainClass m) {
+        RulesPanel rulesScreen = new RulesPanel(frame, m);
+        rulesScreen.setRulesListener(() -> showMainMenu(frame, m));
+        swapContent(frame, rulesScreen);
     }
 
     /**

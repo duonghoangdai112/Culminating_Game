@@ -112,8 +112,10 @@ public class Weapon {
 
 		if(time<cooldown && firstAttack) {
 			firstAttack = false;
+			System.out.println("succes");
 			return true;
 		}
+		System.out.println("fail");
 
 		return false;
 	}
@@ -210,25 +212,19 @@ public class Weapon {
 			  dy1 = dy2;
 			  dy2 = temp;
 		  }
-		  // draw projectile
+		  // Draw projectiles centered on their hitbox.
 		  for (Projectile p: wProj) {
 	    		p.move();
-	    	
-	    		
-	    	  int pX = p.x+30;
-	    	  int pY = p.y+30;
-	    	  int PdrawW = (int)(p.width * p.ratio)+30;
-	   		  int PdrawH = (int)(p.height * p.ratio)+30;
 
-	    		
+	    		int projDrawW = (int)Math.round(p.width * p.ratio);
+	   		int projDrawH = (int)Math.round(p.height * p.ratio);
+	   		int drawX = (int)Math.round(p.x + p.width / 2.0 - projDrawW / 2.0);
+	   		int drawY = (int)Math.round(p.y + p.height / 2.0 - projDrawH / 2.0);
+
 	    		Graphics2D projG = (Graphics2D) g2.create();
 	    		projG.rotate(p.angle, p.x + p.width / 2.0, p.y + p.height / 2.0);
-	    		projG.drawImage(p.bulletImg, pX, pY, PdrawW, PdrawH, null);
+	    		projG.drawImage(p.bulletImg, drawX, drawY, projDrawW, projDrawH, null);
 	    		projG.dispose();
-//	    		if(p.intersects(m1)) {
-//	    			System.out.println("hit");
-//	    			p.setVisibility(false);
-//	    			}
 		  }
 	 
 		  g2.rotate(angle,centerX,centerY);

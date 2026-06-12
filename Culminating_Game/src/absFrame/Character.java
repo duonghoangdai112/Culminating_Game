@@ -12,6 +12,7 @@ public abstract class Character extends Rectangle {
 	public String name; // char  name 
 	public String imgName; // char picture name 
 	public Weapon weapon; 
+	public double ScalePX = 100.0 ;
 	
 	public boolean faceLeft = true; 
 
@@ -134,19 +135,6 @@ public abstract class Character extends Rectangle {
 			
 		}
 		
-		int maxManaBar = maxMana/10;
-		int curManaBar = mana/10;
-		for(int i=0;i<maxManaBar;i++) {
-			if(curManaBar>0 ) {
-				g2.setColor(Color.BLUE);
-				g2.fillRect(10+i*barW, 70, barW, barL);
-				curManaBar--;
-			}
-			
-			g2.setColor(Color.WHITE);
-			g2.drawRect(10+i*barW, 70, barW, barL);
-			
-		}
 		g2.dispose();
 	}
 	
@@ -171,7 +159,7 @@ public abstract class Character extends Rectangle {
 
 		int frameW = sheet.getWidth() / frameCount;
 		int frameH = sheet.getHeight();
-		double scale = 50.0/frameW;
+		double scale = ScalePX/frameW;
 		System.out.println(scale);
 		this.width = (int)(frameW*scale);
 		this.height = (int)(frameH*scale);
