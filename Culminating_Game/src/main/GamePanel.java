@@ -90,7 +90,7 @@ public class GamePanel extends JPanel implements ActionListener {
     private Rectangle speedUpgradeBounds = new Rectangle();
 
     // Survival / wave settings.
-    private static final int SURVIVAL_TIME_SECONDS = 30;
+    private static final int SURVIVAL_TIME_SECONDS = 5;
     private static final double MONSTER_SPAWN_INTERVAL_SECONDS = 2.0;
     private static final int MAX_ALIVE_MONSTERS = 35;
     private double lastMonsterSpawnTime = 0.0;
@@ -158,7 +158,7 @@ public class GamePanel extends JPanel implements ActionListener {
         switch (weaponName) {
             case "Staff":
                 archer.weaponInit(12, 5, 5, 0.7, 10, "Staff",
-                        loadImage("staff-animation.png"), 4, 0.4, loadImage("magic.png"),2.0);
+                        loadImage("staff-animation.png"), 4, 0.4, loadImage("magic.png"),0.5);
                 break;
 
             case "Glock":
@@ -194,7 +194,7 @@ public class GamePanel extends JPanel implements ActionListener {
         this.wolfWalkSheet = loadImage("Wolf.png");
         this.wolfDashEffect = loadImage("WolfDash.png");
         this.slimeKingSheet = loadImage("SlimeKing.png");
-        this.slimeProjectileImage = loadImage("magic.png");
+        this.slimeProjectileImage = loadImage("Minislime.png");
 
         worldMap.clearMonsters();
 
