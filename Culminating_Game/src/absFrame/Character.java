@@ -7,7 +7,17 @@ import main.Map;
 public abstract class Character extends Rectangle {
 	public int health,mana,speed,visionRange,cooldown,maxHealth,maxMana;
 	
+	
+	
 	public BufferedImage cIMG; // character IMG
+<<<<<<< Updated upstream
+=======
+	public BufferedImage projIMG;
+	private BufferedImage[] flyFrames;
+	private BufferedImage idleFrame;
+	private int currentFlyFrame = 0;
+	private int flyCounter = 0;
+>>>>>>> Stashed changes
 	public int screenW, screenH; // panel size
 	public String name; // char  name 
 	public String imgName; // char picture name 
@@ -96,7 +106,139 @@ public abstract class Character extends Rectangle {
 	 */
 	public void setCharIMG(BufferedImage img) {cIMG = img;}
 	/**
+<<<<<<< Updated upstream
 	 * create the weapon
+=======
+	 * Gives the character a walking sprite sheet.
+	 * The sheet should have equal-width frames in one row.
+	 * Frame 0 is the resting / idle image.
+	 */
+	public void setWalkAnimation(BufferedImage sheet, int frameCount) {
+		if (sheet == null || frameCount <= 0) {
+			return;
+		}
+
+		walkFrames = new BufferedImage[frameCount];
+
+		int frameW = sheet.getWidth() / frameCount;
+		int frameH = sheet.getHeight();
+		double scale = 50.0/frameW;
+		System.out.println(scale);
+		this.width = (int)(frameW*scale);
+		this.height = (int)(frameH*scale);
+
+		for (int i = 0; i < frameCount; i++) {
+			walkFrames[i] = sheet.getSubimage(i * frameW, 0, frameW, frameH);
+		}
+
+		// The first frame of the sprite sheet is now the idle image.
+		cIMG = walkFrames[0];
+	}
+	
+	public void setFlyAnimation(BufferedImage sheet) {
+
+	    if (sheet == null)
+	        return;
+
+	    int cols = 4;
+	    int rows = 4;
+
+	    int frameW = sheet.getWidth() / cols;
+	    int frameH = sheet.getHeight() / rows;
+
+	    double scale = 50.0 / frameW;
+
+	    this.width = (int)(frameW * scale);
+	    this.height = (int)(frameH * scale);
+
+	    //
+	    // IDLE IMAGE = TOP LEFT
+	    //
+	    idleFrame = sheet.getSubimage(
+	            0,
+	            0,
+	            frameW,
+	            frameH);
+
+	    cIMG = idleFrame;
+
+	    //
+	    // MOVEMENT FRAMES = SECOND ROW
+	    //
+	    flyFrames = new BufferedImage[4];
+
+	    for (int i = 0; i < 4; i++) {
+
+	        flyFrames[i] = sheet.getSubimage(
+	                i * frameW,
+	                frameH,
+	                frameW,
+	                frameH);
+	    }
+	}
+
+	public void updateFlyAnimation(boolean moving) {
+
+	    if (!moving) {
+
+	        cIMG = idleFrame;
+	        currentFlyFrame = 0;
+	        return;
+	    }
+
+	    flyCounter++;
+
+	    if (flyCounter >= 8) {
+
+	        flyCounter = 0;
+
+	        currentFlyFrame++;
+
+	        if (currentFlyFrame >= flyFrames.length) {
+	            currentFlyFrame = 0;
+	        }
+	    }
+
+	    cIMG = flyFrames[currentFlyFrame];
+	}
+	
+	
+	public void updateWalkAnimation(boolean moving) {
+		if (walkFrames == null || walkFrames.length == 0) {
+			return;
+		}
+
+		if (!moving) {
+			isWalking = false;
+			walkFrameIndex = 0;
+			walkFrameCounter = 0;
+			return;
+		}
+		
+		isWalking = true;
+		walkFrameCounter++;
+
+		if (walkFrameCounter >= walkFrameDelay) {
+			walkFrameCounter = 0;
+			walkFrameIndex = (walkFrameIndex + 1) % walkFrames.length;
+		}
+	}
+
+	/**
+	 * Chooses the current sprite sheet frame.
+	 * If no animation sheet was loaded, it falls back to cIMG.
+	 */
+	public BufferedImage getCurrentImage() {
+		if (walkFrames != null && walkFrames.length > 0) {
+			return walkFrames[walkFrameIndex];
+		}
+
+		return cIMG;
+	}
+
+	/**
+	 * create the flippon
+>>>>>>> Stashed changes
 	 */
 	public void weaponInit(int manaCost,int vx,int vy,double cd,int damage,
 			String name,int width,int height, BufferedImage wIMG) {
