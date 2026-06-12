@@ -21,7 +21,7 @@ public class RulesPanel extends JPanel {
     public interface RulesListener {
         void onBack();
     }
-
+    private static int bWidth , bHeight;
     private static final Color BG_DARK = new Color(18, 14, 22);
     private static final Color STONE_DARK = new Color(50, 46, 58);
     private static final Color STONE_MID = new Color(68, 62, 76);
@@ -30,14 +30,15 @@ public class RulesPanel extends JPanel {
     private static final Color TEXT_NORMAL = new Color(205, 195, 175);
     private static final Color TEXT_SELECTED = new Color(255, 238, 160);
 
-    public RulesPanel(JFrame frame, MainClass m) {
+    public RulesPanel(JFrame frame, MainClass m, int wWID, int wHEIGHT) {
 
         setFocusable(true);
         setBackground(BG_DARK);
-        setPreferredSize(new Dimension(800, 500));
+        setPreferredSize(new Dimension(2000, 500));
 
         backgroundImage = loadImage("bg.png");
-
+        bWidth = wWID;
+        bHeight = wHEIGHT;
         addMouseListener(new MouseAdapter() {
 
             @Override
@@ -55,7 +56,7 @@ public class RulesPanel extends JPanel {
         addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_X || e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+                if (e.getKeyCode() == KeyEvent.VK_X || e.getKeyCode() == KeyEvent.VK_B) {
                     if (listener != null) {
                         listener.onBack();
                     }
@@ -103,8 +104,9 @@ public class RulesPanel extends JPanel {
         // Rules Box
         int boxX = 150;
         int boxY = 120;
-        int boxW = 500;
-        int boxH = 220;
+        System.out.println(bWidth);
+        int boxW = 1000;
+        int boxH = 300;
 
         g2.setColor(STONE_MID);
         g2.fillRoundRect(boxX, boxY, boxW, boxH, 20, 20);

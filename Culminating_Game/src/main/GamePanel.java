@@ -3,13 +3,15 @@ package main;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
+import java.awt.Dimension;
+import java.awt.Toolkit;
+
 import absFrame.Character;
 import absFrame.Monster;
 import sprite.Archer;
 import sprite.Mech;
 
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
@@ -18,8 +20,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -74,9 +74,10 @@ public class GamePanel extends JPanel implements ActionListener {
 
     private final int TIMERSPEED = 10;
     private double FULLTIME = 0;
-
-    private int width = 1000;
-    private int height = 1000;
+    
+    Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+    int width = screenSize.width;
+    int height = screenSize.height;
 
     private Character archer;
     private WorldMap worldMap = new WorldMap();
@@ -87,7 +88,6 @@ public class GamePanel extends JPanel implements ActionListener {
     public GamePanel(HashMap<String, Integer> hashMap, String characterName, String weaponName) {
         setPreferredSize(new Dimension(width, height));
         addKeyListener(new KeyLis());
-        addMouseListener(new MouseLis());
         setFocusable(true);
         setFocusTraversalKeysEnabled(false);
 
@@ -500,82 +500,26 @@ public class GamePanel extends JPanel implements ActionListener {
         archer.updateWalkAnimation(actuallyMoved);
     }
 
-    private class MouseLis extends MouseAdapter {
-        @Override
-        public void mousePressed(MouseEvent e) {
-            requestFocusInWindow();
-
-            if (deathScreenOpen || winScreenOpen) {
-                if (restartButtonBounds.contains(e.getPoint())) {
-                    deathScreenSelection = 0;
-                    restartGame();
-                } else if (menuButtonBounds.contains(e.getPoint())) {
-                    deathScreenSelection = 1;
-                    returnToMainMenuFromDeathScreen();
-                }
-                return;
-            }
-
-            if (levelUpScreenOpen) {
-                if (healthUpgradeBounds.contains(e.getPoint())) {
-                    levelUpSelection = 0;
-                    applyLevelUpChoice(0);
-                } else if (damageUpgradeBounds.contains(e.getPoint())) {
-                    levelUpSelection = 1;
-                    applyLevelUpChoice(1);
-                } else if (speedUpgradeBounds.contains(e.getPoint())) {
-                    levelUpSelection = 2;
-                    applyLevelUpChoice(2);
-                }
-                return;
-            }
-
-            if (returnDialogOpen) {
-                if (yesButtonBounds.contains(e.getPoint())) {
-                    returnDialogSelection = 0;
-                    returnToMainMenu();
-                } else if (noButtonBounds.contains(e.getPoint())) {
-                    returnDialogSelection = 1;
-                    closeReturnDialog();
-                }
-                return;
-            }
-
-            if (closeButtonBounds.contains(e.getPoint())) {
-                openReturnDialog();
-            }
-        }
-    }
-
+   
     private class KeyLis extends KeyAdapter {
         @Override
         public void keyPressed(KeyEvent e) {
             if (deathScreenOpen || winScreenOpen) {
                 switch (e.getKeyCode()) {
-                    case KeyEvent.VK_A:
-                    case KeyEvent.VK_W:
                     case KeyEvent.VK_LEFT:
                     case KeyEvent.VK_UP:
                         moveDeathScreenSelection(-1);
                         break;
-                    case KeyEvent.VK_D:
-                    case KeyEvent.VK_S:
                     case KeyEvent.VK_RIGHT:
                     case KeyEvent.VK_DOWN:
                         moveDeathScreenSelection(1);
                         break;
-                    case KeyEvent.VK_ENTER:
-                    case KeyEvent.VK_SPACE:
-                    case KeyEvent.VK_J:
+                    
                     case KeyEvent.VK_B:
                         confirmDeathScreenSelection();
                         break;
-                    case KeyEvent.VK_R:
-                        deathScreenSelection = 0;
-                        restartGame();
-                        break;
-                    case KeyEvent.VK_M:
-                    case KeyEvent.VK_ESCAPE:
+                   
+                   
                     case KeyEvent.VK_X:
                         deathScreenSelection = 1;
                         returnToMainMenuFromDeathScreen();
@@ -586,53 +530,30 @@ public class GamePanel extends JPanel implements ActionListener {
 
             if (levelUpScreenOpen) {
                 switch (e.getKeyCode()) {
-                    case KeyEvent.VK_W:
                     case KeyEvent.VK_UP:
                         moveLevelUpSelection(-1);
                         break;
-                    case KeyEvent.VK_S:
                     case KeyEvent.VK_DOWN:
                         moveLevelUpSelection(1);
                         break;
-                    case KeyEvent.VK_ENTER:
-                    case KeyEvent.VK_SPACE:
-                    case KeyEvent.VK_J:
                     case KeyEvent.VK_B:
                         confirmLevelUpSelection();
                         break;
-                    case KeyEvent.VK_1:
-                        levelUpSelection = 0;
-                        applyLevelUpChoice(0);
-                        break;
-                    case KeyEvent.VK_2:
-                        levelUpSelection = 1;
-                        applyLevelUpChoice(1);
-                        break;
-                    case KeyEvent.VK_3:
-                        levelUpSelection = 2;
-                        applyLevelUpChoice(2);
-                        break;
+                   
                 }
                 return;
             }
 
             if (returnDialogOpen) {
                 switch (e.getKeyCode()) {
-                    case KeyEvent.VK_A:
-                    case KeyEvent.VK_W:
                     case KeyEvent.VK_LEFT:
                     case KeyEvent.VK_UP:
                         moveReturnDialogSelection(-1);
                         break;
-                    case KeyEvent.VK_D:
-                    case KeyEvent.VK_S:
                     case KeyEvent.VK_RIGHT:
                     case KeyEvent.VK_DOWN:
                         moveReturnDialogSelection(1);
                         break;
-                    case KeyEvent.VK_ENTER:
-                    case KeyEvent.VK_SPACE:
-                    case KeyEvent.VK_J:
                     case KeyEvent.VK_B:
                         confirmReturnDialogSelection();
                         break;
@@ -640,8 +561,6 @@ public class GamePanel extends JPanel implements ActionListener {
                         returnDialogSelection = 0;
                         returnToMainMenu();
                         break;
-                    case KeyEvent.VK_N:
-                    case KeyEvent.VK_ESCAPE:
                     case KeyEvent.VK_X:
                         returnDialogSelection = 1;
                         closeReturnDialog();
@@ -654,19 +573,19 @@ public class GamePanel extends JPanel implements ActionListener {
                 case KeyEvent.VK_X:
                     openReturnDialog();
                     break;
-                case KeyEvent.VK_W:
+                case KeyEvent.VK_UP:
                     moveUp = true;
                     break;
-                case KeyEvent.VK_A:
+                case KeyEvent.VK_LEFT:
                     moveLeft = true;
                     break;
-                case KeyEvent.VK_S:
+                case KeyEvent.VK_DOWN:
                     moveDown = true;
                     break;
-                case KeyEvent.VK_D:
+                case KeyEvent.VK_RIGHT:
                     moveRight = true;
                     break;
-                case KeyEvent.VK_J:
+                case KeyEvent.VK_A:
                     monsters = worldMap.getMonsters();
                     if (archer.weapon.Ready(FULLTIME)) {
                         archer.Attack(monsters);
@@ -680,16 +599,17 @@ public class GamePanel extends JPanel implements ActionListener {
         @Override
         public void keyReleased(KeyEvent e) {
             switch (e.getKeyCode()) {
-                case KeyEvent.VK_W:
+                case KeyEvent.VK_UP:
                     moveUp = false;
                     break;
-                case KeyEvent.VK_A:
+                    
+                case KeyEvent.VK_LEFT:
                     moveLeft = false;
                     break;
-                case KeyEvent.VK_S:
+                case KeyEvent.VK_DOWN:
                     moveDown = false;
                     break;
-                case KeyEvent.VK_D:
+                case KeyEvent.VK_RIGHT:
                     moveRight = false;
                     break;
             }

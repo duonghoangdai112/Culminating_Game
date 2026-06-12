@@ -23,6 +23,8 @@ public class MainClass {
             frame.setVisible(true);
             // Give the menu keyboard focus now that the window is on screen.
             frame.getContentPane().requestFocusInWindow();
+            frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+
         });
     }
 
@@ -70,7 +72,7 @@ public class MainClass {
      * Shows the rules screen.
      */
     private static void showRulesScreen(JFrame frame, MainClass m) {
-        RulesPanel rulesScreen = new RulesPanel(frame, m);
+        RulesPanel rulesScreen = new RulesPanel(frame, m,frame.WIDTH,frame.HEIGHT);
         rulesScreen.setRulesListener(() -> showMainMenu(frame, m));
         swapContent(frame, rulesScreen);
     }

@@ -173,16 +173,13 @@ public class GameMenu extends JPanel {
     // -- Key handling ---------------------------------------------------------
     private void handleKey(int code) {
         switch (code) {
-            case KeyEvent.VK_W:
             case KeyEvent.VK_UP:
                 selectedIndex = (selectedIndex - 1 + OPTIONS.length) % OPTIONS.length;
                 break;
-            case KeyEvent.VK_S:
             case KeyEvent.VK_DOWN:
                 selectedIndex = (selectedIndex + 1) % OPTIONS.length;
                 break;
-            case KeyEvent.VK_ENTER:
-            case KeyEvent.VK_SPACE:
+            case KeyEvent.VK_B:
                 if (selectionListener != null) {
                     selectionListener.onSelect(selectedIndex, OPTIONS[selectedIndex]);
                 } else {
@@ -500,7 +497,7 @@ public class GameMenu extends JPanel {
     private void paintHints(Graphics2D g2, int W, int H) {
         g2.setFont(HINT_FONT);
         g2.setColor(new Color(120, 112, 130));
-        String hint = "W / S to navigate     Enter to select";
+        String hint = "Joystick to navigate     B to select";
         FontMetrics fm = g2.getFontMetrics();
         g2.drawString(hint, (W - fm.stringWidth(hint)) / 2, H - 18);
     }

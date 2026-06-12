@@ -8,7 +8,7 @@ public class Mech extends Character {
                 int speed, int visionRange,
                 int cooldown, String name) {
         super(health, shield, mana, speed, visionRange, cooldown, name);
-        this.ScalePX = 50;
+        this.ScalePX = 80;
     }
 
     @Override

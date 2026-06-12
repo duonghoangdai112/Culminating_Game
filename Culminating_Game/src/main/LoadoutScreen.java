@@ -123,19 +123,16 @@ public class LoadoutScreen extends JPanel {
 
     private void handleKey(int code) {
         switch (code) {
-            case KeyEvent.VK_W:
             case KeyEvent.VK_UP:
                 selectedRow = (selectedRow - 1 + 4) % 4;
                 repaint();
                 break;
 
-            case KeyEvent.VK_S:
             case KeyEvent.VK_DOWN:
                 selectedRow = (selectedRow + 1) % 4;
                 repaint();
                 break;
 
-            case KeyEvent.VK_A:
             case KeyEvent.VK_LEFT:
                 if (selectedRow == 0) {
                     changeCharacter(-1);
@@ -144,7 +141,6 @@ public class LoadoutScreen extends JPanel {
                 }
                 break;
 
-            case KeyEvent.VK_D:
             case KeyEvent.VK_RIGHT:
                 if (selectedRow == 0) {
                     changeCharacter(1);
@@ -153,13 +149,10 @@ public class LoadoutScreen extends JPanel {
                 }
                 break;
 
-            case KeyEvent.VK_ENTER:
-            case KeyEvent.VK_SPACE:
-            case KeyEvent.VK_J:
+            case KeyEvent.VK_B:
                 confirmSelectedRow();
                 break;
 
-            case KeyEvent.VK_ESCAPE:
             case KeyEvent.VK_X:
                 goBack();
                 break;
