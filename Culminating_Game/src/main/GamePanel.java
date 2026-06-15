@@ -119,6 +119,8 @@ public class GamePanel extends JPanel implements ActionListener {
     private Camera camera = new Camera();
     private ArrayList<Monster> monsters = worldMap.getMonsters();
 
+    private MusicPlayer musicPlayer = new MusicPlayer();
+
 
     public GamePanel(HashMap<String, Integer> hashMap, String characterName, String weaponName) {
         setPreferredSize(new Dimension(width, height));
@@ -134,6 +136,8 @@ public class GamePanel extends JPanel implements ActionListener {
         timer = new Timer(TIMERSPEED, this);
         timer.start();
         timer.setInitialDelay(10);
+
+        musicPlayer.playLoop("src/assests/pixel_dungeon_soundtrack.wav");
     }
 
     /**
