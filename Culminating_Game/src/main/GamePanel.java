@@ -146,13 +146,13 @@ public class GamePanel extends JPanel implements ActionListener {
 
             case "Sniper":
                 archer.weaponInit(16, 12, 12, 0.8, 25, "Sniper",
-                        ImageLoader.loadImage("Sniper-animation.png"), 3, 0.45,
+                        ImageLoader.loadImage("Sniper-animation.png"), 3, 0.38,
                         ImageLoader.loadImage("Bullet.png"), 1.5);
                 break;
 
             case "Shotgun":
                 archer.weaponInit(14, 7, 7, 0.75, 2, "Shotgun",
-                        ImageLoader.loadImage("Shotgun-animation.png"), 4, 0.45,
+                        ImageLoader.loadImage("Shotgun-animation.png"), 4, 0.37,
                         ImageLoader.loadImage("buckshot.png"), 0.5);
                 // Five pellets spread evenly across a 24-degree cone.
                 archer.weapon.setProjectilePattern(5, 24.0);
