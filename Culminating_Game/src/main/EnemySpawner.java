@@ -47,11 +47,11 @@ public class EnemySpawner {
     }
 
     private void loadEnemyImages() {
-        zombieWalkSheet = ImageLoader.loadImage(resourceOwner, "Zombie.png");
-        wolfWalkSheet = ImageLoader.loadImage(resourceOwner, "Wolf.png");
-        wolfDashEffect = ImageLoader.loadImage(resourceOwner, "WolfDash.png");
-        slimeKingSheet = ImageLoader.loadImage(resourceOwner, "SlimeKing.png");
-        slimeProjectileImage = ImageLoader.loadOptionalImage(resourceOwner, "Minislime.png");
+        zombieWalkSheet = ImageLoader.loadImage("Zombie.png");
+        wolfWalkSheet = ImageLoader.loadImage("Wolf.png");
+        wolfDashEffect = ImageLoader.loadImage("WolfDash.png");
+        slimeKingSheet = ImageLoader.loadImage("SlimeKing.png");
+        slimeProjectileImage = ImageLoader.loadImage("Minislime.png");
     }
 
     public void setupWorldMonsters() {
@@ -152,8 +152,8 @@ public class EnemySpawner {
         worldMap.clearMonsters();
 
         HashMap<String, Integer> bossStats = new HashMap<String, Integer>();
-        bossStats.put("health", 40000);
-        bossStats.put("damage", 16);
+        bossStats.put("health", 10000);
+        bossStats.put("damage", 12);
         bossStats.put("visionRange", 1);
         bossStats.put("speedX", 1);
         bossStats.put("speedY", 1);

@@ -9,67 +9,23 @@ import java.net.URL;
 
 public class ImageLoader {
 
-    public static BufferedImage loadImage(Class<?> owner, String filename) {
-        String[] resourceNames = {"/" + filename, "/assests/" + filename};
+	static BufferedImage loadImage(String filename) {
+		ImageLoader l = new ImageLoader();
+        URL url = l.getClass().getResource("/" + filename);
+        BufferedImage img = null;
 
-        for (String resourceName : resourceNames) {
-            URL url = owner.getResource(resourceName);
-            if (url != null) {
-                try {
-                    return ImageIO.read(url);
-                } catch (IOException e) {
-                    System.out.println(e.toString());
-                }
+        if (url != null) {
+            try {
+                img = ImageIO.read(url);
+            } catch (IOException e) {
+                System.out.println(e.toString());
+                JOptionPane.showMessageDialog(null, "An image failed to load: " + filename,
+                        "Error", JOptionPane.ERROR_MESSAGE);
             }
+        } else {
+            System.out.println("URL is null for: " + filename);
         }
 
-        String[] fileNames = {filename, "assests/" + filename};
-        for (String fileName : fileNames) {
-            File file = new File(fileName);
-            if (file.exists()) {
-                try {
-                    return ImageIO.read(file);
-                } catch (IOException e) {
-                    System.out.println(e.toString());
-                }
-            }
-        }
-
-        System.out.println("URL is null for: " + filename);
-        JOptionPane.showMessageDialog(null, "An image failed to load: " + filename,
-                "Error", JOptionPane.ERROR_MESSAGE);
-        return null;
-    }
-
-    public static BufferedImage loadOptionalImage(Class<?> owner, String filename) {
-        String[] resourceNames = {"/" + filename, "/assests/" + filename};
-
-        for (String resourceName : resourceNames) {
-            URL url = owner.getResource(resourceName);
-            if (url != null) {
-                try {
-                    return ImageIO.read(url);
-                } catch (IOException e) {
-                    System.out.println(e.toString());
-                    return null;
-                }
-            }
-        }
-
-        String[] fileNames = {filename, "assests/" + filename};
-        for (String fileName : fileNames) {
-            File file = new File(fileName);
-            if (file.exists()) {
-                try {
-                    return ImageIO.read(file);
-                } catch (IOException e) {
-                    System.out.println(e.toString());
-                    return null;
-                }
-            }
-        }
-
-        System.out.println("Optional image not found: " + filename);
-        return null;
+        return img;
     }
 }

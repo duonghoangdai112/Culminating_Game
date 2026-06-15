@@ -70,7 +70,7 @@ public class GamePanel extends JPanel implements ActionListener {
     private Rectangle damageUpgradeBounds = new Rectangle();
     private Rectangle speedUpgradeBounds = new Rectangle();
 
-    private static final int SURVIVAL_TIME_SECONDS = 1;
+    private static final int SURVIVAL_TIME_SECONDS = 100;
 
     private final int TIMERSPEED = 10;
     private double FULLTIME = 0;
@@ -116,11 +116,11 @@ public class GamePanel extends JPanel implements ActionListener {
         if (characterName.equals("Mech")) {
             // The Mech reuses the same player controls and weapon system,
             // but has different stats and a different animation sheet.
-            archer = new Mech(160, 5, 100, 4, 10, 10, "Mech");
-            archer.setWalkAnimation(ImageLoader.loadImage(getClass(), "Mech_animation.png"), 5);
+            archer = new Mech(160, 5, 100, 3, 10, 10, "Mech");
+            archer.setWalkAnimation(ImageLoader.loadImage("Mech_animation.png"), 5);
         } else {
             archer = new Archer(100, 5, 100, 5, 10, 10, "Archer");
-            archer.setWalkAnimation(ImageLoader.loadImage(getClass(), "Archer_animation.png"), 5);
+            archer.setWalkAnimation(ImageLoader.loadImage("Archer_animation.png"), 5);
         }
 
         setupWeapon(weaponName);
@@ -134,26 +134,26 @@ public class GamePanel extends JPanel implements ActionListener {
         switch (weaponName) {
             case "Staff":
                 archer.weaponInit(12, 5, 5, 0.7, 10, "Staff",
-                        ImageLoader.loadImage(getClass(), "staff-animation.png"), 4, 0.4,
-                        ImageLoader.loadImage(getClass(), "magic.png"), 0.5);
+                        ImageLoader.loadImage("staff-animation.png"), 4, 0.4,
+                        ImageLoader.loadImage("magic.png"), 0.5);
                 break;
 
             case "Glock":
                 archer.weaponInit(8, 8, 8, 0.25, 8, "Glock",
-                        ImageLoader.loadImage(getClass(), "glock-animation.png"), 3, 0.25,
-                        ImageLoader.loadImage(getClass(), "Bullet.png"), 1.3);
+                        ImageLoader.loadImage("glock-animation.png"), 3, 0.25,
+                        ImageLoader.loadImage("Bullet.png"), 1.3);
                 break;
 
             case "Sniper":
                 archer.weaponInit(16, 12, 12, 0.8, 25, "Sniper",
-                        ImageLoader.loadImage(getClass(), "Sniper-animation.png"), 3, 0.45,
-                        ImageLoader.loadImage(getClass(), "Bullet.png"), 1.5);
+                        ImageLoader.loadImage("Sniper-animation.png"), 3, 0.45,
+                        ImageLoader.loadImage("Bullet.png"), 1.5);
                 break;
 
             case "Shotgun":
                 archer.weaponInit(14, 7, 7, 0.75, 2, "Shotgun",
-                        ImageLoader.loadImage(getClass(), "Shotgun-animation.png"), 4, 0.45,
-                        ImageLoader.loadImage(getClass(), "buckshot.png"), 0.50);
+                        ImageLoader.loadImage("Shotgun-animation.png"), 4, 0.45,
+                        ImageLoader.loadImage("buckshot.png"), 0.5);
                 // Five pellets spread evenly across a 24-degree cone.
                 archer.weapon.setProjectilePattern(5, 24.0);
                 // The source frames contain transparent padding, so place the muzzle
@@ -163,15 +163,15 @@ public class GamePanel extends JPanel implements ActionListener {
 
             case "Rifle":
                 archer.weaponInit(10, 8, 8, 0.3, 10, "Rifle",
-                        ImageLoader.loadImage(getClass(), "47-animation.png"), 4, 0.30,
-                        ImageLoader.loadImage(getClass(), "Bullet.png"), 1.3);
+                        ImageLoader.loadImage("47-animation.png"), 4, 0.30,
+                        ImageLoader.loadImage("Bullet.png"), 1.3);
                 break;
 
             case "Bow":
             default:
                 archer.weaponInit(10, 6, 6, 0.50, 10, "Bow",
-                        ImageLoader.loadImage(getClass(), "Bow-animation.png"), 9, -0.70,
-                        ImageLoader.loadImage(getClass(), "Arrow.png"), -3);
+                        ImageLoader.loadImage("Bow-animation.png"), 9, -0.70,
+                        ImageLoader.loadImage("Arrow.png"), -3);
                 break;
         }
     }
