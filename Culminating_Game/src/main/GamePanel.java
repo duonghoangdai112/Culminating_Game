@@ -85,6 +85,9 @@ public class GamePanel extends JPanel implements ActionListener {
     private ArrayList<Monster> monsters = worldMap.getMonsters();
     private EnemySpawner enemySpawner;
 
+    private MusicPlayer musicPlayer = new MusicPlayer();
+
+
     public GamePanel(HashMap<String, Integer> hashMap, String characterName, String weaponName) {
         setPreferredSize(new Dimension(width, height));
         addKeyListener(new KeyLis());
@@ -101,6 +104,8 @@ public class GamePanel extends JPanel implements ActionListener {
         timer = new Timer(TIMERSPEED, this);
         timer.start();
         timer.setInitialDelay(10);
+
+        musicPlayer.playLoop("src/assests/pixel_dungeon_soundtrack.wav");
     }
 
     private void setupPlayerLoadout(String characterName, String weaponName) {
