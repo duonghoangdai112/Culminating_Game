@@ -179,7 +179,7 @@ public class GameMenu extends JPanel {
             case KeyEvent.VK_DOWN:
                 selectedIndex = (selectedIndex + 1) % OPTIONS.length;
                 break;
-            case KeyEvent.VK_B:
+            case KeyEvent.VK_J:
                 if (selectionListener != null) {
                     selectionListener.onSelect(selectedIndex, OPTIONS[selectedIndex]);
                 } else {

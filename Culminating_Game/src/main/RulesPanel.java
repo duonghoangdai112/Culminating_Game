@@ -56,7 +56,7 @@ public class RulesPanel extends JPanel {
         addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_X || e.getKeyCode() == KeyEvent.VK_B) {
+                if (e.getKeyCode() == KeyEvent.VK_X || e.getKeyCode() == KeyEvent.VK_K) {
                     if (listener != null) {
                         listener.onBack();
                     }

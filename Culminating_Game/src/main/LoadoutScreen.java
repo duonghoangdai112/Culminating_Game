@@ -149,13 +149,11 @@ public class LoadoutScreen extends JPanel {
                 }
                 break;
 
-            case KeyEvent.VK_B:
+            case KeyEvent.VK_J:
                 confirmSelectedRow();
                 break;
 
-            case KeyEvent.VK_X:
-                goBack();
-                break;
+        
         }
     }
 

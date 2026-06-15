@@ -515,7 +515,7 @@ public class GamePanel extends JPanel implements ActionListener {
                         moveDeathScreenSelection(1);
                         break;
                     
-                    case KeyEvent.VK_B:
+                    case KeyEvent.VK_K:
                         confirmDeathScreenSelection();
                         break;
                    
@@ -536,7 +536,7 @@ public class GamePanel extends JPanel implements ActionListener {
                     case KeyEvent.VK_DOWN:
                         moveLevelUpSelection(1);
                         break;
-                    case KeyEvent.VK_B:
+                    case KeyEvent.VK_K:
                         confirmLevelUpSelection();
                         break;
                    
@@ -554,7 +554,7 @@ public class GamePanel extends JPanel implements ActionListener {
                     case KeyEvent.VK_DOWN:
                         moveReturnDialogSelection(1);
                         break;
-                    case KeyEvent.VK_B:
+                    case KeyEvent.VK_K:
                         confirmReturnDialogSelection();
                         break;
                     case KeyEvent.VK_Y:
@@ -585,7 +585,7 @@ public class GamePanel extends JPanel implements ActionListener {
                 case KeyEvent.VK_RIGHT:
                     moveRight = true;
                     break;
-                case KeyEvent.VK_A:
+                case KeyEvent.VK_J:
                     monsters = worldMap.getMonsters();
                     if (archer.weapon.Ready(FULLTIME)) {
                         archer.Attack(monsters);
