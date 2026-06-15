@@ -121,7 +121,7 @@ public class PopUp {
         speedBounds.setBounds(btnX, firstY + (btnH + gap) * 2, btnW, btnH);
 
         drawPopupButton(g2, healthBounds, "1  HEALTH +20", selection == 0);
-        drawPopupButton(g2, damageBounds, "2  DAMAGE +5", selection == 1);
+        drawPopupButton(g2, damageBounds, "2  DAMAGE +2", selection == 1);
         drawPopupButton(g2, speedBounds, "3  SPEED +1", selection == 2);
 
         g2.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 13));

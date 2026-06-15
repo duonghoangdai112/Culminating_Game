@@ -29,6 +29,15 @@ public class Weapon {
 	
 	public double startTime=0; // time of the last attack 
 	public double projRatio = 1;
+
+	// Projectile pattern. Normal weapons keep the defaults: one projectile and no spread.
+	private int projectileCount = 1;
+	private double totalSpreadRadians = 0.0;
+
+	// Muzzle position inside one unrotated sprite frame, stored as 0.0-1.0 ratios.
+	// (1.0, 0.5) means the middle of the frame's right edge.
+	private double muzzleXRatio = 1.0;
+	private double muzzleYRatio = 0.5;
 	
 	
 	
@@ -121,70 +130,101 @@ public class Weapon {
 	}
 	
 	/**
+	 * Configures how many projectiles are fired and the total angle covered by them.
+	 * For example, setProjectilePattern(5, 24) produces five pellets at
+	 * -12, -6, 0, +6 and +12 degrees from the aiming direction.
+	 */
+	public void setProjectilePattern(int count, double totalSpreadDegrees) {
+		projectileCount = Math.max(1, count);
+		totalSpreadRadians = Math.toRadians(Math.max(0.0, totalSpreadDegrees));
+	}
+
+	/**
+	 * Sets the muzzle location inside a single sprite frame.
+	 * Values are ratios: x=0 is the left edge, x=1 is the right edge,
+	 * y=0 is the top and y=1 is the bottom.
+	 */
+	public void setMuzzleOffset(double xRatio, double yRatio) {
+		muzzleXRatio = Math.max(0.0, Math.min(1.0, xRatio));
+		muzzleYRatio = Math.max(0.0, Math.min(1.0, yRatio));
+	}
+
+	/**
 	 * create a projectile that head toward target
 	 * @param target - the closet monster
 	 * @return a projectile
 	 */
 	
 	public Projectile createProjectile(Character character, Monster target,BufferedImage img) {
-		int projW = 30;
-		int projH = 30;
+		return createProjectiles(character, target, img).get(0);
+	}
 
-		double[] muzzle = getMuzzleCenter(character);
-		double startX = muzzle[0];
-		double startY = muzzle[1];
-
-		// Aim at the centre of the monster, not its top-left corner.
+	/**
+	 * Creates all projectiles for one attack. A normal weapon returns one item;
+	 * a shotgun can return several pellets with evenly spaced angles.
+	 */
+	public ArrayList<Projectile> createProjectiles(Character character, Monster target, BufferedImage img) {
 		double targetX = target.x + target.width / 2.0;
 		double targetY = target.y + target.height / 2.0;
-
-		double dx = targetX - startX;
-		double dy = targetY - startY;
-		double projectileAngle = Math.atan2(dy, dx);
-		double speed = projectileSpeed();
-
-		double projVx = Math.cos(projectileAngle) * speed;
-		double projVy = Math.sin(projectileAngle) * speed;
-
-		// Rectangle x/y is top-left, so subtract half the projectile size.
-		return new Projectile(
-				(int)Math.round(startX - projW / 2.0),
-				(int)Math.round(startY - projH / 2.0),
-				projW, projH, projVx, projVy, damage, projImg, projRatio);
+		double[] muzzle = getMuzzleCenter(character);
+		double baseAngle = Math.atan2(targetY - muzzle[1], targetX - muzzle[0]);
+		return createProjectileBurst(character, baseAngle);
 	}
 
 	/**
-	 * Create a projectile when there is no visible enemy.
-	 * The projectile still starts from the muzzle/end of the weapon.
-	 * @return a projectile
+	 * Create projectile(s) when there is no visible enemy.
 	 */
 	public Projectile createProjectile(Character character,BufferedImage img) {
+		return createProjectiles(character, img).get(0);
+	}
+
+	public ArrayList<Projectile> createProjectiles(Character character, BufferedImage img) {
+		return createProjectileBurst(character, angle);
+	}
+
+	private ArrayList<Projectile> createProjectileBurst(Character character, double baseAngle) {
+		ArrayList<Projectile> shots = new ArrayList<Projectile>();
 		int projW = 30;
 		int projH = 30;
 		double[] muzzle = getMuzzleCenter(character);
 		double speed = projectileSpeed();
-		double projVx = Math.cos(angle) * speed;
-		double projVy = Math.sin(angle) * speed;
 
-		return new Projectile(
-				(int)Math.round(muzzle[0] - projW / 2.0),
-				(int)Math.round(muzzle[1] - projH / 2.0),
-				projW, projH, projVx, projVy, damage, projImg, projRatio);
+		for (int i = 0; i < projectileCount; i++) {
+			double offset = 0.0;
+			if (projectileCount > 1) {
+				offset = -totalSpreadRadians / 2.0
+						+ totalSpreadRadians * i / (projectileCount - 1.0);
+			}
+
+			double shotAngle = baseAngle + offset;
+			double projVx = Math.cos(shotAngle) * speed;
+			double projVy = Math.sin(shotAngle) * speed;
+
+			shots.add(new Projectile(
+					(int)Math.round(muzzle[0] - projW / 2.0),
+					(int)Math.round(muzzle[1] - projH / 2.0),
+					projW, projH, projVx, projVy, damage, projImg, projRatio));
+		}
+
+		return shots;
 	}
 
 	/**
-	 * Finds the muzzle/end point of the weapon in world coordinates.
-	 * The weapon sprite points right before rotation and is drawn starting at
-	 * the character centre, so the muzzle is one scaled weapon-width away
-	 * in the current weapon angle.
+	 * Finds the muzzle point in world coordinates. The muzzle location can be
+	 * adjusted per sprite sheet, which is useful when frames contain padding.
 	 */
 	private double[] getMuzzleCenter(Character character) {
-		double drawW = width * ratio/2;
 		double centerX = character.x + character.width / 2.0;
 		double centerY = character.y + character.height / 2.0;
 
-		double muzzleX = centerX + Math.cos(angle) * drawW;
-		double muzzleY = centerY +  Math.sin(angle) * drawW;
+		double localX = (muzzleXRatio - 0.5) * width * ratio;
+		double localY = (muzzleYRatio - 0.5) * height * ratio;
+		if (yflip) {
+			localY = -localY;
+		}
+
+		double muzzleX = centerX + Math.cos(angle) * localX - Math.sin(angle) * localY;
+		double muzzleY = centerY + Math.sin(angle) * localX + Math.cos(angle) * localY;
 		return new double[] {muzzleX, muzzleY};
 	}
 

@@ -54,6 +54,7 @@ public class LoadoutScreen extends JPanel {
             new WeaponOption("Staff", "Magic projectile weapon", "staff-animation.png"),
             new WeaponOption("Glock", "Fast short weapon", "glock-animation.png"),
             new WeaponOption("Sniper", "Slow but powerful", "Sniper-animation.png"),
+            new WeaponOption("Shotgun", "Fires five spreading pellets", "Shotgun-animation.png"),
             new WeaponOption("Rifle", "Steady automatic weapon", "47-animation.png")
     };
 
@@ -466,6 +467,9 @@ public class LoadoutScreen extends JPanel {
         }
         if (weaponName.equals("Sniper")) {
             return 3;
+        }
+        if (weaponName.equals("Shotgun")) {
+            return 4;
         }
         if (weaponName.equals("Rifle")) {
             return 4;

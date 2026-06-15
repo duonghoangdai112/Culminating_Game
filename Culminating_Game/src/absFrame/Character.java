@@ -321,17 +321,16 @@ public abstract class Character extends Rectangle {
 			weapon.attack = true;
 			
 			Monster target = findClosetEnemy(monsters);
+			ArrayList<Projectile> shots;
 			if(target != null) {
-				Projectile p = weapon.createProjectile(this, target,projIMG);
-				projectile.add(p);
-				weapon.wProj = projectile;
-				
+				shots = weapon.createProjectiles(this, target, projIMG);
 			}
 			else {
-				Projectile p = weapon.createProjectile(this,projIMG);
-				projectile.add(p);
-				weapon.wProj = projectile;
+				shots = weapon.createProjectiles(this, projIMG);
 			}
+
+			projectile.addAll(shots);
+			weapon.wProj = projectile;
 			
 		}
 	}

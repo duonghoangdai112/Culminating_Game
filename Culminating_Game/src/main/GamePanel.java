@@ -70,7 +70,7 @@ public class GamePanel extends JPanel implements ActionListener {
     private Rectangle damageUpgradeBounds = new Rectangle();
     private Rectangle speedUpgradeBounds = new Rectangle();
 
-    private static final int SURVIVAL_TIME_SECONDS = 100;
+    private static final int SURVIVAL_TIME_SECONDS = 1;
 
     private final int TIMERSPEED = 10;
     private double FULLTIME = 0;
@@ -141,19 +141,30 @@ public class GamePanel extends JPanel implements ActionListener {
             case "Glock":
                 archer.weaponInit(8, 8, 8, 0.25, 8, "Glock",
                         ImageLoader.loadImage(getClass(), "glock-animation.png"), 3, 0.25,
-                        ImageLoader.loadImage(getClass(), "Bullet.png"), 1.0);
+                        ImageLoader.loadImage(getClass(), "Bullet.png"), 1.3);
                 break;
 
             case "Sniper":
                 archer.weaponInit(16, 12, 12, 0.8, 25, "Sniper",
                         ImageLoader.loadImage(getClass(), "Sniper-animation.png"), 3, 0.45,
-                        ImageLoader.loadImage(getClass(), "Bullet.png"), 1.1);
+                        ImageLoader.loadImage(getClass(), "Bullet.png"), 1.5);
+                break;
+
+            case "Shotgun":
+                archer.weaponInit(14, 7, 7, 0.75, 2, "Shotgun",
+                        ImageLoader.loadImage(getClass(), "Shotgun-animation.png"), 4, 0.45,
+                        ImageLoader.loadImage(getClass(), "buckshot.png"), 0.50);
+                // Five pellets spread evenly across a 24-degree cone.
+                archer.weapon.setProjectilePattern(5, 24.0);
+                // The source frames contain transparent padding, so place the muzzle
+                // at the visible end of the barrel rather than at the frame edge.
+                archer.weapon.setMuzzleOffset(0.84, 0.44);
                 break;
 
             case "Rifle":
                 archer.weaponInit(10, 8, 8, 0.3, 10, "Rifle",
                         ImageLoader.loadImage(getClass(), "47-animation.png"), 4, 0.30,
-                        ImageLoader.loadImage(getClass(), "Bullet.png"), 0.8);
+                        ImageLoader.loadImage(getClass(), "Bullet.png"), 1.3);
                 break;
 
             case "Bow":
@@ -322,7 +333,7 @@ public class GamePanel extends JPanel implements ActionListener {
             archer.health += 20;
         } else if (choice == 1) {
             if (archer.weapon != null) {
-                archer.weapon.damage += 5;
+                archer.weapon.damage += 2;
             }
         } else if (choice == 2) {
             archer.speed += 1;
