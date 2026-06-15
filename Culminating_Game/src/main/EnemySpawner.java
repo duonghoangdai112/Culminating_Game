@@ -152,8 +152,8 @@ public class EnemySpawner {
         worldMap.clearMonsters();
 
         HashMap<String, Integer> bossStats = new HashMap<String, Integer>();
-        bossStats.put("health", 40000);
-        bossStats.put("damage", 16);
+        bossStats.put("health", 10000);
+        bossStats.put("damage", 8);
         bossStats.put("visionRange", 1);
         bossStats.put("speedX", 1);
         bossStats.put("speedY", 1);

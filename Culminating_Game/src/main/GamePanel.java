@@ -70,7 +70,7 @@ public class GamePanel extends JPanel implements ActionListener {
     private Rectangle damageUpgradeBounds = new Rectangle();
     private Rectangle speedUpgradeBounds = new Rectangle();
 
-    private static final int SURVIVAL_TIME_SECONDS = 1;
+    private static final int SURVIVAL_TIME_SECONDS = 100;
 
     private final int TIMERSPEED = 10;
     private double FULLTIME = 0;
@@ -116,7 +116,7 @@ public class GamePanel extends JPanel implements ActionListener {
         if (characterName.equals("Mech")) {
             // The Mech reuses the same player controls and weapon system,
             // but has different stats and a different animation sheet.
-            archer = new Mech(160, 5, 100, 4, 10, 10, "Mech");
+            archer = new Mech(160, 5, 100, 3, 10, 10, "Mech");
             archer.setWalkAnimation(ImageLoader.loadImage(getClass(), "Mech_animation.png"), 5);
         } else {
             archer = new Archer(100, 5, 100, 5, 10, 10, "Archer");
