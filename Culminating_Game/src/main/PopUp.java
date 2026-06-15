@@ -73,7 +73,7 @@ public class PopUp {
         drawPopupButton(g2, noButtonBounds, "NO", selection == 1);
 
         g2.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 13));
-        String controls = "Use joystick to choose, B to confirm";
+        String controls = "Use joystick to choose, Y to confirm";
         FontMetrics controlsFm = g2.getFontMetrics();
         int controlsX = boxX + (boxW - controlsFm.stringWidth(controls)) / 2;
         g2.drawString(controls, controlsX, boxY + boxH - 12);

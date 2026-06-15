@@ -480,7 +480,7 @@ public class LoadoutScreen extends JPanel {
     private void paintHints(Graphics2D g2, int W, int H) {
         g2.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
         g2.setColor(new Color(150, 140, 155));
-        String hint = "LEFT/RIGHT choose section     UP/DOWN change option     X select     Z back";
+        String hint = "LEFT/RIGHT choose section     UP/DOWN change option     X select";
         FontMetrics fm = g2.getFontMetrics();
         g2.drawString(hint, (W - fm.stringWidth(hint)) / 2, H - 18);
     }

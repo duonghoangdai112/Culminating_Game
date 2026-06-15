@@ -135,7 +135,7 @@ public class GamePanel extends JPanel implements ActionListener {
             case "Staff":
                 archer.weaponInit(12, 5, 5, 0.7, 10, "Staff",
                         ImageLoader.loadImage("staff-animation.png"), 4, 0.4,
-                        ImageLoader.loadImage("magic.png"), 0.5);
+                        ImageLoader.loadImage("magic.png"), 1.8);
                 break;
 
             case "Glock":
