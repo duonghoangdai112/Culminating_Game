@@ -522,12 +522,12 @@ public class GamePanel extends JPanel implements ActionListener {
         public void keyPressed(KeyEvent e) {
             if (deathScreenOpen || winScreenOpen) {
                 switch (e.getKeyCode()) {
-                    case KeyEvent.VK_LEFT:
-                    case KeyEvent.VK_UP:
+                    case KeyEvent.VK_A:
+                    case KeyEvent.VK_W:
                         moveDeathScreenSelection(-1);
                         break;
-                    case KeyEvent.VK_RIGHT:
-                    case KeyEvent.VK_DOWN:
+                    case KeyEvent.VK_D:
+                    case KeyEvent.VK_S:
                         moveDeathScreenSelection(1);
                         break;
                     
@@ -536,7 +536,7 @@ public class GamePanel extends JPanel implements ActionListener {
                         break;
                    
                    
-                    case KeyEvent.VK_X:
+                    case KeyEvent.VK_L:
                         deathScreenSelection = 1;
                         returnToMainMenuFromDeathScreen();
                         break;
@@ -546,10 +546,10 @@ public class GamePanel extends JPanel implements ActionListener {
 
             if (levelUpScreenOpen) {
                 switch (e.getKeyCode()) {
-                    case KeyEvent.VK_UP:
+                    case KeyEvent.VK_W:
                         moveLevelUpSelection(-1);
                         break;
-                    case KeyEvent.VK_DOWN:
+                    case KeyEvent.VK_S:
                         moveLevelUpSelection(1);
                         break;
                     case KeyEvent.VK_K:
@@ -562,12 +562,12 @@ public class GamePanel extends JPanel implements ActionListener {
 
             if (returnDialogOpen) {
                 switch (e.getKeyCode()) {
-                    case KeyEvent.VK_LEFT:
-                    case KeyEvent.VK_UP:
+                    case KeyEvent.VK_A:
+                    case KeyEvent.VK_W:
                         moveReturnDialogSelection(-1);
                         break;
-                    case KeyEvent.VK_RIGHT:
-                    case KeyEvent.VK_DOWN:
+                    case KeyEvent.VK_D:
+                    case KeyEvent.VK_S:
                         moveReturnDialogSelection(1);
                         break;
                     case KeyEvent.VK_K:
@@ -577,7 +577,7 @@ public class GamePanel extends JPanel implements ActionListener {
                         returnDialogSelection = 0;
                         returnToMainMenu();
                         break;
-                    case KeyEvent.VK_X:
+                    case KeyEvent.VK_L:
                         returnDialogSelection = 1;
                         closeReturnDialog();
                         break;
@@ -586,19 +586,19 @@ public class GamePanel extends JPanel implements ActionListener {
             }
 
             switch (e.getKeyCode()) {
-                case KeyEvent.VK_X:
+                case KeyEvent.VK_L:
                     openReturnDialog();
                     break;
-                case KeyEvent.VK_UP:
+                case KeyEvent.VK_W:
                     moveUp = true;
                     break;
-                case KeyEvent.VK_LEFT:
+                case KeyEvent.VK_A:
                     moveLeft = true;
                     break;
-                case KeyEvent.VK_DOWN:
+                case KeyEvent.VK_S:
                     moveDown = true;
                     break;
-                case KeyEvent.VK_RIGHT:
+                case KeyEvent.VK_D:
                     moveRight = true;
                     break;
                 case KeyEvent.VK_J:
@@ -615,17 +615,17 @@ public class GamePanel extends JPanel implements ActionListener {
         @Override
         public void keyReleased(KeyEvent e) {
             switch (e.getKeyCode()) {
-                case KeyEvent.VK_UP:
+                case KeyEvent.VK_W:
                     moveUp = false;
                     break;
                     
-                case KeyEvent.VK_LEFT:
+                case KeyEvent.VK_A:
                     moveLeft = false;
                     break;
-                case KeyEvent.VK_DOWN:
+                case KeyEvent.VK_S:
                     moveDown = false;
                     break;
-                case KeyEvent.VK_RIGHT:
+                case KeyEvent.VK_D:
                     moveRight = false;
                     break;
             }

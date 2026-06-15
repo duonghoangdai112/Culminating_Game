@@ -124,17 +124,17 @@ public class LoadoutScreen extends JPanel {
 
     private void handleKey(int code) {
         switch (code) {
-            case KeyEvent.VK_UP:
+            case KeyEvent.VK_W:
                 selectedRow = (selectedRow - 1 + 4) % 4;
                 repaint();
                 break;
 
-            case KeyEvent.VK_DOWN:
+            case KeyEvent.VK_S:
                 selectedRow = (selectedRow + 1) % 4;
                 repaint();
                 break;
 
-            case KeyEvent.VK_LEFT:
+            case KeyEvent.VK_A:
                 if (selectedRow == 0) {
                     changeCharacter(-1);
                 } else if (selectedRow == 1) {
@@ -142,7 +142,7 @@ public class LoadoutScreen extends JPanel {
                 }
                 break;
 
-            case KeyEvent.VK_RIGHT:
+            case KeyEvent.VK_D:
                 if (selectedRow == 0) {
                     changeCharacter(1);
                 } else if (selectedRow == 1) {
@@ -480,7 +480,7 @@ public class LoadoutScreen extends JPanel {
     private void paintHints(Graphics2D g2, int W, int H) {
         g2.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
         g2.setColor(new Color(150, 140, 155));
-        String hint = "W/S choose section     A/D change option     Enter/J select     X/Esc back";
+        String hint = "LEFT/RIGHT choose section     UP/DOWN change option     X select     Z back";
         FontMetrics fm = g2.getFontMetrics();
         g2.drawString(hint, (W - fm.stringWidth(hint)) / 2, H - 18);
     }

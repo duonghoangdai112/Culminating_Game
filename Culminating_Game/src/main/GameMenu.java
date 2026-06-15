@@ -173,10 +173,10 @@ public class GameMenu extends JPanel {
     // -- Key handling ---------------------------------------------------------
     private void handleKey(int code) {
         switch (code) {
-            case KeyEvent.VK_UP:
+            case KeyEvent.VK_W:
                 selectedIndex = (selectedIndex - 1 + OPTIONS.length) % OPTIONS.length;
                 break;
-            case KeyEvent.VK_DOWN:
+            case KeyEvent.VK_S:
                 selectedIndex = (selectedIndex + 1) % OPTIONS.length;
                 break;
             case KeyEvent.VK_J:
@@ -497,7 +497,7 @@ public class GameMenu extends JPanel {
     private void paintHints(Graphics2D g2, int W, int H) {
         g2.setFont(HINT_FONT);
         g2.setColor(new Color(120, 112, 130));
-        String hint = "Joystick to navigate     B to select";
+        String hint = "Joystick to navigate     X to select";
         FontMetrics fm = g2.getFontMetrics();
         g2.drawString(hint, (W - fm.stringWidth(hint)) / 2, H - 18);
     }

@@ -125,7 +125,7 @@ public class PopUp {
         drawPopupButton(g2, speedBounds, "3  SPEED +1", selection == 2);
 
         g2.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 13));
-        String controls = "Use W/S to choose, B to confirm";
+        String controls = "Use UP/DOWN to choose, Y to confirm";
         FontMetrics controlsFm = g2.getFontMetrics();
         int controlsX = boxX + (boxW - controlsFm.stringWidth(controls)) / 2;
         g2.setColor(new Color(230, 240, 255));

@@ -56,7 +56,7 @@ public class RulesPanel extends JPanel {
         addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_X || e.getKeyCode() == KeyEvent.VK_K) {
+                if (e.getKeyCode() == KeyEvent.VK_L || e.getKeyCode() == KeyEvent.VK_J) {
                     if (listener != null) {
                         listener.onBack();
                     }
@@ -122,14 +122,15 @@ public class RulesPanel extends JPanel {
         int textX = boxX + 30;
         int y = boxY + 50;
 
-        g2.drawString("WASD - Move", textX, y);
+        g2.drawString("JOYSTICK - Move", textX, y);
         y += 35;
 
-        g2.drawString("J - Attack", textX, y);
+        g2.drawString("X - Attack", textX, y);
         y += 35;
 
-        g2.drawString("X - Pause / menu", textX, y);
+        g2.drawString("Z - Pause / menu", textX, y);
         y += 35;
+        
 
         g2.drawString("Defeat enemies to gain EXP", textX, y);
         y += 35;
