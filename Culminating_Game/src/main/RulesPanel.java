@@ -262,7 +262,11 @@ public class RulesPanel extends JPanel {
 
  10,
 
+<<<<<<< HEAD
  (int) (20 * scale)
+=======
+ (int) Math.round(20 * scale)
+>>>>>>> parent of e0822ef (Cleaned Up rules)
 
  );
 
@@ -272,7 +276,11 @@ public class RulesPanel extends JPanel {
 
  30,
 
+<<<<<<< HEAD
  (int) (50 * scale)
+=======
+ (int) Math.round(50 * scale)
+>>>>>>> parent of e0822ef (Cleaned Up rules)
 
  );
 
@@ -282,7 +290,11 @@ public class RulesPanel extends JPanel {
 
  5,
 
+<<<<<<< HEAD
  (int) (12 * scale)
+=======
+ (int) Math.round(12 * scale)
+>>>>>>> parent of e0822ef (Cleaned Up rules)
 
  );
 
@@ -290,7 +302,11 @@ public class RulesPanel extends JPanel {
 
  int boxWidth = Math.min(
 
+<<<<<<< HEAD
  (int) (1000 * scale),
+=======
+ (int) Math.round(1000 * scale),
+>>>>>>> parent of e0822ef (Cleaned Up rules)
 
  panelWidth - margin * 2
 
@@ -306,7 +322,11 @@ public class RulesPanel extends JPanel {
 
  150,
 
+<<<<<<< HEAD
  (int) (300 * scale)
+=======
+ (int) Math.round(300 * scale)
+>>>>>>> parent of e0822ef (Cleaned Up rules)
 
  );
 
@@ -316,7 +336,11 @@ public class RulesPanel extends JPanel {
 
  10,
 
+<<<<<<< HEAD
  (int) (20 * scale)
+=======
+ (int) Math.round(20 * scale)
+>>>>>>> parent of e0822ef (Cleaned Up rules)
 
  );
 
@@ -324,7 +348,11 @@ public class RulesPanel extends JPanel {
 
  int buttonWidth = Math.min(
 
+<<<<<<< HEAD
  (int) (200 * scale),
+=======
+ (int) Math.round(200 * scale),
+>>>>>>> parent of e0822ef (Cleaned Up rules)
 
  panelWidth - margin * 2
 
@@ -340,7 +368,11 @@ public class RulesPanel extends JPanel {
 
  35,
 
+<<<<<<< HEAD
  (int) (50 * scale)
+=======
+ (int) Math.round(50 * scale)
+>>>>>>> parent of e0822ef (Cleaned Up rules)
 
  );
 
@@ -453,6 +485,7 @@ public class RulesPanel extends JPanel {
 
 
  @Override
+<<<<<<< HEAD
 
  public void paintComponent(Graphics g) {
 
@@ -584,6 +617,139 @@ public class RulesPanel extends JPanel {
 
  g2.dispose();
 
+=======
+
+ protected void paintComponent(Graphics g) {
+
+
+
+ super.paintComponent(g);
+
+
+
+ Graphics2D g2 =
+
+ (Graphics2D) g.create();
+
+
+
+ g2.setRenderingHint(
+
+ RenderingHints.KEY_ANTIALIASING,
+
+ RenderingHints.VALUE_ANTIALIAS_ON
+
+ );
+
+
+
+ g2.setRenderingHint(
+
+ RenderingHints.KEY_INTERPOLATION,
+
+ RenderingHints.VALUE_INTERPOLATION_BILINEAR
+
+ );
+
+
+
+ int panelWidth = getWidth();
+
+ int panelHeight = getHeight();
+
+
+
+ /*
+
+ * Recalculate all positions using the panel's current size.
+
+ */
+
+ updateLayoutBounds();
+
+
+
+ // Draw the background image.
+
+ if (backgroundImage != null) {
+
+
+
+ g2.drawImage(
+
+ backgroundImage,
+
+ 0,
+
+ 0,
+
+ panelWidth,
+
+ panelHeight,
+
+ null
+
+ );
+
+ } else {
+
+
+
+ g2.setColor(BG_DARK);
+
+
+
+ g2.fillRect(
+
+ 0,
+
+ 0,
+
+ panelWidth,
+
+ panelHeight
+
+ );
+
+ }
+
+
+
+ // Dark transparent layer over the background.
+
+ g2.setColor(
+
+ new Color(0, 0, 0, 120)
+
+ );
+
+
+
+ g2.fillRect(
+
+ 0,
+
+ 0,
+
+ panelWidth,
+
+ panelHeight
+
+ );
+
+
+
+ drawTitle(g2);
+
+ drawRulesBox(g2);
+
+ drawBackButton(g2);
+
+
+
+ g2.dispose();
+
+>>>>>>> parent of e0822ef (Cleaned Up rules)
  }
 
 

@@ -186,6 +186,8 @@ public class GameMenu extends JPanel {
                     System.out.println("Selected: " + OPTIONS[selectedIndex]);
                 }
                 break;
+            case KeyEvent.VK_U:
+            	System.exit(0);
         }
     }
  
