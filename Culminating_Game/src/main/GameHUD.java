@@ -30,7 +30,7 @@ public class GameHUD {
         int boxH = 30;
 
         g2.setColor(new Color(0, 0, 0, 150));
-        g2.fillRoundRect(x, y - fm.getAscent(), boxW, boxH, 8, 8);
+        g2.fillRect(x, y - fm.getAscent(), boxW, boxH);
 
         g2.setColor(new Color(255, 235, 150));
         g2.drawString(label, x + 10, y);
@@ -48,7 +48,7 @@ public class GameHUD {
         int boxH = 30;
 
         g2.setColor(new Color(0, 0, 0, 150));
-        g2.fillRoundRect(x, y - fm.getAscent(), boxW, boxH, 8, 8);
+        g2.fillRect(x, y - fm.getAscent(), boxW, boxH);
 
         g2.setColor(new Color(160, 230, 255));
         g2.drawString(label, x + 10, y);

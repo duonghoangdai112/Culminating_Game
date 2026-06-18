@@ -104,13 +104,7 @@ public class LoadoutScreen extends JPanel {
             }
         });
 
-        addMouseListener(new MouseAdapter() {
-            @Override
-            public void mousePressed(MouseEvent e) {
-                requestFocusInWindow();
-                handleMouse(e.getPoint());
-            }
-        });
+      
 
         new Timer(16, e -> {
             glowPhase = (glowPhase + 0.07f) % (float)(Math.PI * 2);
@@ -238,7 +232,7 @@ public class LoadoutScreen extends JPanel {
     }
 
     @Override
-    protected void paintComponent(Graphics g) {
+    public void paintComponent(Graphics g) {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g.create();
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);

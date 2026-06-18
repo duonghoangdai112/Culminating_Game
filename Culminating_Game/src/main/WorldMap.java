@@ -14,7 +14,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Random;
 
@@ -115,7 +114,7 @@ public class WorldMap {
         int boxW = Math.max(10, character.width / 2);
         int boxH = Math.max(10, character.height / 4);
         int boxX = character.x + (character.width - boxW) / 2;
-        int boxY = character.y + (int) Math.round(character.height * 0.68);
+        int boxY = character.y + (int) (character.height * 0.68);
 
         if (boxY + boxH > character.y + character.height) {
             boxH = character.y + character.height - boxY;
@@ -308,13 +307,13 @@ public class WorldMap {
         percentX = clampDouble(percentX, 0.0, 1.0);
         percentY = clampDouble(percentY, 0.0, 1.0);
 
-        int mapX = area.x + (int) Math.round(area.width * percentX);
-        int mapY = area.y + (int) Math.round(area.height * percentY);
+        int mapX = area.x + (int) (area.width * percentX);
+        int mapY = area.y + (int) (area.height * percentY);
         return new Point(mapX * MAP_SCALE, mapY * MAP_SCALE);
     }
 
     public int removeDefeatedMonsters() {
-        ArrayList<Monster> copy = new ArrayList<>(monsters);
+        ArrayList<Monster> copy = (ArrayList<Monster>) monsters.clone();
         int monsKilled = 0;
         for (Monster monster : copy) {
             if (monster.getHealth() <= 0) {

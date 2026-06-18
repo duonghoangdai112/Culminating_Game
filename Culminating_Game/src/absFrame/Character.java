@@ -329,7 +329,9 @@ public abstract class Character extends Rectangle {
 				shots = weapon.createProjectiles(this, projIMG);
 			}
 
-			projectile.addAll(shots);
+			for(Projectile p : shots) {
+				projectile.add(p);
+				}
 			weapon.wProj = projectile;
 			
 		}

@@ -3,7 +3,6 @@ package sprite;
 import absFrame.Character;
 import absFrame.Monster;
 import absFrame.Projectile;
-import absFrame.Tiles;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -14,7 +13,6 @@ import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 
 /**
  * Final boss for the arena survival mode.
@@ -86,7 +84,7 @@ public class SlimeKingBoss extends Monster {
 
         double scale = (double) targetWidth / frameW;
         width = targetWidth;
-        height = (int) Math.round(frameH * scale);
+        height = (int) (frameH * scale);
         monsterImage = walkFrames[0];
         walkFrameIndex = 0;
     }
@@ -123,8 +121,8 @@ public class SlimeKingBoss extends Monster {
 
             xx = hopStartX + (hopEndX - hopStartX) * eased;
             yy = hopStartY + (hopEndY - hopStartY) * eased;
-            x = (int) Math.round(xx);
-            y = (int) Math.round(yy);
+            x = (int) (xx);
+            y = (int) (yy);
 
             stateCounter--;
             if (stateCounter <= 0) {
@@ -204,8 +202,8 @@ public class SlimeKingBoss extends Monster {
             double vy = Math.sin(angle) * projectileSpeed;
 
             Projectile projectile = new Projectile(
-                    (int) Math.round(centerX - projectileSize / 2.0),
-                    (int) Math.round(centerY - projectileSize / 2.0),
+                    (int) (centerX - projectileSize / 2.0),
+                    (int) (centerY - projectileSize / 2.0),
                     projectileSize,
                     projectileSize,
                     vx,
@@ -218,23 +216,22 @@ public class SlimeKingBoss extends Monster {
     }
 
     private void updateSlimeProjectiles() {
-        Iterator<Projectile> it = slimeProjectiles.iterator();
-        while (it.hasNext()) {
-            Projectile projectile = it.next();
-            projectile.move();
-
-            if (!projectile.getVisibility()
-                    || projectile.x < -300
-                    || projectile.y < -300
-                    || projectile.x > 4000
-                    || projectile.y > 4000) {
-                it.remove();
+    	ArrayList<Projectile> temp = (ArrayList<Projectile>) slimeProjectiles.clone();
+    	for(Projectile p: temp) {
+    		p.move();
+    		if (!p.getVisibility()
+                    || p.x < -300
+                    || p.y < -300
+                    || p.x > 4000
+                    || p.y > 4000) {
+                slimeProjectiles.remove(p);
             }
-        }
+    	}
+        
     }
 
     @Override
-    public void checkCollision(int charX, int charY, ArrayList<Tiles> Rtiles, Character c) {
+    public void checkCollision(int charX, int charY, Character c) {
         if (c == null) {
             return;
         }
@@ -268,8 +265,8 @@ public class SlimeKingBoss extends Monster {
                 continue;
             }
 
-            int drawW = (int) Math.round(projectile.width * projectile.ratio);
-            int drawH = (int) Math.round(projectile.height * projectile.ratio);
+            int drawW = (int) (projectile.width * projectile.ratio);
+            int drawH = (int) (projectile.height * projectile.ratio);
             int drawX = projectile.x - (drawW - projectile.width) / 2;
             int drawY = projectile.y - (drawH - projectile.height) / 2;
 
@@ -296,9 +293,14 @@ public class SlimeKingBoss extends Monster {
         int barX = x + (width - barW) / 2;
         int barY = y - 28;
 
-        double ratio = maxBossHealth <= 0 ? 0.0 : health / maxBossHealth;
-        ratio = clamp(ratio, 0.0, 1.0);
+        double ratio;
 
+        if (maxBossHealth <= 0) {
+            ratio = 0.0;
+        } else {
+            ratio = health / maxBossHealth;
+        }
+        ratio = clamp(ratio, 0.0, 1.0);
         g2.setFont(new Font(Font.MONOSPACED, Font.BOLD, 13));
         FontMetrics fm = g2.getFontMetrics();
         String label = "SLIME KING";
@@ -313,7 +315,7 @@ public class SlimeKingBoss extends Monster {
         g2.setColor(new Color(85, 20, 35));
         g2.fillRect(barX, barY, barW, barH);
         g2.setColor(new Color(70, 220, 70));
-        g2.fillRect(barX, barY, (int) Math.round(barW * ratio), barH);
+        g2.fillRect(barX, barY, (int) (barW * ratio), barH);
         g2.setColor(Color.WHITE);
         g2.drawRect(barX, barY, barW, barH);
     }

@@ -8,21 +8,21 @@ import java.util.HashMap;
 
 public abstract class Monster extends Rectangle {
     
-    protected double health, damage, visionRange;    
-    protected double cooldown; 
+    public double health, damage, visionRange;    
+    public double cooldown; 
     
-    protected double dx,dy;
-    protected double xx,yy;
-    protected ArrayList<Projectile> projectiles; 
+    public double dx,dy;
+    public double xx,yy;
+    ArrayList<Projectile> projectiles; 
     int startTime; 
 
     // Enemy image / animation.
-    protected BufferedImage monsterImage;
-    protected BufferedImage[] walkFrames;
-    protected int walkFrameIndex = 0;
-    protected int walkFrameCounter = 0;
-    protected int walkFrameDelay = 8;
-    protected boolean faceLeft = true;
+    public BufferedImage monsterImage;
+    public BufferedImage[] walkFrames;
+    public int walkFrameIndex = 0;
+    public int walkFrameCounter = 0;
+    public int walkFrameDelay = 8;
+    public boolean faceLeft = true;
     
     // initialize all attribute here 
     public Monster(HashMap<String,Integer> stats,int startTime,int x, int y,int width,int height,double speed){
@@ -85,15 +85,15 @@ public abstract class Monster extends Rectangle {
 
         // Keep enemies about the same size as before, but preserve sprite aspect ratio.
         double scale = 100.0 / frameW;
-        width = (int) Math.round(frameW * scale);
-        height = (int) Math.round(frameH * scale);
+        width = (int) (frameW * scale);
+        height = (int) (frameH * scale);
 
         if (monsterImage == null) {
             monsterImage = walkFrames[0];
         }
     }
 
-    protected void updateWalkAnimation(boolean moving) {
+    public void updateWalkAnimation(boolean moving) {
         if (walkFrames == null || walkFrames.length == 0) {
             walkFrameIndex = 0;
             walkFrameCounter = 0;
@@ -152,7 +152,7 @@ public abstract class Monster extends Rectangle {
         }
     }
 
-    protected void setFacingFromDelta(double deltaX) {
+    public void setFacingFromDelta(double deltaX) {
         if (deltaX < 0) {
             faceLeft = true;
         } else if (deltaX > 0) {
@@ -238,7 +238,7 @@ public abstract class Monster extends Rectangle {
      * @param Rtiles - collection of room tiles
      * @return
      */
-    public void checkCollision (int charX, int charY, ArrayList<Tiles> Rtiles, Character c) {
+    public void checkCollision (int charX, int charY, Character c) {
         if (c != null && this.intersects(c)) {
             c.takeDamage((int) damage);
         }

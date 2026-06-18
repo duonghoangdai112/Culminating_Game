@@ -3,14 +3,11 @@ package sprite;
 
 import absFrame.Character;
 import absFrame.Monster;
-import absFrame.Tiles;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
@@ -101,8 +98,8 @@ public class WolfMonster extends Monster {
         if (state == DASH) {
             xx += dashDirX * dashSpeed;
             yy += dashDirY * dashSpeed;
-            x = (int)Math.round(xx);
-            y = (int)Math.round(yy);
+            x = (int)(xx);
+            y = (int)(yy);
 
             updateWalkAnimation(true);
 
@@ -154,11 +151,11 @@ public class WolfMonster extends Monster {
         warnG.rotate(dashAngle);
 
         warnG.setColor(new Color(255, 0, 0, 85));
-        warnG.fillRoundRect(0, -warningWidth / 2, warningLength, warningWidth, 18, 18);
+        warnG.fillRect(0, -warningWidth / 2, warningLength, warningWidth);
 
         warnG.setColor(new Color(255, 40, 40, 210));
         warnG.setStroke(new BasicStroke(3f));
-        warnG.drawRoundRect(0, -warningWidth / 2, warningLength, warningWidth, 18, 18);
+        warnG.drawRect(0, -warningWidth / 2, warningLength, warningWidth);
         warnG.dispose();
     }
 
@@ -180,7 +177,7 @@ public class WolfMonster extends Monster {
     }
 
     @Override
-    public void checkCollision(int charX, int charY, ArrayList<Tiles> Rtiles, Character c) {
+    public void checkCollision(int charX, int charY, Character c) {
         if (c != null && this.intersects(c)) {
             int hitDamage = (int) damage;
             if (state == DASH) {

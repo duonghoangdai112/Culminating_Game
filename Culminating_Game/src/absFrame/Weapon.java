@@ -201,8 +201,8 @@ public class Weapon {
 			double projVy = Math.sin(shotAngle) * speed;
 
 			shots.add(new Projectile(
-					(int)Math.round(muzzle[0] - projW / 2.0),
-					(int)Math.round(muzzle[1] - projH / 2.0),
+					(int)(muzzle[0] - projW / 2.0),
+					(int)(muzzle[1] - projH / 2.0),
 					projW, projH, projVx, projVy, damage, projImg, projRatio));
 		}
 
@@ -230,7 +230,7 @@ public class Weapon {
 
 	private double projectileSpeed() {
 		double speed = Math.hypot(vx, vy);
-		return speed > 0 ? speed : 1;
+		return speed;
 	}
 	
 	public void draw(Graphics g,Character character) {
@@ -256,10 +256,10 @@ public class Weapon {
 		  for (Projectile p: wProj) {
 	    		p.move();
 
-	    		int projDrawW = (int)Math.round(p.width * p.ratio);
-	   		int projDrawH = (int)Math.round(p.height * p.ratio);
-	   		int drawX = (int)Math.round(p.x + p.width / 2.0 - projDrawW / 2.0);
-	   		int drawY = (int)Math.round(p.y + p.height / 2.0 - projDrawH / 2.0);
+	    		int projDrawW = (int)(p.width * p.ratio);
+	   		int projDrawH = (int)(p.height * p.ratio);
+	   		int drawX = (int)(p.x + p.width / 2.0 - projDrawW / 2.0);
+	   		int drawY = (int)(p.y + p.height / 2.0 - projDrawH / 2.0);
 
 	    		Graphics2D projG = (Graphics2D) g2.create();
 	    		projG.rotate(p.angle, p.x + p.width / 2.0, p.y + p.height / 2.0);

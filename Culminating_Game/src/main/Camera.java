@@ -21,8 +21,8 @@ public class Camera {
             return;
         }
 
-        int viewW = Math.max(1, (int) Math.round(screenW / zoom));
-        int viewH = Math.max(1, (int) Math.round(screenH / zoom));
+        int viewW = Math.max(1, (int) (screenW / zoom));
+        int viewH = Math.max(1, (int) (screenH / zoom));
 
         x = target.x + target.width / 2 - viewW / 2;
         y = target.y + target.height / 2 - viewH / 2;

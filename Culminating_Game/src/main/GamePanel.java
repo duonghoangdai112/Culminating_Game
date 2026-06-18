@@ -70,7 +70,7 @@ public class GamePanel extends JPanel implements ActionListener {
     private Rectangle damageUpgradeBounds = new Rectangle();
     private Rectangle speedUpgradeBounds = new Rectangle();
 
-    private static final int SURVIVAL_TIME_SECONDS = 100;
+    private static final int SURVIVAL_TIME_SECONDS = 2;
 
     private final int TIMERSPEED = 10;
     private double FULLTIME = 0;
@@ -291,7 +291,7 @@ public class GamePanel extends JPanel implements ActionListener {
         archer.countDownImmunity();
 
         for (Monster monster : monsters) {
-            monster.checkCollision(archer.x, archer.y, null, archer);
+            monster.checkCollision(archer.x, archer.y, archer);
         }
     }
 

@@ -262,7 +262,7 @@ public class RulesPanel extends JPanel {
 
  10,
 
- (int) Math.round(20 * scale)
+ (int) (20 * scale)
 
  );
 
@@ -272,7 +272,7 @@ public class RulesPanel extends JPanel {
 
  30,
 
- (int) Math.round(50 * scale)
+ (int) (50 * scale)
 
  );
 
@@ -282,7 +282,7 @@ public class RulesPanel extends JPanel {
 
  5,
 
- (int) Math.round(12 * scale)
+ (int) (12 * scale)
 
  );
 
@@ -290,7 +290,7 @@ public class RulesPanel extends JPanel {
 
  int boxWidth = Math.min(
 
- (int) Math.round(1000 * scale),
+ (int) (1000 * scale),
 
  panelWidth - margin * 2
 
@@ -306,7 +306,7 @@ public class RulesPanel extends JPanel {
 
  150,
 
- (int) Math.round(300 * scale)
+ (int) (300 * scale)
 
  );
 
@@ -316,7 +316,7 @@ public class RulesPanel extends JPanel {
 
  10,
 
- (int) Math.round(20 * scale)
+ (int) (20 * scale)
 
  );
 
@@ -324,7 +324,7 @@ public class RulesPanel extends JPanel {
 
  int buttonWidth = Math.min(
 
- (int) Math.round(200 * scale),
+ (int) (200 * scale),
 
  panelWidth - margin * 2
 
@@ -340,7 +340,7 @@ public class RulesPanel extends JPanel {
 
  35,
 
- (int) Math.round(50 * scale)
+ (int) (50 * scale)
 
  );
 
@@ -454,7 +454,7 @@ public class RulesPanel extends JPanel {
 
  @Override
 
- protected void paintComponent(Graphics g) {
+ public void paintComponent(Graphics g) {
 
 
 
