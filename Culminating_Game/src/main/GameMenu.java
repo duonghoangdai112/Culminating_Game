@@ -499,7 +499,7 @@ public class GameMenu extends JPanel {
     private void paintHints(Graphics2D g2, int W, int H) {
         g2.setFont(HINT_FONT);
         g2.setColor(new Color(120, 112, 130));
-        String hint = "Joystick to navigate     X to select";
+        String hint = "Joystick to navigate     X to select      A to exit";
         FontMetrics fm = g2.getFontMetrics();
         g2.drawString(hint, (W - fm.stringWidth(hint)) / 2, H - 18);
     }

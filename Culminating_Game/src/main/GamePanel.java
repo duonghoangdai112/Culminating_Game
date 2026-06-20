@@ -70,7 +70,7 @@ public class GamePanel extends JPanel implements ActionListener {
     private Rectangle damageUpgradeBounds = new Rectangle();
     private Rectangle speedUpgradeBounds = new Rectangle();
 
-    private static final int SURVIVAL_TIME_SECONDS = 2;
+    private static final int SURVIVAL_TIME_SECONDS = 100;
 
     private final int TIMERSPEED = 10;
     private double FULLTIME = 0;
@@ -540,6 +540,8 @@ public class GamePanel extends JPanel implements ActionListener {
                         deathScreenSelection = 1;
                         returnToMainMenuFromDeathScreen();
                         break;
+                    case KeyEvent.VK_U:
+                    	System.exit(0);
                 }
                 return;
             }
